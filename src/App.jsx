@@ -1149,7 +1149,7 @@ export default function App() {
   useEffect(() => {
     if(!module) return;
     setData(null);
-    fetch(`http://127.0.0.1:8000/module/${module}/${level}`)
+    fetch(`https://backend-vix7.onrender.com/${module}/${level}`)
       .then(r=>r.json()).then(setData).catch(console.error);
   }, [module, level]);
 
