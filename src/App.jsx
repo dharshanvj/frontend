@@ -1421,6 +1421,816 @@ function BubbleSortVisual({ color }) {
 }
 
 /* ============================================================
+   LOCAL MODULE DATA — replaces backend fetch
+============================================================ */
+const LOCAL_MODULE_DATA = {
+  "Stack": {
+    "Beginner": {
+      definition: "A Stack is a linear data structure that follows the Last In, First Out (LIFO) principle. Elements are inserted and removed from the same end called the 'top'. Think of it like a stack of plates — you always add and remove from the top.",
+      working: "Push adds an element to the top. Pop removes the top element. Peek returns the top element without removing it. isEmpty checks if the stack has no elements. The top pointer tracks the current top position, initialized to -1 for an empty stack.",
+      algorithm: "PUSH(stack, x):\n  if top == MAX-1 → Overflow error\n  top = top + 1\n  stack[top] = x\n\nPOP(stack):\n  if top == -1 → Underflow error\n  x = stack[top]\n  top = top - 1\n  return x\n\nPEEK(stack):\n  return stack[top]",
+      time_complexity: { "Push": "O(1)", "Pop": "O(1)", "Peek": "O(1)", "isEmpty": "O(1)", "Search": "O(n)", "Space": "O(n)" },
+      applications: "Undo/Redo in text editors, browser back/forward history, function call stack in operating systems, expression evaluation (postfix/prefix), balanced parentheses checking in compilers, backtracking algorithms (maze solving, DFS).",
+      interview_notes: "Always clarify if the stack should handle overflow. Prefer ArrayDeque over java.util.Stack in Java (Stack extends Vector which is synchronized and slower). Common patterns: monotonic stack for NGE problems, two-stack trick for queue simulation.",
+      java: `import java.util.Stack;
+import java.util.ArrayDeque;
+import java.util.Deque;
+
+public class StackDemo {
+    public static void main(String[] args) {
+        // Preferred: ArrayDeque as Stack
+        Deque<Integer> stack = new ArrayDeque<>();
+        
+        // Push elements
+        stack.push(10);
+        stack.push(20);
+        stack.push(30);
+        System.out.println("Stack: " + stack); // [30, 20, 10]
+        
+        // Peek - view top without removing
+        System.out.println("Peek: " + stack.peek()); // 30
+        
+        // Pop - remove top element
+        System.out.println("Pop: " + stack.pop()); // 30
+        System.out.println("After pop: " + stack); // [20, 10]
+        
+        // Check if empty
+        System.out.println("isEmpty: " + stack.isEmpty()); // false
+        
+        // Valid Parentheses example
+        System.out.println("Valid '()[]{}': " + isValid("()[]{}")); // true
+        System.out.println("Valid '(]': " + isValid("(]")); // false
+    }
+    
+    // Classic stack problem: balanced parentheses
+    public static boolean isValid(String s) {
+        Deque<Character> stack = new ArrayDeque<>();
+        for (char c : s.toCharArray()) {
+            if (c == '(' || c == '{' || c == '[') {
+                stack.push(c);
+            } else {
+                if (stack.isEmpty()) return false;
+                char top = stack.pop();
+                if (c == ')' && top != '(') return false;
+                if (c == '}' && top != '{') return false;
+                if (c == ']' && top != '[') return false;
+            }
+        }
+        return stack.isEmpty();
+    }
+}`
+    },
+    "Intermediate": {
+      definition: "At the intermediate level, stacks power advanced patterns: monotonic stacks maintain elements in sorted order enabling O(n) solutions, two-stack designs support O(1) getMin(), and expression evaluation uses operator precedence rules.",
+      working: "Monotonic Stack: maintain increasing or decreasing order — pop elements that violate the property. Min Stack: maintain a parallel minStack; push to minStack only when new value ≤ current min. This ensures O(1) getMin() without scanning the whole stack.",
+      algorithm: "MONOTONIC STACK (Next Greater Element):\n  for i = 0 to n-1:\n    while stack not empty AND arr[stack.top] < arr[i]:\n      result[stack.pop()] = arr[i]\n    stack.push(i)\n\nMIN STACK push(x):\n  mainStack.push(x)\n  if minStack empty OR x <= minStack.peek():\n    minStack.push(x)",
+      time_complexity: { "Monotonic Stack": "O(n)", "Min Stack push": "O(1)", "Min Stack getMin": "O(1)", "Infix to Postfix": "O(n)", "Evaluate Postfix": "O(n)" },
+      applications: "Next Greater Element, Stock Span Problem, Largest Rectangle in Histogram (setup), Daily Temperatures, Expression evaluation and conversion, Browser history with back/forward, Undo history with size limit.",
+      interview_notes: "Monotonic stack is the key pattern for O(n) solutions to 'next greater/smaller' problems. For Min Stack, remember to pop minStack only when popped value equals minStack.peek() (use .equals() not == for Integer in Java). Daily Temperatures and Stock Span are must-know problems.",
+      java: `import java.util.*;
+
+public class IntermediateStack {
+    
+    // MIN STACK - O(1) getMin
+    static class MinStack {
+        Deque<Integer> stack = new ArrayDeque<>();
+        Deque<Integer> minStack = new ArrayDeque<>();
+        
+        public void push(int val) {
+            stack.push(val);
+            if (minStack.isEmpty() || val <= minStack.peek())
+                minStack.push(val);
+        }
+        public void pop() {
+            if (stack.pop().equals(minStack.peek()))
+                minStack.pop();
+        }
+        public int top() { return stack.peek(); }
+        public int getMin() { return minStack.peek(); }
+    }
+    
+    // NEXT GREATER ELEMENT - Monotonic Stack O(n)
+    public static int[] nextGreaterElement(int[] nums) {
+        int n = nums.length;
+        int[] result = new int[n];
+        Arrays.fill(result, -1);
+        Deque<Integer> stack = new ArrayDeque<>(); // indices
+        
+        for (int i = 0; i < n; i++) {
+            while (!stack.isEmpty() && nums[stack.peek()] < nums[i]) {
+                result[stack.pop()] = nums[i];
+            }
+            stack.push(i);
+        }
+        return result;
+    }
+    
+    // DAILY TEMPERATURES
+    public static int[] dailyTemperatures(int[] temps) {
+        int n = temps.length;
+        int[] result = new int[n];
+        Deque<Integer> stack = new ArrayDeque<>();
+        for (int i = 0; i < n; i++) {
+            while (!stack.isEmpty() && temps[i] > temps[stack.peek()]) {
+                int idx = stack.pop();
+                result[idx] = i - idx;
+            }
+            stack.push(i);
+        }
+        return result;
+    }
+    
+    public static void main(String[] args) {
+        int[] nge = nextGreaterElement(new int[]{4, 1, 2, 3});
+        System.out.println("NGE: " + Arrays.toString(nge)); // [-1,2,3,-1]
+        
+        int[] dt = dailyTemperatures(new int[]{73,74,75,71,69,72,76,73});
+        System.out.println("Daily Temps: " + Arrays.toString(dt)); // [1,1,4,2,1,1,0,0]
+    }
+}`
+    },
+    "Advanced": {
+      definition: "Advanced stack problems involve complex simulations, multi-dimensional thinking, and optimal area/volume calculations. Largest Rectangle in Histogram, Trapping Rain Water, and Asteroid Collision are canonical hard problems solved elegantly with stacks.",
+      working: "Histogram Rectangle: use monotonic stack of indices. When a shorter bar is found, pop and calculate area using the current index and new stack top as boundaries. Trap Rain Water: for each bar, the water trapped depends on min(leftMax, rightMax) - height. Stack tracks candidate boundaries.",
+      algorithm: "LARGEST RECTANGLE (Histogram):\n  push sentinel 0 at end\n  for i = 0 to n:\n    while stack not empty AND heights[stack.top] > curr:\n      h = heights[stack.pop()]\n      w = stack.empty ? i : i - stack.peek() - 1\n      maxArea = max(maxArea, h * w)\n    push i\n\nASTEROID COLLISION:\n  for each asteroid a:\n    alive = true\n    while alive AND a<0 AND stack.top>0:\n      if top < |a|: pop\n      elif top == |a|: pop; alive=false\n      else: alive=false\n    if alive: push a",
+      time_complexity: { "Largest Rectangle": "O(n)", "Trapping Rain Water": "O(n)", "Asteroid Collision": "O(n)", "Sort Stack": "O(n²)", "Space (all above)": "O(n)" },
+      applications: "Histogram analysis, terrain water trapping simulation, asteroid/particle collision physics, stock market analysis, architectural planning (skyline problems), compiler expression trees.",
+      interview_notes: "Largest Rectangle and Trapping Rain Water are top-5 Google/Amazon questions. Always handle the sentinel/boundary case (append 0 to heights for histogram). For Asteroid Collision, handle equal-size case carefully — both must die. These problems test ability to visualize stack state during iteration.",
+      java: `import java.util.*;
+
+public class AdvancedStack {
+    
+    // LARGEST RECTANGLE IN HISTOGRAM - O(n)
+    public static int largestRectangleArea(int[] heights) {
+        Deque<Integer> stack = new ArrayDeque<>();
+        int maxArea = 0;
+        int n = heights.length;
+        
+        for (int i = 0; i <= n; i++) {
+            int curr = (i == n) ? 0 : heights[i];
+            while (!stack.isEmpty() && heights[stack.peek()] > curr) {
+                int h = heights[stack.pop()];
+                int w = stack.isEmpty() ? i : i - stack.peek() - 1;
+                maxArea = Math.max(maxArea, h * w);
+            }
+            stack.push(i);
+        }
+        return maxArea;
+    }
+    
+    // TRAPPING RAIN WATER - Stack approach O(n)
+    public static int trap(int[] height) {
+        Deque<Integer> stack = new ArrayDeque<>();
+        int water = 0;
+        for (int i = 0; i < height.length; i++) {
+            while (!stack.isEmpty() && height[i] > height[stack.peek()]) {
+                int bottom = stack.pop();
+                if (stack.isEmpty()) break;
+                int left = stack.peek();
+                int h = Math.min(height[left], height[i]) - height[bottom];
+                water += h * (i - left - 1);
+            }
+            stack.push(i);
+        }
+        return water;
+    }
+    
+    // ASTEROID COLLISION
+    public static int[] asteroidCollision(int[] asteroids) {
+        Deque<Integer> stack = new ArrayDeque<>();
+        for (int a : asteroids) {
+            boolean alive = true;
+            while (alive && a < 0 && !stack.isEmpty() && stack.peek() > 0) {
+                if (stack.peek() < -a) stack.pop();
+                else if (stack.peek() == -a) { stack.pop(); alive = false; }
+                else alive = false;
+            }
+            if (alive) stack.push(a);
+        }
+        int[] res = new int[stack.size()];
+        for (int i = res.length - 1; i >= 0; i--) res[i] = stack.pop();
+        return res;
+    }
+    
+    public static void main(String[] args) {
+        System.out.println("Histogram: " + largestRectangleArea(new int[]{2,1,5,6,2,3})); // 10
+        System.out.println("Rain Water: " + trap(new int[]{0,1,0,2,1,0,1,3,2,1,2,1})); // 6
+        System.out.println("Asteroids: " + Arrays.toString(asteroidCollision(new int[]{5,10,-5}))); // [5,10]
+    }
+}`
+    }
+  },
+  "Queue": {
+    "Beginner": {
+      definition: "A Queue is a linear data structure following First In, First Out (FIFO). Elements are added at the REAR (enqueue) and removed from the FRONT (dequeue). Like a line at a ticket counter — first person in line is first served.",
+      working: "Enqueue adds element at rear. Dequeue removes element from front. Front/Peek returns front without removing. A Circular Queue reuses freed slots using modular arithmetic: rear = (rear + 1) % capacity, solving the space wastage of linear queues.",
+      algorithm: "ENQUEUE(queue, x):\n  if isFull() → Overflow\n  rear = (rear + 1) % capacity\n  queue[rear] = x\n  size++\n\nDEQUEUE(queue):\n  if isEmpty() → Underflow\n  x = queue[front]\n  front = (front + 1) % capacity\n  size--\n  return x",
+      time_complexity: { "Enqueue": "O(1)", "Dequeue": "O(1)", "Peek/Front": "O(1)", "isEmpty": "O(1)", "isFull": "O(1)", "Space": "O(n)" },
+      applications: "CPU process scheduling (Round Robin), printer job queue, breadth-first search (BFS), keyboard input buffer, network packet buffering, customer service systems, asynchronous data transfer.",
+      interview_notes: "In Java, prefer ArrayDeque over LinkedList for queue (better cache performance, no node overhead). LinkedList.add() is enqueue, remove() is dequeue. ArrayDeque.offer() / poll() are the idiomatic queue methods. Know the difference: Queue interface uses offer/poll/peek; Deque adds push/pop/peek at both ends.",
+      java: `import java.util.*;
+
+public class QueueDemo {
+    public static void main(String[] args) {
+        // Standard Queue using ArrayDeque
+        Queue<Integer> queue = new ArrayDeque<>();
+        
+        queue.offer(10); // enqueue
+        queue.offer(20);
+        queue.offer(30);
+        System.out.println("Queue: " + queue); // [10, 20, 30]
+        
+        System.out.println("Peek: " + queue.peek()); // 10 (front)
+        System.out.println("Poll: " + queue.poll()); // 10 (dequeue)
+        System.out.println("After poll: " + queue); // [20, 30]
+        System.out.println("isEmpty: " + queue.isEmpty()); // false
+    }
+}
+
+// CIRCULAR QUEUE implementation
+class CircularQueue {
+    int[] arr;
+    int front = 0, rear = -1, size = 0, cap;
+    
+    CircularQueue(int k) { arr = new int[k]; cap = k; }
+    
+    boolean enQueue(int val) {
+        if (isFull()) return false;
+        rear = (rear + 1) % cap;
+        arr[rear] = val;
+        size++;
+        return true;
+    }
+    boolean deQueue() {
+        if (isEmpty()) return false;
+        front = (front + 1) % cap;
+        size--;
+        return true;
+    }
+    int front() { return isEmpty() ? -1 : arr[front]; }
+    int rear()  { return isEmpty() ? -1 : arr[rear];  }
+    boolean isEmpty() { return size == 0; }
+    boolean isFull()  { return size == cap; }
+}`
+    },
+    "Intermediate": {
+      definition: "Intermediate queue applications include BFS for shortest path finding, multi-source BFS for simultaneous expansion from multiple starting points, and level-order binary tree traversal. These patterns are essential for graph and tree problems.",
+      working: "BFS uses a queue to explore nodes level by level. Enqueue start node, then repeatedly dequeue a node, process it, and enqueue its unvisited neighbors. The level separation trick: record queue size at start of each level, process exactly that many nodes for one level.",
+      algorithm: "BFS(graph, start):\n  queue.offer(start)\n  visited.add(start)\n  while queue not empty:\n    node = queue.poll()\n    process(node)\n    for each neighbor of node:\n      if not visited:\n        visited.add(neighbor)\n        queue.offer(neighbor)\n\nLEVEL ORDER:\n  queue.offer(root)\n  while queue not empty:\n    size = queue.size()  // current level count\n    for i = 0 to size-1:\n      node = queue.poll()\n      enqueue node's children",
+      time_complexity: { "BFS": "O(V+E)", "Level Order": "O(n)", "Multi-Source BFS": "O(V+E)", "Rotting Oranges": "O(m×n)", "Space (BFS)": "O(V)" },
+      applications: "Shortest path in unweighted graphs, social network friend suggestions (degrees of separation), web crawlers, GPS navigation, level-order tree traversal, Rotting Oranges / 01 Matrix / Walls and Gates.",
+      interview_notes: "Multi-source BFS is the key insight for Rotting Oranges — start with ALL rotten cells in the queue simultaneously. For level-order traversal, always capture queue.size() BEFORE the inner loop. BFS guarantees shortest path in unweighted graphs; this is why it's preferred over DFS for shortest path.",
+      java: `import java.util.*;
+
+public class IntermediateQueue {
+    
+    // LEVEL ORDER TRAVERSAL
+    public static List<List<Integer>> levelOrder(int[] tree) {
+        // Simulated with array; in real use: TreeNode root
+        List<List<Integer>> result = new ArrayList<>();
+        Queue<Integer> queue = new LinkedList<>();
+        queue.offer(0); // root index
+        int n = tree.length;
+        
+        while (!queue.isEmpty()) {
+            int size = queue.size(); // CRITICAL: capture level size
+            List<Integer> level = new ArrayList<>();
+            for (int i = 0; i < size; i++) {
+                int idx = queue.poll();
+                if (idx < n) {
+                    level.add(tree[idx]);
+                    if (2*idx+1 < n) queue.offer(2*idx+1); // left
+                    if (2*idx+2 < n) queue.offer(2*idx+2); // right
+                }
+            }
+            result.add(level);
+        }
+        return result;
+    }
+    
+    // ROTTING ORANGES - Multi-source BFS
+    public static int orangesRotting(int[][] grid) {
+        int rows = grid.length, cols = grid[0].length;
+        int fresh = 0, mins = 0;
+        Queue<int[]> queue = new LinkedList<>();
+        
+        // Add ALL rotten oranges as sources
+        for (int r = 0; r < rows; r++)
+            for (int c = 0; c < cols; c++) {
+                if (grid[r][c] == 2) queue.offer(new int[]{r, c});
+                if (grid[r][c] == 1) fresh++;
+            }
+        
+        int[][] dirs = {{0,1},{0,-1},{1,0},{-1,0}};
+        while (!queue.isEmpty() && fresh > 0) {
+            mins++;
+            int size = queue.size();
+            for (int i = 0; i < size; i++) {
+                int[] curr = queue.poll();
+                for (int[] d : dirs) {
+                    int nr = curr[0]+d[0], nc = curr[1]+d[1];
+                    if (nr>=0 && nr<rows && nc>=0 && nc<cols && grid[nr][nc]==1) {
+                        grid[nr][nc] = 2;
+                        fresh--;
+                        queue.offer(new int[]{nr, nc});
+                    }
+                }
+            }
+        }
+        return fresh == 0 ? mins : -1;
+    }
+    
+    public static void main(String[] args) {
+        int[][] grid = {{2,1,1},{1,1,0},{0,1,1}};
+        System.out.println("Rotting Oranges: " + orangesRotting(grid)); // 4
+    }
+}`
+    },
+    "Advanced": {
+      definition: "Advanced queue patterns include monotonic deque for sliding window maximum (O(n)), Dijkstra's algorithm with priority queue, Kahn's topological sort, and 0-1 BFS. These are staple hard interview problems at FAANG companies.",
+      working: "Sliding Window Max: maintain a deque of indices in decreasing value order. Remove indices outside the window from front, remove smaller elements from back (they can never be max). Front is always the current window maximum. Priority Queue (min-heap) in Dijkstra always processes the closest unvisited node.",
+      algorithm: "SLIDING WINDOW MAX:\n  for i = 0 to n-1:\n    remove indices < i-k+1 from deque front\n    remove indices with value < nums[i] from deque back\n    deque.addLast(i)\n    if i >= k-1: result[i-k+1] = nums[deque.peekFirst()]\n\nDIJKSTRA:\n  pq.offer((0, src))\n  while pq not empty:\n    (dist, node) = pq.poll()\n    for each (neighbor, weight) of node:\n      if dist+weight < dist[neighbor]:\n        dist[neighbor] = dist+weight\n        pq.offer((dist+weight, neighbor))",
+      time_complexity: { "Sliding Window Max": "O(n)", "Dijkstra (binary heap)": "O((V+E)logV)", "Kahn's Topological Sort": "O(V+E)", "0-1 BFS": "O(V+E)", "Find Median Stream": "O(n log n)" },
+      applications: "Sliding window maximum in data streams, shortest path in weighted graphs (GPS, networks), task dependency ordering (build systems), median finding in data streams, course scheduling.",
+      interview_notes: "Sliding Window Maximum is a classic deque (not plain queue) problem — know that ArrayDeque supports O(1) addFirst/addLast/pollFirst/pollLast. Dijkstra requires non-negative weights; for negative weights use Bellman-Ford. Kahn's algorithm detects cycles: if result.size() < numNodes, a cycle exists.",
+      java: `import java.util.*;
+
+public class AdvancedQueue {
+    
+    // SLIDING WINDOW MAXIMUM - Monotonic Deque O(n)
+    public static int[] maxSlidingWindow(int[] nums, int k) {
+        int n = nums.length;
+        int[] result = new int[n - k + 1];
+        Deque<Integer> deque = new ArrayDeque<>(); // stores indices
+        
+        for (int i = 0; i < n; i++) {
+            // Remove out-of-window indices from front
+            while (!deque.isEmpty() && deque.peekFirst() < i - k + 1)
+                deque.pollFirst();
+            // Remove smaller elements from back
+            while (!deque.isEmpty() && nums[deque.peekLast()] < nums[i])
+                deque.pollLast();
+            deque.offerLast(i);
+            if (i >= k - 1) result[i - k + 1] = nums[deque.peekFirst()];
+        }
+        return result;
+    }
+    
+    // KAHN'S TOPOLOGICAL SORT
+    public static int[] topologicalSort(int n, int[][] prereqs) {
+        List<List<Integer>> adj = new ArrayList<>();
+        int[] inDegree = new int[n];
+        for (int i = 0; i < n; i++) adj.add(new ArrayList<>());
+        for (int[] p : prereqs) { adj.get(p[1]).add(p[0]); inDegree[p[0]]++; }
+        
+        Queue<Integer> queue = new LinkedList<>();
+        for (int i = 0; i < n; i++) if (inDegree[i] == 0) queue.offer(i);
+        
+        int[] result = new int[n]; int idx = 0;
+        while (!queue.isEmpty()) {
+            int node = queue.poll();
+            result[idx++] = node;
+            for (int next : adj.get(node))
+                if (--inDegree[next] == 0) queue.offer(next);
+        }
+        return idx == n ? result : new int[]{}; // empty = cycle detected
+    }
+    
+    // DIJKSTRA'S SHORTEST PATH
+    public static int[] dijkstra(int n, List<int[]>[] graph, int src) {
+        int[] dist = new int[n];
+        Arrays.fill(dist, Integer.MAX_VALUE);
+        dist[src] = 0;
+        PriorityQueue<int[]> pq = new PriorityQueue<>(Comparator.comparingInt(a -> a[0]));
+        pq.offer(new int[]{0, src});
+        while (!pq.isEmpty()) {
+            int[] curr = pq.poll();
+            int d = curr[0], u = curr[1];
+            if (d > dist[u]) continue;
+            for (int[] edge : graph[u]) {
+                int v = edge[0], w = edge[1];
+                if (dist[u] + w < dist[v]) {
+                    dist[v] = dist[u] + w;
+                    pq.offer(new int[]{dist[v], v});
+                }
+            }
+        }
+        return dist;
+    }
+    
+    public static void main(String[] args) {
+        int[] res = maxSlidingWindow(new int[]{1,3,-1,-3,5,3,6,7}, 3);
+        System.out.println("Sliding Max: " + Arrays.toString(res)); // [3,3,5,5,6,7]
+        
+        int[] order = topologicalSort(4, new int[][]{{1,0},{2,0},{3,1},{3,2}});
+        System.out.println("Topo Sort: " + Arrays.toString(order));
+    }
+}`
+    }
+  },
+  "Linear Search": {
+    "Beginner": {
+      definition: "Linear Search (Sequential Search) scans each element of a collection one by one from the beginning until the target is found or all elements are exhausted. It's the simplest search algorithm and works on both sorted and unsorted data.",
+      working: "Start from index 0. Compare each element with the target. If a match is found, return the index. If the end is reached without a match, return -1. No preprocessing or sorting required. The Sentinel optimization places the target at the last index to remove the boundary check from each iteration.",
+      algorithm: "LINEAR_SEARCH(arr, target):\n  for i = 0 to n-1:\n    if arr[i] == target:\n      return i\n  return -1\n\nSENTINEL_SEARCH(arr, target):\n  last = arr[n-1]\n  arr[n-1] = target  // place sentinel\n  i = 0\n  while arr[i] != target:\n    i++\n  arr[n-1] = last   // restore\n  if i < n-1 OR arr[n-1] == target: return i\n  return -1",
+      time_complexity: { "Best Case": "O(1)", "Average Case": "O(n)", "Worst Case": "O(n)", "Space": "O(1)", "All Occurrences": "O(n)" },
+      applications: "Searching unsorted arrays, finding elements in linked lists (no random access), small datasets where overhead of sorting isn't worth it, searching by non-comparable keys, finding first/last/all occurrences.",
+      interview_notes: "Linear search is O(n) always for space. Mention Sentinel optimization reduces comparisons by half (removes boundary check). For linked lists, linear search is the ONLY option (no binary search possible). When asked to optimize, pivot to HashMap (O(1) lookup) or sort+binary search.",
+      java: `public class LinearSearchDemo {
+    
+    // Basic linear search
+    public static int linearSearch(int[] arr, int target) {
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] == target) return i;
+        }
+        return -1;
+    }
+    
+    // Find ALL occurrences
+    public static List<Integer> findAll(int[] arr, int target) {
+        List<Integer> indices = new ArrayList<>();
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] == target) indices.add(i);
+        }
+        return indices;
+    }
+    
+    // Find maximum in unsorted array
+    public static int findMax(int[] arr) {
+        int max = arr[0];
+        for (int i = 1; i < arr.length; i++) {
+            if (arr[i] > max) max = arr[i];
+        }
+        return max;
+    }
+    
+    // Two Sum - HashMap optimization O(n)
+    public static int[] twoSum(int[] nums, int target) {
+        Map<Integer, Integer> map = new HashMap<>();
+        for (int i = 0; i < nums.length; i++) {
+            int complement = target - nums[i];
+            if (map.containsKey(complement))
+                return new int[]{map.get(complement), i};
+            map.put(nums[i], i);
+        }
+        return new int[]{};
+    }
+    
+    public static void main(String[] args) {
+        int[] arr = {4, 8, 2, 9, 5, 1, 7, 3};
+        System.out.println("Search 9: index " + linearSearch(arr, 9)); // 3
+        System.out.println("Max: " + findMax(arr)); // 9
+        System.out.println("TwoSum [2,7,11,15] target=9: " +
+            Arrays.toString(twoSum(new int[]{2,7,11,15}, 9))); // [0,1]
+    }
+}`
+    },
+    "Intermediate": {
+      definition: "Intermediate linear search patterns transform simple O(n) scans into powerful algorithms: Kadane's for max subarray, Boyer-Moore for majority elements, two-pointer technique for pair-sum problems, and sliding window for subarray conditions.",
+      working: "Kadane's: at each index, decide whether to extend the current subarray or start fresh — max(arr[i], currSum+arr[i]). Boyer-Moore: cancel out non-majority elements using a count variable; the surviving candidate is the majority element. Two pointers: one at each end, move based on comparison with target.",
+      algorithm: "KADANE'S:\n  currSum = maxSum = arr[0]\n  for i = 1 to n-1:\n    currSum = max(arr[i], currSum + arr[i])\n    maxSum = max(maxSum, currSum)\n  return maxSum\n\nBOYER-MOORE:\n  candidate = arr[0], count = 1\n  for i = 1 to n-1:\n    if count == 0: candidate = arr[i]; count = 1\n    elif arr[i] == candidate: count++\n    else: count--\n  return candidate",
+      time_complexity: { "Kadane's": "O(n) time, O(1) space", "Boyer-Moore": "O(n) time, O(1) space", "Two Pointer": "O(n) time, O(1) space", "Stock Buy/Sell": "O(n) time, O(1) space" },
+      applications: "Maximum profit stock trading, finding majority vote in elections, container with most water, subarray problems with sum conditions, Dutch National Flag (3-way partition), minimum window substring.",
+      interview_notes: "Kadane's is THE classic dynamic programming + linear scan pattern. For Boyer-Moore, the problem GUARANTEES a majority element exists (appears > n/2 times) — without this guarantee, you need a verification pass. Two-pointer only works on sorted arrays for pair-sum; use HashMap for unsorted.",
+      java: `import java.util.*;
+
+public class IntermediateLinearSearch {
+    
+    // KADANE'S ALGORITHM - Maximum Subarray
+    public static int maxSubArray(int[] nums) {
+        int maxSum = nums[0], currSum = nums[0];
+        for (int i = 1; i < nums.length; i++) {
+            currSum = Math.max(nums[i], currSum + nums[i]);
+            maxSum = Math.max(maxSum, currSum);
+        }
+        return maxSum;
+    }
+    
+    // BOYER-MOORE MAJORITY VOTE
+    public static int majorityElement(int[] nums) {
+        int candidate = nums[0], count = 1;
+        for (int i = 1; i < nums.length; i++) {
+            if (count == 0) { candidate = nums[i]; count = 1; }
+            else if (nums[i] == candidate) count++;
+            else count--;
+        }
+        return candidate;
+    }
+    
+    // BEST TIME TO BUY AND SELL STOCK
+    public static int maxProfit(int[] prices) {
+        int minPrice = prices[0], maxProfit = 0;
+        for (int price : prices) {
+            minPrice = Math.min(minPrice, price);
+            maxProfit = Math.max(maxProfit, price - minPrice);
+        }
+        return maxProfit;
+    }
+    
+    // CONTAINER WITH MOST WATER - Two Pointer
+    public static int maxArea(int[] height) {
+        int left = 0, right = height.length - 1, max = 0;
+        while (left < right) {
+            max = Math.max(max, Math.min(height[left], height[right]) * (right - left));
+            if (height[left] < height[right]) left++;
+            else right--;
+        }
+        return max;
+    }
+    
+    public static void main(String[] args) {
+        System.out.println("Max Subarray: " + maxSubArray(new int[]{-2,1,-3,4,-1,2,1,-5,4})); // 6
+        System.out.println("Majority: " + majorityElement(new int[]{2,2,1,1,1,2,2})); // 2
+        System.out.println("Max Profit: " + maxProfit(new int[]{7,1,5,3,6,4})); // 5
+        System.out.println("Max Water: " + maxArea(new int[]{1,8,6,2,5,4,8,3,7})); // 49
+    }
+}`
+    },
+    "Advanced": {
+      definition: "Advanced linear scan techniques include Dutch National Flag (3-way partition), trapping rain water with two pointers, QuickSelect for O(n) kth element, XOR tricks for single number, and finding first missing positive in O(n) time O(1) space.",
+      working: "Dutch National Flag: maintain 3 pointers (low, mid, high). mid scans left to right. Swap 0s to left zone, 2s to right zone, leave 1s in middle. QuickSelect: partition like QuickSort but only recurse on the side containing the kth element — O(n) average.",
+      algorithm: "DUTCH NATIONAL FLAG:\n  low=0, mid=0, high=n-1\n  while mid <= high:\n    if arr[mid]==0: swap(low,mid); low++; mid++\n    elif arr[mid]==1: mid++\n    else: swap(mid,high); high--\n\nQUICKSELECT (kth smallest):\n  pivot = arr[high]\n  partition around pivot → pivotIdx\n  if pivotIdx==k: return arr[pivotIdx]\n  elif pivotIdx<k: recurse right\n  else: recurse left",
+      time_complexity: { "Dutch National Flag": "O(n) time, O(1) space", "Trapping Rain Water (2ptr)": "O(n) time, O(1) space", "QuickSelect avg": "O(n) time, O(1) space", "XOR Single Number": "O(n) time, O(1) space", "First Missing Positive": "O(n) time, O(1) space" },
+      applications: "RGB image partitioning, terrain flood simulation, streaming median finding, finding unique elements in datasets, missing element detection in ID systems.",
+      interview_notes: "Dutch National Flag is the 3-way partition foundation of 3-way QuickSort. For Trapping Rain Water, the two-pointer solution is better than stack (O(1) space vs O(n)). XOR trick for Single Number only works when all other elements appear exactly twice. First Missing Positive uses the array itself as a hash map.",
+      java: `import java.util.*;
+
+public class AdvancedLinearSearch {
+    
+    // DUTCH NATIONAL FLAG - Sort 0s, 1s, 2s in one pass
+    public static void sortColors(int[] nums) {
+        int lo = 0, mid = 0, hi = nums.length - 1;
+        while (mid <= hi) {
+            if (nums[mid] == 0) { swap(nums, lo++, mid++); }
+            else if (nums[mid] == 1) { mid++; }
+            else { swap(nums, mid, hi--); }
+        }
+    }
+    
+    // TRAPPING RAIN WATER - Two Pointer O(1) space
+    public static int trap(int[] height) {
+        int left = 0, right = height.length - 1;
+        int leftMax = 0, rightMax = 0, water = 0;
+        while (left < right) {
+            if (height[left] < height[right]) {
+                if (height[left] >= leftMax) leftMax = height[left];
+                else water += leftMax - height[left];
+                left++;
+            } else {
+                if (height[right] >= rightMax) rightMax = height[right];
+                else water += rightMax - height[right];
+                right--;
+            }
+        }
+        return water;
+    }
+    
+    // XOR TRICK - Single Number
+    public static int singleNumber(int[] nums) {
+        int result = 0;
+        for (int n : nums) result ^= n; // duplicates cancel out
+        return result;
+    }
+    
+    // FIRST MISSING POSITIVE - O(n) time O(1) space
+    public static int firstMissingPositive(int[] nums) {
+        int n = nums.length;
+        // Place each number in its correct position
+        for (int i = 0; i < n; i++) {
+            while (nums[i] > 0 && nums[i] <= n && nums[nums[i]-1] != nums[i]) {
+                int tmp = nums[nums[i]-1]; nums[nums[i]-1] = nums[i]; nums[i] = tmp;
+            }
+        }
+        for (int i = 0; i < n; i++) {
+            if (nums[i] != i + 1) return i + 1;
+        }
+        return n + 1;
+    }
+    
+    private static void swap(int[] a, int i, int j) {
+        int t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    
+    public static void main(String[] args) {
+        int[] colors = {2,0,2,1,1,0};
+        sortColors(colors);
+        System.out.println("Dutch Flag: " + Arrays.toString(colors)); // [0,0,1,1,2,2]
+        System.out.println("Rain Water: " + trap(new int[]{0,1,0,2,1,0,1,3,2,1,2,1})); // 6
+        System.out.println("Single Number: " + singleNumber(new int[]{4,1,2,1,2})); // 4
+        System.out.println("First Missing: " + firstMissingPositive(new int[]{3,4,-1,1})); // 2
+    }
+}`
+    }
+  },
+  "Bubble Sort": {
+    "Beginner": {
+      definition: "Bubble Sort is a simple comparison-based sorting algorithm that repeatedly steps through the array, compares adjacent elements, and swaps them if they're in the wrong order. After each pass, the largest unsorted element 'bubbles up' to its correct position at the end.",
+      working: "Outer loop runs n-1 times. Inner loop compares arr[j] and arr[j+1] for j from 0 to n-2-i (shrinks each pass since last i elements are sorted). Swap if arr[j] > arr[j+1]. Optimization: track a 'swapped' flag — if no swaps occur in a pass, the array is already sorted and we break early.",
+      algorithm: "BUBBLE_SORT(arr):\n  for i = 0 to n-2:\n    swapped = false\n    for j = 0 to n-2-i:\n      if arr[j] > arr[j+1]:\n        swap(arr[j], arr[j+1])\n        swapped = true\n    if NOT swapped: break  // already sorted\n  return arr",
+      time_complexity: { "Best (sorted, optimized)": "O(n)", "Average": "O(n²)", "Worst (reverse sorted)": "O(n²)", "Space": "O(1)", "Swaps (worst)": "O(n²)" },
+      applications: "Educational purposes, detecting if array is nearly sorted (optimized version), sorting very small arrays (2-5 elements) where overhead doesn't matter, understanding inversion count concept.",
+      interview_notes: "Always mention the 'swapped' optimization for O(n) best case. Bubble Sort is STABLE (equal elements never swapped). After k passes, the k largest elements are in their final positions — this is a common interview question. In production, always use Arrays.sort() (TimSort) which is O(n log n).",
+      java: `import java.util.Arrays;
+
+public class BubbleSortDemo {
+    
+    // Optimized Bubble Sort with early termination
+    public static void bubbleSort(int[] arr) {
+        int n = arr.length;
+        for (int i = 0; i < n - 1; i++) {
+            boolean swapped = false;
+            for (int j = 0; j < n - 1 - i; j++) {
+                if (arr[j] > arr[j + 1]) {
+                    // Swap
+                    int tmp = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = tmp;
+                    swapped = true;
+                }
+            }
+            if (!swapped) break; // Array already sorted!
+        }
+    }
+    
+    // Sort strings alphabetically
+    public static void sortStrings(String[] arr) {
+        int n = arr.length;
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = 0; j < n - 1 - i; j++) {
+                if (arr[j].compareTo(arr[j + 1]) > 0) {
+                    String tmp = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = tmp;
+                }
+            }
+        }
+    }
+    
+    // Check if already sorted
+    public static boolean isSorted(int[] arr) {
+        for (int i = 0; i < arr.length - 1; i++)
+            if (arr[i] > arr[i + 1]) return false;
+        return true;
+    }
+    
+    public static void main(String[] args) {
+        int[] arr = {5, 3, 8, 4, 2};
+        bubbleSort(arr);
+        System.out.println("Sorted: " + Arrays.toString(arr)); // [2,3,4,5,8]
+        
+        int[] sorted = {1, 2, 3, 4, 5};
+        System.out.println("Is sorted: " + isSorted(sorted)); // true
+        
+        String[] words = {"banana", "apple", "cherry"};
+        sortStrings(words);
+        System.out.println("Words: " + Arrays.toString(words)); // [apple, banana, cherry]
+    }
+}`
+    },
+    "Intermediate": {
+      definition: "At intermediate level, we analyze Bubble Sort's relationship to inversion count, compare it with Insertion Sort and Selection Sort, and understand why Merge Sort's divide-and-conquer approach achieves O(n log n) by eliminating multiple inversions per comparison.",
+      working: "Inversion: a pair (i,j) where i<j but arr[i]>arr[j]. Each Bubble Sort swap removes exactly one inversion. Total swaps = total inversions (max n(n-1)/2). Insertion Sort is faster in practice: fewer writes, adaptive (O(n) on nearly sorted), cache-friendly. Merge Sort eliminates many inversions per merge step.",
+      algorithm: "COUNT INVERSIONS (Merge Sort):\n  mergeSort(arr, l, r):\n    if l >= r: return 0\n    mid = (l+r)/2\n    inv = mergeSort(arr,l,mid) + mergeSort(arr,mid+1,r)\n    inv += merge(arr,l,mid,r)  // count during merge\n    return inv\n  merge: when right[] element taken before left[] elements,\n         inv += (mid - i + 1)  // all remaining left elements",
+      time_complexity: { "Bubble Sort": "O(n²) avg/worst", "Insertion Sort": "O(n) best, O(n²) worst", "Selection Sort": "O(n²) always", "Merge Sort": "O(n log n)", "Count Inversions": "O(n log n)" },
+      applications: "Inversion counting for measuring sortedness, understanding sort stability, choosing sort algorithm by data characteristics (nearly sorted → Insertion, large random → Merge/Quick), measuring array disorder.",
+      interview_notes: "Inversion count via modified Merge Sort is a must-know. Key insight: when taking right[] element before remaining left[] elements in merge, ALL remaining left elements form inversions with it. Insertion Sort beats Bubble Sort in practice because it does O(n) WRITES vs O(n²) swaps. Selection Sort does O(n) swaps but O(n²) comparisons.",
+      java: `import java.util.*;
+
+public class IntermediateBubbleSort {
+    
+    // COUNT INVERSIONS using Merge Sort - O(n log n)
+    public static long countInversions(int[] arr) {
+        return mergeCount(arr, 0, arr.length - 1);
+    }
+    
+    private static long mergeCount(int[] arr, int l, int r) {
+        if (l >= r) return 0;
+        int mid = (l + r) / 2;
+        long inv = mergeCount(arr, l, mid) + mergeCount(arr, mid + 1, r);
+        return inv + merge(arr, l, mid, r);
+    }
+    
+    private static long merge(int[] arr, int l, int mid, int r) {
+        int[] tmp = new int[r - l + 1];
+        int i = l, j = mid + 1, k = 0;
+        long inv = 0;
+        while (i <= mid && j <= r) {
+            if (arr[i] <= arr[j]) {
+                tmp[k++] = arr[i++];
+            } else {
+                inv += (mid - i + 1); // KEY: all remaining left elements are inversions
+                tmp[k++] = arr[j++];
+            }
+        }
+        while (i <= mid) tmp[k++] = arr[i++];
+        while (j <= r) tmp[k++] = arr[j++];
+        System.arraycopy(tmp, 0, arr, l, tmp.length);
+        return inv;
+    }
+    
+    // INSERTION SORT - faster than Bubble in practice
+    public static void insertionSort(int[] arr) {
+        for (int i = 1; i < arr.length; i++) {
+            int key = arr[i], j = i - 1;
+            while (j >= 0 && arr[j] > key) {
+                arr[j + 1] = arr[j]; // shift right
+                j--;
+            }
+            arr[j + 1] = key; // insert in correct position
+        }
+    }
+    
+    public static void main(String[] args) {
+        System.out.println("Inversions in [2,4,1,3,5]: " +
+            countInversions(new int[]{2,4,1,3,5})); // 3
+        
+        int[] arr = {5, 2, 8, 1, 9};
+        insertionSort(arr);
+        System.out.println("Insertion Sort: " + Arrays.toString(arr)); // [1,2,5,8,9]
+    }
+}`
+    },
+    "Advanced": {
+      definition: "Advanced sorting covers QuickSort with Lomuto/Hoare partitioning for O(n log n) average, QuickSelect for O(n) kth-largest element, K-sorted array optimization using min-heap, and understanding the Ω(n log n) lower bound for comparison-based sorting.",
+      working: "QuickSort: choose pivot, partition so all smaller elements are left and larger are right, recurse on both halves. O(n log n) average, O(n²) worst (sorted input). QuickSelect: like QuickSort but only recurse on ONE side containing the kth element — O(n) average. K-sorted: since each element is at most k positions away, a min-heap of size k+1 suffices.",
+      algorithm: "QUICKSORT (Lomuto):\n  partition(arr, low, high):\n    pivot = arr[high]; i = low-1\n    for j=low to high-1:\n      if arr[j] <= pivot: i++; swap(i,j)\n    swap(i+1, high)\n    return i+1\n  quickSort(arr, low, high):\n    if low < high:\n      pi = partition(arr, low, high)\n      quickSort(arr, low, pi-1)\n      quickSort(arr, pi+1, high)\n\nK-SORTED (min-heap):\n  add first k+1 elements to heap\n  for i = k+1 to n-1:\n    result.add(heap.poll())\n    heap.add(arr[i])\n  drain heap to result",
+      time_complexity: { "QuickSort average": "O(n log n)", "QuickSort worst": "O(n²)", "QuickSelect average": "O(n)", "K-sorted array": "O(n log k)", "Comparison sort lower bound": "Ω(n log n)" },
+      applications: "General purpose sorting (QuickSort is cache-friendly), streaming kth-largest element, nearly-sorted data optimization, database index sorting, in-place sorting with minimal memory.",
+      interview_notes: "QuickSort worst case is O(n²) on sorted/reverse-sorted input — use random pivot or median-of-three to avoid it. QuickSelect is the interviewer's test of whether you know the O(n) average solution vs O(n log n) sort+index. K-sorted heap solution is O(n log k) — much better than full sort O(n log n) when k is small.",
+      java: `import java.util.*;
+
+public class AdvancedBubbleSort {
+    
+    // QUICK SORT - Lomuto Partition O(n log n) avg
+    public static void quickSort(int[] arr, int low, int high) {
+        if (low < high) {
+            int pi = partition(arr, low, high);
+            quickSort(arr, low, pi - 1);
+            quickSort(arr, pi + 1, high);
+        }
+    }
+    
+    private static int partition(int[] arr, int low, int high) {
+        int pivot = arr[high], i = low - 1;
+        for (int j = low; j < high; j++) {
+            if (arr[j] <= pivot) {
+                i++;
+                int tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+            }
+        }
+        int tmp = arr[i+1]; arr[i+1] = arr[high]; arr[high] = tmp;
+        return i + 1;
+    }
+    
+    // QUICK SELECT - kth Largest O(n) average
+    public static int findKthLargest(int[] nums, int k) {
+        return quickSelect(nums, 0, nums.length - 1, nums.length - k);
+    }
+    
+    private static int quickSelect(int[] arr, int lo, int hi, int target) {
+        int pivot = arr[hi], i = lo - 1;
+        for (int j = lo; j < hi; j++) {
+            if (arr[j] <= pivot) { i++; int t=arr[i];arr[i]=arr[j];arr[j]=t; }
+        }
+        i++; int t=arr[i];arr[i]=arr[hi];arr[hi]=t;
+        if (i == target) return arr[i];
+        return i < target ? quickSelect(arr, i+1, hi, target)
+                          : quickSelect(arr, lo, i-1, target);
+    }
+    
+    // SORT K-SORTED ARRAY - Min Heap O(n log k)
+    public static int[] sortKSorted(int[] arr, int k) {
+        PriorityQueue<Integer> pq = new PriorityQueue<>();
+        int[] result = new int[arr.length];
+        int ri = 0;
+        for (int i = 0; i < arr.length; i++) {
+            pq.offer(arr[i]);
+            if (pq.size() > k) result[ri++] = pq.poll();
+        }
+        while (!pq.isEmpty()) result[ri++] = pq.poll();
+        return result;
+    }
+    
+    public static void main(String[] args) {
+        int[] arr = {5, 3, 8, 4, 2, 7, 1};
+        quickSort(arr, 0, arr.length - 1);
+        System.out.println("QuickSort: " + Arrays.toString(arr));
+        
+        System.out.println("3rd Largest: " + findKthLargest(new int[]{3,2,1,5,6,4}, 2)); // 5
+        
+        int[] ksorted = {6,5,3,2,8,10,9};
+        System.out.println("K-Sorted: " + Arrays.toString(sortKSorted(ksorted, 3)));
+    }
+}`
+    }
+  }
+};
+
+function getLocalData(mod, level) {
+  return LOCAL_MODULE_DATA?.[mod]?.[level] || null;
+}
+
+/* ============================================================
    ROOT APP — with Login Gate
 ============================================================ */
 export default function App() {
@@ -1438,10 +2248,8 @@ export default function App() {
   });
 
   useEffect(() => {
-    if(!module) return;
-    setData(null);
-    fetch(`https://backend-vix7.onrender.com/${module}/${level}`)
-      .then(r=>r.json()).then(setData).catch(console.error);
+    if (!module) return;
+    setData(getLocalData(module, level));
   }, [module, level]);
 
   const selectModule = (mod) => { setModule(mod); setSubScreen(null); setScreen("module"); };
