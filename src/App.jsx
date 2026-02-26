@@ -67,6 +67,49 @@ const GLOBAL_CSS = `
     0%, 100% { box-shadow: 0 0 0 0 rgba(0,113,227,0.3); }
     50% { box-shadow: 0 0 0 8px rgba(0,113,227,0); }
   }
+  @keyframes login-float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    33% { transform: translateY(-8px) rotate(1deg); }
+    66% { transform: translateY(-4px) rotate(-1deg); }
+  }
+  @keyframes orb-drift {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    25% { transform: translate(30px, -20px) scale(1.05); }
+    50% { transform: translate(-20px, 30px) scale(0.95); }
+    75% { transform: translate(20px, 10px) scale(1.02); }
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-5px); }
+    80% { transform: translateX(5px); }
+  }
+  .shake { animation: shake 0.4s ease; }
+
+  /* Login input styles */
+  .login-input {
+    width: 100%;
+    padding: 14px 18px;
+    border: 1.5px solid rgba(0,0,0,0.1);
+    border-radius: 14px;
+    font-size: 15px;
+    font-family: var(--font);
+    background: rgba(255,255,255,0.8);
+    color: #1d1d1f;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  }
+  .login-input:focus {
+    border-color: #0071e3;
+    box-shadow: 0 0 0 4px rgba(0,113,227,0.12);
+    background: white;
+  }
+  .login-input::placeholder { color: #a1a1a6; }
+  .login-input.error {
+    border-color: #ff3b30;
+    box-shadow: 0 0 0 4px rgba(255,59,48,0.1);
+  }
 `;
 
 function useGlobalStyle(css) {
@@ -77,6 +120,239 @@ function useGlobalStyle(css) {
     return () => document.head.removeChild(el);
   }, []);
 }
+
+/* ============================================================
+   LOGIN SCREEN
+============================================================ */
+const DEMO_USERS = [
+  { username: "student", password: "fita123", name: "Student" },
+  { username: "admin", password: "admin123", name: "Admin" },
+  { username: "demo", password: "demo", name: "Demo User" },
+];
+
+const LoginScreen = ({ onLogin }) => {
+  const [mode, setMode] = useState("login"); // "login" | "signup"
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [name, setName] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showPass, setShowPass] = useState(false);
+  const [shakeKey, setShakeKey] = useState(0);
+  const [users, setUsers] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("fita_users") || "[]"); } catch { return []; }
+  });
+
+  const allUsers = [...DEMO_USERS, ...users];
+
+  const triggerError = (msg) => {
+    setError(msg);
+    setShakeKey(k => k + 1);
+  };
+
+  const handleLogin = () => {
+    if (!username.trim() || !password) { triggerError("Please enter your credentials."); return; }
+    setLoading(true);
+    setTimeout(() => {
+      const user = allUsers.find(u => u.username.toLowerCase() === username.trim().toLowerCase() && u.password === password);
+      if (user) {
+        localStorage.setItem("fita_session", JSON.stringify({ username: user.username, name: user.name }));
+        onLogin(user);
+      } else {
+        setLoading(false);
+        triggerError("Invalid username or password.");
+      }
+    }, 800);
+  };
+
+  const handleSignup = () => {
+    if (!name.trim()) { triggerError("Please enter your name."); return; }
+    if (!username.trim()) { triggerError("Please enter a username."); return; }
+    if (username.length < 3) { triggerError("Username must be at least 3 characters."); return; }
+    if (allUsers.find(u => u.username.toLowerCase() === username.trim().toLowerCase())) { triggerError("Username already exists."); return; }
+    if (password.length < 4) { triggerError("Password must be at least 4 characters."); return; }
+    if (password !== confirmPassword) { triggerError("Passwords do not match."); return; }
+    setLoading(true);
+    setTimeout(() => {
+      const newUser = { username: username.trim(), password, name: name.trim() };
+      const updated = [...users, newUser];
+      setUsers(updated);
+      localStorage.setItem("fita_users", JSON.stringify(updated));
+      localStorage.setItem("fita_session", JSON.stringify({ username: newUser.username, name: newUser.name }));
+      onLogin(newUser);
+    }, 800);
+  };
+
+  const handleSubmit = () => { setError(""); mode === "login" ? handleLogin() : handleSignup(); };
+
+  const handleKeyDown = (e) => { if (e.key === "Enter") handleSubmit(); };
+
+  return (
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f5f5f7", position: "relative", overflow: "hidden" }}>
+      {/* Animated background orbs */}
+      <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0 }}>
+        <div style={{ position: "absolute", top: "5%", left: "10%", width: 500, height: 500, background: "radial-gradient(circle, rgba(0,113,227,0.14), transparent 70%)", borderRadius: "50%", filter: "blur(40px)", animation: "orb-drift 12s ease-in-out infinite" }} />
+        <div style={{ position: "absolute", bottom: "5%", right: "8%", width: 440, height: 440, background: "radial-gradient(circle, rgba(52,199,89,0.11), transparent 70%)", borderRadius: "50%", filter: "blur(40px)", animation: "orb-drift 16s ease-in-out infinite reverse" }} />
+        <div style={{ position: "absolute", top: "45%", right: "20%", width: 360, height: 360, background: "radial-gradient(circle, rgba(175,82,222,0.09), transparent 70%)", borderRadius: "50%", filter: "blur(40px)", animation: "orb-drift 10s ease-in-out infinite 3s" }} />
+        <div style={{ position: "absolute", top: "20%", right: "5%", width: 280, height: 280, background: "radial-gradient(circle, rgba(255,149,0,0.08), transparent 70%)", borderRadius: "50%", filter: "blur(35px)", animation: "orb-drift 14s ease-in-out infinite 1s" }} />
+      </div>
+
+      {/* Floating module icons */}
+      {[
+        { icon: "📚", top: "12%", left: "6%", delay: "0s", size: 48 },
+        { icon: "🔄", top: "70%", left: "4%", delay: "1.5s", size: 40 },
+        { icon: "🔍", top: "20%", right: "6%", delay: "0.8s", size: 44 },
+        { icon: "🫧", bottom: "15%", right: "8%", delay: "2s", size: 36 },
+        { icon: "💻", top: "55%", right: "3%", delay: "1s", size: 38 },
+        { icon: "🎤", bottom: "25%", left: "7%", delay: "0.4s", size: 34 },
+      ].map((item, i) => (
+        <div key={i} style={{ position: "fixed", top: item.top, bottom: item.bottom, left: item.left, right: item.right, zIndex: 0, pointerEvents: "none", animation: `login-float 4s ease-in-out infinite`, animationDelay: item.delay }}>
+          <div style={{ width: item.size, height: item.size, borderRadius: item.size * 0.28, background: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: item.size * 0.46, boxShadow: "var(--shadow)", border: "1.5px solid var(--border)", opacity: 0.8 }}>
+            {item.icon}
+          </div>
+        </div>
+      ))}
+
+      {/* Login Card */}
+      <motion.div
+        key={shakeKey}
+        initial={{ opacity: 0, y: 32, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        style={{ position: "relative", zIndex: 10, width: "100%", maxWidth: 420, margin: "0 24px" }}
+      >
+        {/* Card */}
+        <div style={{ background: "rgba(255,255,255,0.88)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", borderRadius: 28, boxShadow: "0 24px 80px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.06)", border: "1.5px solid rgba(255,255,255,0.9)", overflow: "hidden" }}>
+          
+          {/* Top accent */}
+          <div style={{ height: 4, background: "linear-gradient(90deg, #0071e3, #34c759, #af52de, #ff9500)" }} />
+
+          <div style={{ padding: "36px 36px 32px" }}>
+            {/* Logo */}
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 32 }}>
+              <div style={{ width: 44, height: 44, borderRadius: 13, background: "#0071e3", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(0,113,227,0.35)" }}>
+                <span style={{ fontSize: 22, fontWeight: 800, color: "white", fontFamily: "var(--font-mono)" }}>F</span>
+              </div>
+              <div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: "#1d1d1f", letterSpacing: -0.3 }}>FITA DSA</div>
+                <div style={{ fontSize: 11, color: "#86868b", fontWeight: 500 }}>Learning Platform</div>
+              </div>
+            </div>
+
+            {/* Mode toggle */}
+            <div style={{ display: "flex", background: "rgba(0,0,0,0.05)", borderRadius: 14, padding: 3, marginBottom: 28 }}>
+              {[["login", "Sign In"], ["signup", "Sign Up"]].map(([m, l]) => (
+                <button key={m} onClick={() => { setMode(m); setError(""); }} style={{ flex: 1, padding: "9px 0", fontSize: 13, fontWeight: 600, borderRadius: 11, border: "none", cursor: "pointer", transition: "all 0.2s", background: mode === m ? "white" : "transparent", color: mode === m ? "#1d1d1f" : "#86868b", boxShadow: mode === m ? "var(--shadow-sm)" : "none" }}>
+                  {l}
+                </button>
+              ))}
+            </div>
+
+            {/* Title */}
+            <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: -0.5, color: "#1d1d1f", marginBottom: 4 }}>
+              {mode === "login" ? "Welcome back" : "Create account"}
+            </h2>
+            <p style={{ fontSize: 13, color: "#86868b", marginBottom: 24 }}>
+              {mode === "login" ? "Sign in to continue learning" : "Join FITA DSA Platform"}
+            </p>
+
+            {/* Error */}
+            <AnimatePresence>
+              {error && (
+                <motion.div initial={{ opacity: 0, y: -8, height: 0 }} animate={{ opacity: 1, y: 0, height: "auto" }} exit={{ opacity: 0, y: -8, height: 0 }} style={{ background: "#fff1f0", border: "1.5px solid rgba(255,59,48,0.25)", borderRadius: 12, padding: "10px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 14 }}>⚠️</span>
+                  <span style={{ fontSize: 13, color: "#ff3b30", fontWeight: 500 }}>{error}</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Fields */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <AnimatePresence>
+                {mode === "signup" && (
+                  <motion.div key="name-field" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} style={{ overflow: "hidden" }}>
+                    <div style={{ paddingBottom: 0 }}>
+                      <label style={{ fontSize: 12, fontWeight: 600, color: "#424245", display: "block", marginBottom: 6, letterSpacing: 0.2 }}>Full Name</label>
+                      <input className={`login-input${error && !name ? " error" : ""}`} type="text" placeholder="Your name" value={name} onChange={e => setName(e.target.value)} onKeyDown={handleKeyDown} autoComplete="name" />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#424245", display: "block", marginBottom: 6, letterSpacing: 0.2 }}>Username</label>
+                <input className="login-input" type="text" placeholder={mode === "login" ? "Enter username" : "Choose a username"} value={username} onChange={e => setUsername(e.target.value)} onKeyDown={handleKeyDown} autoComplete="username" autoFocus />
+              </div>
+
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#424245", display: "block", marginBottom: 6, letterSpacing: 0.2 }}>Password</label>
+                <div style={{ position: "relative" }}>
+                  <input className="login-input" type={showPass ? "text" : "password"} placeholder={mode === "login" ? "Enter password" : "Create password (min 4 chars)"} value={password} onChange={e => setPassword(e.target.value)} onKeyDown={handleKeyDown} autoComplete={mode === "login" ? "current-password" : "new-password"} style={{ paddingRight: 48 }} />
+                  <button onClick={() => setShowPass(p => !p)} style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", fontSize: 16, color: "#86868b", background: "none", border: "none", cursor: "pointer", padding: 4 }}>
+                    {showPass ? "🙈" : "👁️"}
+                  </button>
+                </div>
+              </div>
+
+              <AnimatePresence>
+                {mode === "signup" && (
+                  <motion.div key="confirm-field" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} style={{ overflow: "hidden" }}>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: "#424245", display: "block", marginBottom: 6, letterSpacing: 0.2 }}>Confirm Password</label>
+                    <input className="login-input" type="password" placeholder="Repeat password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} onKeyDown={handleKeyDown} autoComplete="new-password" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Submit */}
+            <motion.button
+              whileHover={{ scale: 1.02, boxShadow: "0 8px 28px rgba(0,113,227,0.35)" }}
+              whileTap={{ scale: 0.97 }}
+              onClick={handleSubmit}
+              disabled={loading}
+              style={{ width: "100%", marginTop: 20, padding: "14px", fontSize: 15, fontWeight: 600, background: loading ? "#86868b" : "#0071e3", color: "white", borderRadius: 14, border: "none", cursor: loading ? "not-allowed" : "pointer", boxShadow: "var(--shadow-blue)", transition: "background 0.2s", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+            >
+              {loading ? (
+                <>
+                  <div style={{ width: 16, height: 16, border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "white", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
+                  {mode === "login" ? "Signing in..." : "Creating account..."}
+                </>
+              ) : (
+                mode === "login" ? "Sign In →" : "Create Account →"
+              )}
+            </motion.button>
+
+            {/* Demo hint (login mode only) */}
+            {mode === "login" && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
+                style={{ marginTop: 20, padding: "14px 16px", background: "#e8f2ff", border: "1.5px solid rgba(0,113,227,0.15)", borderRadius: 14 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: "#0071e3", marginBottom: 8, letterSpacing: 0.3, textTransform: "uppercase" }}>Quick Demo Access</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {[["student", "fita123"], ["demo", "demo"]].map(([u, p]) => (
+                    <button key={u} onClick={() => { setUsername(u); setPassword(p); setError(""); }}
+                      style={{ textAlign: "left", padding: "6px 10px", background: "white", border: "1.5px solid rgba(0,113,227,0.15)", borderRadius: 8, cursor: "pointer", fontSize: 12, fontFamily: "var(--font-mono)", color: "#0071e3", fontWeight: 500, transition: "background 0.15s" }}>
+                      {u} / {p}
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </div>
+        </div>
+
+        {/* Bottom note */}
+        <p style={{ textAlign: "center", marginTop: 16, fontSize: 12, color: "#a1a1a6" }}>
+          Powered by <strong style={{ color: "#0071e3" }}>FITA Academy</strong> · Chennai & Bangalore
+        </p>
+      </motion.div>
+
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+      `}</style>
+    </div>
+  );
+};
 
 /* ============================================================
    INTERVIEW DATA — unchanged
@@ -399,7 +675,7 @@ const PillBtn = ({ onClick, active, children, color, style: s }) => (
 /* ============================================================
    HOME SCREEN — Apple-style
 ============================================================ */
-export const HomeScreen = ({ onEnter }) => {
+export const HomeScreen = ({ onEnter, user, onLogout }) => {
   const [tab, setTab] = useState("home");
   return (
     <div style={{minHeight:"100vh",background:"var(--bg)",position:"relative",overflow:"hidden"}}>
@@ -419,10 +695,20 @@ export const HomeScreen = ({ onEnter }) => {
             </div>
             <span style={{fontSize:15,fontWeight:600,color:"#1d1d1f"}}>FITA DSA</span>
           </div>
-          <div style={{display:"flex",gap:6}}>
+          <div style={{display:"flex",gap:6,alignItems:"center"}}>
             {[["home","Home"],["company","FITA Academy"]].map(([t,l])=>(
               <button key={t} onClick={()=>setTab(t)} style={{padding:"6px 16px",fontSize:13,fontWeight:500,borderRadius:20,background:tab===t?"#0071e3":"transparent",color:tab===t?"white":"#424245",border:"none",cursor:"pointer",transition:"all 0.2s"}}>{l}</button>
             ))}
+            {/* User info + logout */}
+            <div style={{display:"flex",alignItems:"center",gap:8,marginLeft:8,paddingLeft:12,borderLeft:"1px solid rgba(0,0,0,0.1)"}}>
+              <div style={{width:28,height:28,borderRadius:8,background:"#0071e3",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                <span style={{fontSize:13,fontWeight:700,color:"white"}}>{user?.name?.[0]?.toUpperCase()||"U"}</span>
+              </div>
+              <span style={{fontSize:13,color:"#424245",fontWeight:500,maxWidth:80,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{user?.name||"User"}</span>
+              <button onClick={onLogout} style={{padding:"5px 12px",fontSize:12,fontWeight:600,borderRadius:16,background:"rgba(255,59,48,0.1)",color:"#ff3b30",border:"1px solid rgba(255,59,48,0.2)",cursor:"pointer",transition:"all 0.2s"}}>
+                Sign Out
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -1135,7 +1421,7 @@ function BubbleSortVisual({ color }) {
 }
 
 /* ============================================================
-   ROOT APP
+   ROOT APP — with Login Gate
 ============================================================ */
 export default function App() {
   useGlobalStyle(GLOBAL_CSS);
@@ -1146,6 +1432,11 @@ export default function App() {
   const [level, setLevel] = useState("Beginner");
   const [data, setData] = useState(null);
 
+  // Auth state — restore from localStorage on mount
+  const [user, setUser] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("fita_session") || "null"); } catch { return null; }
+  });
+
   useEffect(() => {
     if(!module) return;
     setData(null);
@@ -1155,12 +1446,38 @@ export default function App() {
 
   const selectModule = (mod) => { setModule(mod); setSubScreen(null); setScreen("module"); };
 
+  const handleLogin = (loggedInUser) => {
+    setUser(loggedInUser);
+    setScreen("home");
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("fita_session");
+    setUser(null);
+    setScreen("home");
+    setModule(null);
+    setSubScreen(null);
+  };
+
+  // Show login if not authenticated
+  if (!user) {
+    return (
+      <div style={{background:"var(--bg)",minHeight:"100vh",color:"var(--text)"}}>
+        <AnimatePresence mode="wait">
+          <motion.div key="login" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} transition={{duration:0.4}}>
+            <LoginScreen onLogin={handleLogin}/>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+    );
+  }
+
   return(
     <div style={{background:"var(--bg)",minHeight:"100vh",color:"var(--text)"}}>
       <AnimatePresence mode="wait">
         {screen==="home" && (
           <motion.div key="home" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0,scale:0.98}} transition={{duration:0.4}}>
-            <HomeScreen onEnter={()=>setScreen("dsa")}/>
+            <HomeScreen onEnter={()=>setScreen("dsa")} user={user} onLogout={handleLogout}/>
           </motion.div>
         )}
         {screen==="dsa" && (
