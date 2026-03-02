@@ -1,5 +1,5 @@
-import { useEffect, useState, useRef, useCallback } from "react";
-import { motion, AnimatePresence, useSpring, useTransform } from "framer-motion";
+import { useEffect, useState, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 /* ============================================================
    GLOBAL STYLES — Apple Design Language
@@ -224,7 +224,7 @@ const LoginScreen = ({ onLogin }) => {
       >
         {/* Card */}
         <div style={{ background: "rgba(255,255,255,0.88)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", borderRadius: 28, boxShadow: "0 24px 80px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.06)", border: "1.5px solid rgba(255,255,255,0.9)", overflow: "hidden" }}>
-          
+
           {/* Top accent */}
           <div style={{ height: 4, background: "linear-gradient(90deg, #0071e3, #34c759, #af52de, #ff9500)" }} />
 
@@ -454,70 +454,70 @@ const INTERVIEW_DATA = {
 const CODING_CHALLENGES = {
   "Stack": {
     "Beginner": [
-      { id:"sb1", title:"Valid Parentheses", company:"Google", desc:"Given a string containing '(', ')', '{', '}', '[', ']', determine if it is valid. Every open bracket must be closed by the same type, in the correct order.", starter:`public boolean isValid(String s) {\n    // Your code here\n    \n}`, solution:`public boolean isValid(String s) {\n    Stack<Character> stack = new Stack<>();\n    for (char c : s.toCharArray()) {\n        if (c=='(' || c=='{' || c=='[') stack.push(c);\n        else {\n            if (stack.isEmpty()) return false;\n            char top = stack.pop();\n            if (c==')' && top!='(') return false;\n            if (c=='}' && top!='{') return false;\n            if (c==']' && top!='[') return false;\n        }\n    }\n    return stack.isEmpty();\n}`, testCases:`Input: "()" → true\nInput: "()[]{}" → true\nInput: "(]" → false\nInput: "([)]" → false` },
-      { id:"sb2", title:"Reverse String using Stack", company:"Amazon", desc:"Reverse a string using a stack data structure. Push each character and pop to build reversed string.", starter:`public String reverseString(String s) {\n    // Use a Stack to reverse\n    \n}`, solution:`public String reverseString(String s) {\n    Stack<Character> stack = new Stack<>();\n    for (char c : s.toCharArray()) stack.push(c);\n    StringBuilder sb = new StringBuilder();\n    while (!stack.isEmpty()) sb.append(stack.pop());\n    return sb.toString();\n}`, testCases:`Input: "hello" → "olleh"\nInput: "abcde" → "edcba"\nInput: "a" → "a"` },
-      { id:"sb3", title:"Implement Stack using Array", company:"Microsoft", desc:"Implement a stack class with push, pop, peek, and isEmpty methods using a fixed-size array.", starter:`class MyStack {\n    int[] arr = new int[100];\n    int top = -1;\n    \n    public void push(int x) { }\n    public int pop() { }\n    public int peek() { }\n    public boolean isEmpty() { }\n}`, solution:`class MyStack {\n    int[] arr = new int[100];\n    int top = -1;\n    \n    public void push(int x) {\n        if (top == 99) throw new RuntimeException("Overflow");\n        arr[++top] = x;\n    }\n    public int pop() {\n        if (top == -1) throw new RuntimeException("Underflow");\n        return arr[top--];\n    }\n    public int peek() { return arr[top]; }\n    public boolean isEmpty() { return top == -1; }\n}`, testCases:`push(1), push(2), peek() → 2\npop() → 2, peek() → 1\nisEmpty() after pop() → false` },
+      { id: "sb1", title: "Valid Parentheses", company: "Google", desc: "Given a string containing '(', ')', '{', '}', '[', ']', determine if it is valid. Every open bracket must be closed by the same type, in the correct order.", starter: `public boolean isValid(String s) {\n    // Your code here\n    \n}`, solution: `public boolean isValid(String s) {\n    Stack<Character> stack = new Stack<>();\n    for (char c : s.toCharArray()) {\n        if (c=='(' || c=='{' || c=='[') stack.push(c);\n        else {\n            if (stack.isEmpty()) return false;\n            char top = stack.pop();\n            if (c==')' && top!='(') return false;\n            if (c=='}' && top!='{') return false;\n            if (c==']' && top!='[') return false;\n        }\n    }\n    return stack.isEmpty();\n}`, testCases: `Input: "()" → true\nInput: "()[]{}" → true\nInput: "(]" → false\nInput: "([)]" → false` },
+      { id: "sb2", title: "Reverse String using Stack", company: "Amazon", desc: "Reverse a string using a stack data structure. Push each character and pop to build reversed string.", starter: `public String reverseString(String s) {\n    // Use a Stack to reverse\n    \n}`, solution: `public String reverseString(String s) {\n    Stack<Character> stack = new Stack<>();\n    for (char c : s.toCharArray()) stack.push(c);\n    StringBuilder sb = new StringBuilder();\n    while (!stack.isEmpty()) sb.append(stack.pop());\n    return sb.toString();\n}`, testCases: `Input: "hello" → "olleh"\nInput: "abcde" → "edcba"\nInput: "a" → "a"` },
+      { id: "sb3", title: "Implement Stack using Array", company: "Microsoft", desc: "Implement a stack class with push, pop, peek, and isEmpty methods using a fixed-size array.", starter: `class MyStack {\n    int[] arr = new int[100];\n    int top = -1;\n    \n    public void push(int x) { }\n    public int pop() { }\n    public int peek() { }\n    public boolean isEmpty() { }\n}`, solution: `class MyStack {\n    int[] arr = new int[100];\n    int top = -1;\n    \n    public void push(int x) {\n        if (top == 99) throw new RuntimeException("Overflow");\n        arr[++top] = x;\n    }\n    public int pop() {\n        if (top == -1) throw new RuntimeException("Underflow");\n        return arr[top--];\n    }\n    public int peek() { return arr[top]; }\n    public boolean isEmpty() { return top == -1; }\n}`, testCases: `push(1), push(2), peek() → 2\npop() → 2, peek() → 1\nisEmpty() after pop() → false` },
     ],
     "Intermediate": [
-      { id:"si1", title:"Min Stack", company:"Amazon", desc:"Design a stack that supports push, pop, top, and retrieving the minimum element — all in O(1) time.", starter:`class MinStack {\n    public void push(int val) { }\n    public void pop() { }\n    public int top() { }\n    public int getMin() { }\n}`, solution:`class MinStack {\n    Deque<Integer> stack = new ArrayDeque<>();\n    Deque<Integer> minStack = new ArrayDeque<>();\n    \n    public void push(int val) {\n        stack.push(val);\n        if (minStack.isEmpty() || val <= minStack.peek())\n            minStack.push(val);\n    }\n    public void pop() {\n        if (stack.pop().equals(minStack.peek())) minStack.pop();\n    }\n    public int top() { return stack.peek(); }\n    public int getMin() { return minStack.peek(); }\n}`, testCases:`push(-2),push(0),push(-3)\ngetMin() → -3\npop()\ntop() → 0\ngetMin() → -2` },
-      { id:"si2", title:"Evaluate Reverse Polish Notation", company:"Meta", desc:"Evaluate the value of an arithmetic expression in Reverse Polish Notation (postfix). Valid operators: +, -, *, /.", starter:`public int evalRPN(String[] tokens) {\n    // Use a stack to evaluate\n    \n}`, solution:`public int evalRPN(String[] tokens) {\n    Deque<Integer> stack = new ArrayDeque<>();\n    for (String t : tokens) {\n        if ("+-*/".contains(t)) {\n            int b = stack.pop(), a = stack.pop();\n            switch(t) {\n                case "+": stack.push(a+b); break;\n                case "-": stack.push(a-b); break;\n                case "*": stack.push(a*b); break;\n                case "/": stack.push(a/b); break;\n            }\n        } else stack.push(Integer.parseInt(t));\n    }\n    return stack.pop();\n}`, testCases:`["2","1","+","3","*"] → 9\n["4","13","5","/","+"] → 6` },
-      { id:"si3", title:"Daily Temperatures", company:"Amazon", desc:"Given an array of temperatures, return an array where each element is how many days to wait for a warmer temperature.", starter:`public int[] dailyTemperatures(int[] temperatures) {\n    // Monotonic stack approach\n    \n}`, solution:`public int[] dailyTemperatures(int[] temperatures) {\n    int n = temperatures.length;\n    int[] result = new int[n];\n    Deque<Integer> stack = new ArrayDeque<>();\n    for (int i = 0; i < n; i++) {\n        while (!stack.isEmpty() && temperatures[i] > temperatures[stack.peek()]) {\n            int idx = stack.pop();\n            result[idx] = i - idx;\n        }\n        stack.push(i);\n    }\n    return result;\n}`, testCases:`[73,74,75,71,69,72,76,73] → [1,1,4,2,1,1,0,0]\n[30,40,50,60] → [1,1,1,0]` },
+      { id: "si1", title: "Min Stack", company: "Amazon", desc: "Design a stack that supports push, pop, top, and retrieving the minimum element — all in O(1) time.", starter: `class MinStack {\n    public void push(int val) { }\n    public void pop() { }\n    public int top() { }\n    public int getMin() { }\n}`, solution: `class MinStack {\n    Deque<Integer> stack = new ArrayDeque<>();\n    Deque<Integer> minStack = new ArrayDeque<>();\n    \n    public void push(int val) {\n        stack.push(val);\n        if (minStack.isEmpty() || val <= minStack.peek())\n            minStack.push(val);\n    }\n    public void pop() {\n        if (stack.pop().equals(minStack.peek())) minStack.pop();\n    }\n    public int top() { return stack.peek(); }\n    public int getMin() { return minStack.peek(); }\n}`, testCases: `push(-2),push(0),push(-3)\ngetMin() → -3\npop()\ntop() → 0\ngetMin() → -2` },
+      { id: "si2", title: "Evaluate Reverse Polish Notation", company: "Meta", desc: "Evaluate the value of an arithmetic expression in Reverse Polish Notation (postfix). Valid operators: +, -, *, /.", starter: `public int evalRPN(String[] tokens) {\n    // Use a stack to evaluate\n    \n}`, solution: `public int evalRPN(String[] tokens) {\n    Deque<Integer> stack = new ArrayDeque<>();\n    for (String t : tokens) {\n        if ("+-*/".contains(t)) {\n            int b = stack.pop(), a = stack.pop();\n            switch(t) {\n                case "+": stack.push(a+b); break;\n                case "-": stack.push(a-b); break;\n                case "*": stack.push(a*b); break;\n                case "/": stack.push(a/b); break;\n            }\n        } else stack.push(Integer.parseInt(t));\n    }\n    return stack.pop();\n}`, testCases: `["2","1","+","3","*"] → 9\n["4","13","5","/","+"] → 6` },
+      { id: "si3", title: "Daily Temperatures", company: "Amazon", desc: "Given an array of temperatures, return an array where each element is how many days to wait for a warmer temperature.", starter: `public int[] dailyTemperatures(int[] temperatures) {\n    // Monotonic stack approach\n    \n}`, solution: `public int[] dailyTemperatures(int[] temperatures) {\n    int n = temperatures.length;\n    int[] result = new int[n];\n    Deque<Integer> stack = new ArrayDeque<>();\n    for (int i = 0; i < n; i++) {\n        while (!stack.isEmpty() && temperatures[i] > temperatures[stack.peek()]) {\n            int idx = stack.pop();\n            result[idx] = i - idx;\n        }\n        stack.push(i);\n    }\n    return result;\n}`, testCases: `[73,74,75,71,69,72,76,73] → [1,1,4,2,1,1,0,0]\n[30,40,50,60] → [1,1,1,0]` },
     ],
     "Advanced": [
-      { id:"sa1", title:"Largest Rectangle in Histogram", company:"Google", desc:"Given an array of bar heights in a histogram, find the area of the largest rectangle that can be formed.", starter:`public int largestRectangleArea(int[] heights) {\n    // Monotonic stack solution\n    \n}`, solution:`public int largestRectangleArea(int[] heights) {\n    Deque<Integer> stack = new ArrayDeque<>();\n    int maxArea = 0;\n    int n = heights.length;\n    for (int i = 0; i <= n; i++) {\n        int curr = (i == n) ? 0 : heights[i];\n        while (!stack.isEmpty() && heights[stack.peek()] > curr) {\n            int h = heights[stack.pop()];\n            int w = stack.isEmpty() ? i : i - stack.peek() - 1;\n            maxArea = Math.max(maxArea, h * w);\n        }\n        stack.push(i);\n    }\n    return maxArea;\n}`, testCases:`[2,1,5,6,2,3] → 10\n[2,4] → 4` },
-      { id:"sa2", title:"Trapping Rain Water", company:"Amazon", desc:"Given n non-negative integers representing elevation heights, compute how much rainwater can be trapped after rain.", starter:`public int trap(int[] height) {\n    // Stack-based approach\n    \n}`, solution:`public int trap(int[] height) {\n    Deque<Integer> stack = new ArrayDeque<>();\n    int water = 0;\n    for (int i = 0; i < height.length; i++) {\n        while (!stack.isEmpty() && height[i] > height[stack.peek()]) {\n            int bottom = stack.pop();\n            if (stack.isEmpty()) break;\n            int left = stack.peek();\n            int h = Math.min(height[left], height[i]) - height[bottom];\n            water += h * (i - left - 1);\n        }\n        stack.push(i);\n    }\n    return water;\n}`, testCases:`[0,1,0,2,1,0,1,3,2,1,2,1] → 6\n[4,2,0,3,2,5] → 9` },
-      { id:"sa3", title:"Asteroid Collision", company:"Meta", desc:"An array represents asteroids. Positive = right, Negative = left. Same size asteroids explode. Find the state after all collisions.", starter:`public int[] asteroidCollision(int[] asteroids) {\n    // Use stack to simulate\n    \n}`, solution:`public int[] asteroidCollision(int[] asteroids) {\n    Deque<Integer> stack = new ArrayDeque<>();\n    for (int a : asteroids) {\n        boolean alive = true;\n        while (alive && a < 0 && !stack.isEmpty() && stack.peek() > 0) {\n            if (stack.peek() < -a) { stack.pop(); }\n            else if (stack.peek() == -a) { stack.pop(); alive = false; }\n            else alive = false;\n        }\n        if (alive) stack.push(a);\n    }\n    int[] res = new int[stack.size()];\n    for (int i = res.length - 1; i >= 0; i--) res[i] = stack.pop();\n    return res;\n}`, testCases:`[5,10,-5] → [5,10]\n[8,-8] → []\n[10,2,-5] → [10]` },
+      { id: "sa1", title: "Largest Rectangle in Histogram", company: "Google", desc: "Given an array of bar heights in a histogram, find the area of the largest rectangle that can be formed.", starter: `public int largestRectangleArea(int[] heights) {\n    // Monotonic stack solution\n    \n}`, solution: `public int largestRectangleArea(int[] heights) {\n    Deque<Integer> stack = new ArrayDeque<>();\n    int maxArea = 0;\n    int n = heights.length;\n    for (int i = 0; i <= n; i++) {\n        int curr = (i == n) ? 0 : heights[i];\n        while (!stack.isEmpty() && heights[stack.peek()] > curr) {\n            int h = heights[stack.pop()];\n            int w = stack.isEmpty() ? i : i - stack.peek() - 1;\n            maxArea = Math.max(maxArea, h * w);\n        }\n        stack.push(i);\n    }\n    return maxArea;\n}`, testCases: `[2,1,5,6,2,3] → 10\n[2,4] → 4` },
+      { id: "sa2", title: "Trapping Rain Water", company: "Amazon", desc: "Given n non-negative integers representing elevation heights, compute how much rainwater can be trapped after rain.", starter: `public int trap(int[] height) {\n    // Stack-based approach\n    \n}`, solution: `public int trap(int[] height) {\n    Deque<Integer> stack = new ArrayDeque<>();\n    int water = 0;\n    for (int i = 0; i < height.length; i++) {\n        while (!stack.isEmpty() && height[i] > height[stack.peek()]) {\n            int bottom = stack.pop();\n            if (stack.isEmpty()) break;\n            int left = stack.peek();\n            int h = Math.min(height[left], height[i]) - height[bottom];\n            water += h * (i - left - 1);\n        }\n        stack.push(i);\n    }\n    return water;\n}`, testCases: `[0,1,0,2,1,0,1,3,2,1,2,1] → 6\n[4,2,0,3,2,5] → 9` },
+      { id: "sa3", title: "Asteroid Collision", company: "Meta", desc: "An array represents asteroids. Positive = right, Negative = left. Same size asteroids explode. Find the state after all collisions.", starter: `public int[] asteroidCollision(int[] asteroids) {\n    // Use stack to simulate\n    \n}`, solution: `public int[] asteroidCollision(int[] asteroids) {\n    Deque<Integer> stack = new ArrayDeque<>();\n    for (int a : asteroids) {\n        boolean alive = true;\n        while (alive && a < 0 && !stack.isEmpty() && stack.peek() > 0) {\n            if (stack.peek() < -a) { stack.pop(); }\n            else if (stack.peek() == -a) { stack.pop(); alive = false; }\n            else alive = false;\n        }\n        if (alive) stack.push(a);\n    }\n    int[] res = new int[stack.size()];\n    for (int i = res.length - 1; i >= 0; i--) res[i] = stack.pop();\n    return res;\n}`, testCases: `[5,10,-5] → [5,10]\n[8,-8] → []\n[10,2,-5] → [10]` },
     ],
   },
   "Queue": {
     "Beginner": [
-      { id:"qb1", title:"Implement Queue using Stacks", company:"Amazon", desc:"Implement a FIFO queue using two stacks. Support push, pop, peek, and empty operations.", starter:`class MyQueue {\n    public void push(int x) { }\n    public int pop() { }\n    public int peek() { }\n    public boolean empty() { }\n}`, solution:`class MyQueue {\n    Deque<Integer> inbox = new ArrayDeque<>();\n    Deque<Integer> outbox = new ArrayDeque<>();\n    \n    public void push(int x) { inbox.push(x); }\n    private void transfer() {\n        if (outbox.isEmpty())\n            while (!inbox.isEmpty()) outbox.push(inbox.pop());\n    }\n    public int pop() { transfer(); return outbox.pop(); }\n    public int peek() { transfer(); return outbox.peek(); }\n    public boolean empty() { return inbox.isEmpty() && outbox.isEmpty(); }\n}`, testCases:`push(1),push(2),peek() → 1\npop() → 1\nempty() → false` },
-      { id:"qb2", title:"Number of Recent Calls", company:"Google", desc:"Count the number of requests in the last 3000 milliseconds.", starter:`class RecentCounter {\n    public int ping(int t) { }\n}`, solution:`class RecentCounter {\n    Queue<Integer> q = new LinkedList<>();\n    public int ping(int t) {\n        q.offer(t);\n        while (q.peek() < t - 3000) q.poll();\n        return q.size();\n    }\n}`, testCases:`ping(1)→1, ping(100)→2, ping(3001)→3, ping(3002)→3` },
-      { id:"qb3", title:"Circular Queue Implementation", company:"Microsoft", desc:"Design a circular queue with fixed capacity. Implement enQueue, deQueue, Front, Rear, isEmpty, isFull.", starter:`class MyCircularQueue {\n    int[] arr; int front, rear, size, cap;\n    public MyCircularQueue(int k) { }\n    public boolean enQueue(int val) { }\n    public boolean deQueue() { }\n}`, solution:`class MyCircularQueue {\n    int[] arr; int front=0,rear=-1,size=0,cap;\n    public MyCircularQueue(int k){arr=new int[k];cap=k;}\n    public boolean enQueue(int val){if(isFull())return false;rear=(rear+1)%cap;arr[rear]=val;size++;return true;}\n    public boolean deQueue(){if(isEmpty())return false;front=(front+1)%cap;size--;return true;}\n    public int Front(){return isEmpty()?-1:arr[front];}\n    public int Rear(){return isEmpty()?-1:arr[rear];}\n    public boolean isEmpty(){return size==0;}\n    public boolean isFull(){return size==cap;}\n}`, testCases:`k=3: enQueue(1)→true, enQueue(4)→false (full)` },
+      { id: "qb1", title: "Implement Queue using Stacks", company: "Amazon", desc: "Implement a FIFO queue using two stacks. Support push, pop, peek, and empty operations.", starter: `class MyQueue {\n    public void push(int x) { }\n    public int pop() { }\n    public int peek() { }\n    public boolean empty() { }\n}`, solution: `class MyQueue {\n    Deque<Integer> inbox = new ArrayDeque<>();\n    Deque<Integer> outbox = new ArrayDeque<>();\n    \n    public void push(int x) { inbox.push(x); }\n    private void transfer() {\n        if (outbox.isEmpty())\n            while (!inbox.isEmpty()) outbox.push(inbox.pop());\n    }\n    public int pop() { transfer(); return outbox.pop(); }\n    public int peek() { transfer(); return outbox.peek(); }\n    public boolean empty() { return inbox.isEmpty() && outbox.isEmpty(); }\n}`, testCases: `push(1),push(2),peek() → 1\npop() → 1\nempty() → false` },
+      { id: "qb2", title: "Number of Recent Calls", company: "Google", desc: "Count the number of requests in the last 3000 milliseconds.", starter: `class RecentCounter {\n    public int ping(int t) { }\n}`, solution: `class RecentCounter {\n    Queue<Integer> q = new LinkedList<>();\n    public int ping(int t) {\n        q.offer(t);\n        while (q.peek() < t - 3000) q.poll();\n        return q.size();\n    }\n}`, testCases: `ping(1)→1, ping(100)→2, ping(3001)→3, ping(3002)→3` },
+      { id: "qb3", title: "Circular Queue Implementation", company: "Microsoft", desc: "Design a circular queue with fixed capacity. Implement enQueue, deQueue, Front, Rear, isEmpty, isFull.", starter: `class MyCircularQueue {\n    int[] arr; int front, rear, size, cap;\n    public MyCircularQueue(int k) { }\n    public boolean enQueue(int val) { }\n    public boolean deQueue() { }\n}`, solution: `class MyCircularQueue {\n    int[] arr; int front=0,rear=-1,size=0,cap;\n    public MyCircularQueue(int k){arr=new int[k];cap=k;}\n    public boolean enQueue(int val){if(isFull())return false;rear=(rear+1)%cap;arr[rear]=val;size++;return true;}\n    public boolean deQueue(){if(isEmpty())return false;front=(front+1)%cap;size--;return true;}\n    public int Front(){return isEmpty()?-1:arr[front];}\n    public int Rear(){return isEmpty()?-1:arr[rear];}\n    public boolean isEmpty(){return size==0;}\n    public boolean isFull(){return size==cap;}\n}`, testCases: `k=3: enQueue(1)→true, enQueue(4)→false (full)` },
     ],
     "Intermediate": [
-      { id:"qi1", title:"Binary Tree Level Order Traversal", company:"Amazon", desc:"Return level-order traversal of a binary tree's node values.", starter:`public List<List<Integer>> levelOrder(TreeNode root) {\n    // BFS with queue\n}`, solution:`public List<List<Integer>> levelOrder(TreeNode root) {\n    List<List<Integer>> result = new ArrayList<>();\n    if (root == null) return result;\n    Queue<TreeNode> q = new LinkedList<>();\n    q.offer(root);\n    while (!q.isEmpty()) {\n        int size = q.size();\n        List<Integer> level = new ArrayList<>();\n        for (int i = 0; i < size; i++) {\n            TreeNode node = q.poll();\n            level.add(node.val);\n            if (node.left != null) q.offer(node.left);\n            if (node.right != null) q.offer(node.right);\n        }\n        result.add(level);\n    }\n    return result;\n}`, testCases:`[3,9,20,null,null,15,7] → [[3],[9,20],[15,7]]` },
-      { id:"qi2", title:"Rotting Oranges", company:"Google", desc:"Given a grid with fresh(1) and rotten(2) oranges, find minimum minutes until all oranges rot.", starter:`public int orangesRotting(int[][] grid) {\n    // Multi-source BFS\n}`, solution:`public int orangesRotting(int[][] grid) {\n    int rows=grid.length,cols=grid[0].length,fresh=0,mins=0;\n    Queue<int[]> q=new LinkedList<>();\n    for(int r=0;r<rows;r++) for(int c=0;c<cols;c++){if(grid[r][c]==2)q.offer(new int[]{r,c});if(grid[r][c]==1)fresh++;}\n    int[][] dirs={{0,1},{0,-1},{1,0},{-1,0}};\n    while(!q.isEmpty()&&fresh>0){mins++;int size=q.size();for(int i=0;i<size;i++){int[]curr=q.poll();for(int[]d:dirs){int nr=curr[0]+d[0],nc=curr[1]+d[1];if(nr>=0&&nr<rows&&nc>=0&&nc<cols&&grid[nr][nc]==1){grid[nr][nc]=2;fresh--;q.offer(new int[]{nr,nc});}}}}\n    return fresh==0?mins:-1;\n}`, testCases:`[[2,1,1],[1,1,0],[0,1,1]] → 4\n[[0,2]] → 0` },
-      { id:"qi3", title:"Task Scheduler", company:"Amazon", desc:"Given tasks and cooldown n, find the minimum time to execute all tasks.", starter:`public int leastInterval(char[] tasks, int n) { }`, solution:`public int leastInterval(char[] tasks, int n) {\n    int[] freq=new int[26];\n    for(char t:tasks) freq[t-'A']++;\n    PriorityQueue<Integer> pq=new PriorityQueue<>(Collections.reverseOrder());\n    for(int f:freq) if(f>0) pq.offer(f);\n    int time=0;\n    while(!pq.isEmpty()){List<Integer> temp=new ArrayList<>();for(int i=0;i<=n;i++){if(!pq.isEmpty())temp.add(pq.poll());time++;if(pq.isEmpty()&&temp.isEmpty())break;}for(int f:temp)if(f-1>0)pq.offer(f-1);}\n    return time;\n}`, testCases:`tasks=["A","A","A","B","B","B"],n=2 → 8` },
+      { id: "qi1", title: "Binary Tree Level Order Traversal", company: "Amazon", desc: "Return level-order traversal of a binary tree's node values.", starter: `public List<List<Integer>> levelOrder(TreeNode root) {\n    // BFS with queue\n}`, solution: `public List<List<Integer>> levelOrder(TreeNode root) {\n    List<List<Integer>> result = new ArrayList<>();\n    if (root == null) return result;\n    Queue<TreeNode> q = new LinkedList<>();\n    q.offer(root);\n    while (!q.isEmpty()) {\n        int size = q.size();\n        List<Integer> level = new ArrayList<>();\n        for (int i = 0; i < size; i++) {\n            TreeNode node = q.poll();\n            level.add(node.val);\n            if (node.left != null) q.offer(node.left);\n            if (node.right != null) q.offer(node.right);\n        }\n        result.add(level);\n    }\n    return result;\n}`, testCases: `[3,9,20,null,null,15,7] → [[3],[9,20],[15,7]]` },
+      { id: "qi2", title: "Rotting Oranges", company: "Google", desc: "Given a grid with fresh(1) and rotten(2) oranges, find minimum minutes until all oranges rot.", starter: `public int orangesRotting(int[][] grid) {\n    // Multi-source BFS\n}`, solution: `public int orangesRotting(int[][] grid) {\n    int rows=grid.length,cols=grid[0].length,fresh=0,mins=0;\n    Queue<int[]> q=new LinkedList<>();\n    for(int r=0;r<rows;r++) for(int c=0;c<cols;c++){if(grid[r][c]==2)q.offer(new int[]{r,c});if(grid[r][c]==1)fresh++;}\n    int[][] dirs={{0,1},{0,-1},{1,0},{-1,0}};\n    while(!q.isEmpty()&&fresh>0){mins++;int size=q.size();for(int i=0;i<size;i++){int[]curr=q.poll();for(int[]d:dirs){int nr=curr[0]+d[0],nc=curr[1]+d[1];if(nr>=0&&nr<rows&&nc>=0&&nc<cols&&grid[nr][nc]==1){grid[nr][nc]=2;fresh--;q.offer(new int[]{nr,nc});}}}}\n    return fresh==0?mins:-1;\n}`, testCases: `[[2,1,1],[1,1,0],[0,1,1]] → 4\n[[0,2]] → 0` },
+      { id: "qi3", title: "Task Scheduler", company: "Amazon", desc: "Given tasks and cooldown n, find the minimum time to execute all tasks.", starter: `public int leastInterval(char[] tasks, int n) { }`, solution: `public int leastInterval(char[] tasks, int n) {\n    int[] freq=new int[26];\n    for(char t:tasks) freq[t-'A']++;\n    PriorityQueue<Integer> pq=new PriorityQueue<>(Collections.reverseOrder());\n    for(int f:freq) if(f>0) pq.offer(f);\n    int time=0;\n    while(!pq.isEmpty()){List<Integer> temp=new ArrayList<>();for(int i=0;i<=n;i++){if(!pq.isEmpty())temp.add(pq.poll());time++;if(pq.isEmpty()&&temp.isEmpty())break;}for(int f:temp)if(f-1>0)pq.offer(f-1);}\n    return time;\n}`, testCases: `tasks=["A","A","A","B","B","B"],n=2 → 8` },
     ],
     "Advanced": [
-      { id:"qa1", title:"Sliding Window Maximum", company:"Amazon", desc:"Find the maximum in each sliding window of size k in an array.", starter:`public int[] maxSlidingWindow(int[] nums, int k) { }`, solution:`public int[] maxSlidingWindow(int[] nums, int k) {\n    int n=nums.length;\n    int[] result=new int[n-k+1];\n    Deque<Integer> deque=new ArrayDeque<>();\n    for(int i=0;i<n;i++){while(!deque.isEmpty()&&deque.peekFirst()<i-k+1)deque.pollFirst();while(!deque.isEmpty()&&nums[deque.peekLast()]<nums[i])deque.pollLast();deque.offerLast(i);if(i>=k-1)result[i-k+1]=nums[deque.peekFirst()];}\n    return result;\n}`, testCases:`[1,3,-1,-3,5,3,6,7],k=3 → [3,3,5,5,6,7]` },
-      { id:"qa2", title:"Course Schedule II (Topological Sort)", company:"Google", desc:"Given numCourses and prerequisites, return the order to finish all courses.", starter:`public int[] findOrder(int numCourses, int[][] prerequisites) { }`, solution:`public int[] findOrder(int numCourses, int[][] prereqs) {\n    List<List<Integer>> adj=new ArrayList<>();\n    int[] inDegree=new int[numCourses];\n    for(int i=0;i<numCourses;i++) adj.add(new ArrayList<>());\n    for(int[] p:prereqs){adj.get(p[1]).add(p[0]);inDegree[p[0]]++;}\n    Queue<Integer> q=new LinkedList<>();\n    for(int i=0;i<numCourses;i++) if(inDegree[i]==0) q.offer(i);\n    int[] result=new int[numCourses];int idx=0;\n    while(!q.isEmpty()){int node=q.poll();result[idx++]=node;for(int next:adj.get(node))if(--inDegree[next]==0)q.offer(next);}\n    return idx==numCourses?result:new int[]{};\n}`, testCases:`numCourses=2,prerequisites=[[1,0]] → [0,1]` },
-      { id:"qa3", title:"Find Median from Data Stream", company:"Meta", desc:"Design a data structure to add numbers and find the median.", starter:`class MedianFinder {\n    public void addNum(int num) { }\n    public double findMedian() { }\n}`, solution:`class MedianFinder {\n    PriorityQueue<Integer> lo=new PriorityQueue<>(Collections.reverseOrder());\n    PriorityQueue<Integer> hi=new PriorityQueue<>();\n    public void addNum(int num){lo.offer(num);hi.offer(lo.poll());if(lo.size()<hi.size())lo.offer(hi.poll());}\n    public double findMedian(){return lo.size()>hi.size()?lo.peek():(lo.peek()+hi.peek())/2.0;}\n}`, testCases:`addNum(1),addNum(2),findMedian()→1.5\naddNum(3),findMedian()→2.0` },
+      { id: "qa1", title: "Sliding Window Maximum", company: "Amazon", desc: "Find the maximum in each sliding window of size k in an array.", starter: `public int[] maxSlidingWindow(int[] nums, int k) { }`, solution: `public int[] maxSlidingWindow(int[] nums, int k) {\n    int n=nums.length;\n    int[] result=new int[n-k+1];\n    Deque<Integer> deque=new ArrayDeque<>();\n    for(int i=0;i<n;i++){while(!deque.isEmpty()&&deque.peekFirst()<i-k+1)deque.pollFirst();while(!deque.isEmpty()&&nums[deque.peekLast()]<nums[i])deque.pollLast();deque.offerLast(i);if(i>=k-1)result[i-k+1]=nums[deque.peekFirst()];}\n    return result;\n}`, testCases: `[1,3,-1,-3,5,3,6,7],k=3 → [3,3,5,5,6,7]` },
+      { id: "qa2", title: "Course Schedule II (Topological Sort)", company: "Google", desc: "Given numCourses and prerequisites, return the order to finish all courses.", starter: `public int[] findOrder(int numCourses, int[][] prerequisites) { }`, solution: `public int[] findOrder(int numCourses, int[][] prereqs) {\n    List<List<Integer>> adj=new ArrayList<>();\n    int[] inDegree=new int[numCourses];\n    for(int i=0;i<numCourses;i++) adj.add(new ArrayList<>());\n    for(int[] p:prereqs){adj.get(p[1]).add(p[0]);inDegree[p[0]]++;}\n    Queue<Integer> q=new LinkedList<>();\n    for(int i=0;i<numCourses;i++) if(inDegree[i]==0) q.offer(i);\n    int[] result=new int[numCourses];int idx=0;\n    while(!q.isEmpty()){int node=q.poll();result[idx++]=node;for(int next:adj.get(node))if(--inDegree[next]==0)q.offer(next);}\n    return idx==numCourses?result:new int[]{};\n}`, testCases: `numCourses=2,prerequisites=[[1,0]] → [0,1]` },
+      { id: "qa3", title: "Find Median from Data Stream", company: "Meta", desc: "Design a data structure to add numbers and find the median.", starter: `class MedianFinder {\n    public void addNum(int num) { }\n    public double findMedian() { }\n}`, solution: `class MedianFinder {\n    PriorityQueue<Integer> lo=new PriorityQueue<>(Collections.reverseOrder());\n    PriorityQueue<Integer> hi=new PriorityQueue<>();\n    public void addNum(int num){lo.offer(num);hi.offer(lo.poll());if(lo.size()<hi.size())lo.offer(hi.poll());}\n    public double findMedian(){return lo.size()>hi.size()?lo.peek():(lo.peek()+hi.peek())/2.0;}\n}`, testCases: `addNum(1),addNum(2),findMedian()→1.5\naddNum(3),findMedian()→2.0` },
     ],
   },
   "Linear Search": {
     "Beginner": [
-      { id:"lb1", title:"Find First Occurrence", company:"TCS", desc:"Given an array and target, return the index of the first occurrence, or -1 if not found.", starter:`public int findFirst(int[] arr, int target) { }`, solution:`public int findFirst(int[] arr, int target) {\n    for (int i = 0; i < arr.length; i++)\n        if (arr[i] == target) return i;\n    return -1;\n}`, testCases:`[4,8,2,9,5], target=9 → 3\n[1,2,3,4,5], target=6 → -1` },
-      { id:"lb2", title:"Two Sum", company:"Amazon", desc:"Return indices of two numbers that add up to target. Use HashMap for O(n).", starter:`public int[] twoSum(int[] nums, int target) { }`, solution:`public int[] twoSum(int[] nums, int target) {\n    Map<Integer,Integer> map = new HashMap<>();\n    for (int i=0;i<nums.length;i++) {\n        int comp = target - nums[i];\n        if (map.containsKey(comp)) return new int[]{map.get(comp),i};\n        map.put(nums[i],i);\n    }\n    return new int[]{};\n}`, testCases:`[2,7,11,15],target=9 → [0,1]\n[3,2,4],target=6 → [1,2]` },
-      { id:"lb3", title:"Maximum Element", company:"Infosys", desc:"Find the maximum element in an unsorted array using a single linear scan.", starter:`public int findMax(int[] arr) { }`, solution:`public int findMax(int[] arr) {\n    int max = arr[0];\n    for (int i=1;i<arr.length;i++)\n        if (arr[i] > max) max = arr[i];\n    return max;\n}`, testCases:`[3,1,4,1,5,9,2,6] → 9\n[-5,-1,-3] → -1` },
+      { id: "lb1", title: "Find First Occurrence", company: "TCS", desc: "Given an array and target, return the index of the first occurrence, or -1 if not found.", starter: `public int findFirst(int[] arr, int target) { }`, solution: `public int findFirst(int[] arr, int target) {\n    for (int i = 0; i < arr.length; i++)\n        if (arr[i] == target) return i;\n    return -1;\n}`, testCases: `[4,8,2,9,5], target=9 → 3\n[1,2,3,4,5], target=6 → -1` },
+      { id: "lb2", title: "Two Sum", company: "Amazon", desc: "Return indices of two numbers that add up to target. Use HashMap for O(n).", starter: `public int[] twoSum(int[] nums, int target) { }`, solution: `public int[] twoSum(int[] nums, int target) {\n    Map<Integer,Integer> map = new HashMap<>();\n    for (int i=0;i<nums.length;i++) {\n        int comp = target - nums[i];\n        if (map.containsKey(comp)) return new int[]{map.get(comp),i};\n        map.put(nums[i],i);\n    }\n    return new int[]{};\n}`, testCases: `[2,7,11,15],target=9 → [0,1]\n[3,2,4],target=6 → [1,2]` },
+      { id: "lb3", title: "Maximum Element", company: "Infosys", desc: "Find the maximum element in an unsorted array using a single linear scan.", starter: `public int findMax(int[] arr) { }`, solution: `public int findMax(int[] arr) {\n    int max = arr[0];\n    for (int i=1;i<arr.length;i++)\n        if (arr[i] > max) max = arr[i];\n    return max;\n}`, testCases: `[3,1,4,1,5,9,2,6] → 9\n[-5,-1,-3] → -1` },
     ],
     "Intermediate": [
-      { id:"li1", title:"Maximum Subarray (Kadane's)", company:"Amazon", desc:"Find the contiguous subarray with the largest sum.", starter:`public int maxSubArray(int[] nums) { }`, solution:`public int maxSubArray(int[] nums) {\n    int maxSum = nums[0], currSum = nums[0];\n    for (int i=1;i<nums.length;i++) {\n        currSum = Math.max(nums[i], currSum + nums[i]);\n        maxSum = Math.max(maxSum, currSum);\n    }\n    return maxSum;\n}`, testCases:`[-2,1,-3,4,-1,2,1,-5,4] → 6\n[5,4,-1,7,8] → 23` },
-      { id:"li2", title:"Majority Element (Boyer-Moore)", company:"Meta", desc:"Find the element appearing more than n/2 times using O(1) space.", starter:`public int majorityElement(int[] nums) { }`, solution:`public int majorityElement(int[] nums) {\n    int candidate=nums[0], count=1;\n    for (int i=1;i<nums.length;i++) {\n        if (count==0) { candidate=nums[i]; count=1; }\n        else if (nums[i]==candidate) count++;\n        else count--;\n    }\n    return candidate;\n}`, testCases:`[3,2,3] → 3\n[2,2,1,1,1,2,2] → 2` },
-      { id:"li3", title:"Best Time to Buy and Sell Stock", company:"Amazon", desc:"Find the maximum profit by buying and selling a stock once.", starter:`public int maxProfit(int[] prices) { }`, solution:`public int maxProfit(int[] prices) {\n    int minPrice = prices[0], maxProfit = 0;\n    for (int price : prices) {\n        minPrice = Math.min(minPrice, price);\n        maxProfit = Math.max(maxProfit, price - minPrice);\n    }\n    return maxProfit;\n}`, testCases:`[7,1,5,3,6,4] → 5\n[7,6,4,3,1] → 0` },
+      { id: "li1", title: "Maximum Subarray (Kadane's)", company: "Amazon", desc: "Find the contiguous subarray with the largest sum.", starter: `public int maxSubArray(int[] nums) { }`, solution: `public int maxSubArray(int[] nums) {\n    int maxSum = nums[0], currSum = nums[0];\n    for (int i=1;i<nums.length;i++) {\n        currSum = Math.max(nums[i], currSum + nums[i]);\n        maxSum = Math.max(maxSum, currSum);\n    }\n    return maxSum;\n}`, testCases: `[-2,1,-3,4,-1,2,1,-5,4] → 6\n[5,4,-1,7,8] → 23` },
+      { id: "li2", title: "Majority Element (Boyer-Moore)", company: "Meta", desc: "Find the element appearing more than n/2 times using O(1) space.", starter: `public int majorityElement(int[] nums) { }`, solution: `public int majorityElement(int[] nums) {\n    int candidate=nums[0], count=1;\n    for (int i=1;i<nums.length;i++) {\n        if (count==0) { candidate=nums[i]; count=1; }\n        else if (nums[i]==candidate) count++;\n        else count--;\n    }\n    return candidate;\n}`, testCases: `[3,2,3] → 3\n[2,2,1,1,1,2,2] → 2` },
+      { id: "li3", title: "Best Time to Buy and Sell Stock", company: "Amazon", desc: "Find the maximum profit by buying and selling a stock once.", starter: `public int maxProfit(int[] prices) { }`, solution: `public int maxProfit(int[] prices) {\n    int minPrice = prices[0], maxProfit = 0;\n    for (int price : prices) {\n        minPrice = Math.min(minPrice, price);\n        maxProfit = Math.max(maxProfit, price - minPrice);\n    }\n    return maxProfit;\n}`, testCases: `[7,1,5,3,6,4] → 5\n[7,6,4,3,1] → 0` },
     ],
     "Advanced": [
-      { id:"la1", title:"Trapping Rain Water (Two Pointer)", company:"Google", desc:"Calculate total rainwater trapped using the two-pointer linear scan technique.", starter:`public int trap(int[] height) { }`, solution:`public int trap(int[] height) {\n    int left=0,right=height.length-1,leftMax=0,rightMax=0,water=0;\n    while(left<right){if(height[left]<height[right]){if(height[left]>=leftMax)leftMax=height[left];else water+=leftMax-height[left];left++;}else{if(height[right]>=rightMax)rightMax=height[right];else water+=rightMax-height[right];right--;}}\n    return water;\n}`, testCases:`[0,1,0,2,1,0,1,3,2,1,2,1] → 6\n[4,2,0,3,2,5] → 9` },
-      { id:"la2", title:"Maximum Product Subarray", company:"Microsoft", desc:"Find the contiguous subarray with the largest product.", starter:`public int maxProduct(int[] nums) { }`, solution:`public int maxProduct(int[] nums) {\n    int maxP=nums[0],minP=nums[0],result=nums[0];\n    for(int i=1;i<nums.length;i++){int tmp=maxP;maxP=Math.max(nums[i],Math.max(maxP*nums[i],minP*nums[i]));minP=Math.min(nums[i],Math.min(tmp*nums[i],minP*nums[i]));result=Math.max(result,maxP);}\n    return result;\n}`, testCases:`[2,3,-2,4] → 6\n[-2,3,-4] → 24` },
-      { id:"la3", title:"Dutch National Flag", company:"Google", desc:"Sort array of 0s, 1s, 2s in-place in one pass without extra space.", starter:`public void sortColors(int[] nums) { }`, solution:`public void sortColors(int[] nums) {\n    int lo=0,mid=0,hi=nums.length-1;\n    while(mid<=hi){if(nums[mid]==0){int t=nums[lo];nums[lo++]=nums[mid];nums[mid++]=t;}else if(nums[mid]==1){mid++;}else{int t=nums[hi];nums[hi--]=nums[mid];nums[mid]=t;}}\n}`, testCases:`[2,0,2,1,1,0] → [0,0,1,1,2,2]` },
+      { id: "la1", title: "Trapping Rain Water (Two Pointer)", company: "Google", desc: "Calculate total rainwater trapped using the two-pointer linear scan technique.", starter: `public int trap(int[] height) { }`, solution: `public int trap(int[] height) {\n    int left=0,right=height.length-1,leftMax=0,rightMax=0,water=0;\n    while(left<right){if(height[left]<height[right]){if(height[left]>=leftMax)leftMax=height[left];else water+=leftMax-height[left];left++;}else{if(height[right]>=rightMax)rightMax=height[right];else water+=rightMax-height[right];right--;}}\n    return water;\n}`, testCases: `[0,1,0,2,1,0,1,3,2,1,2,1] → 6\n[4,2,0,3,2,5] → 9` },
+      { id: "la2", title: "Maximum Product Subarray", company: "Microsoft", desc: "Find the contiguous subarray with the largest product.", starter: `public int maxProduct(int[] nums) { }`, solution: `public int maxProduct(int[] nums) {\n    int maxP=nums[0],minP=nums[0],result=nums[0];\n    for(int i=1;i<nums.length;i++){int tmp=maxP;maxP=Math.max(nums[i],Math.max(maxP*nums[i],minP*nums[i]));minP=Math.min(nums[i],Math.min(tmp*nums[i],minP*nums[i]));result=Math.max(result,maxP);}\n    return result;\n}`, testCases: `[2,3,-2,4] → 6\n[-2,3,-4] → 24` },
+      { id: "la3", title: "Dutch National Flag", company: "Google", desc: "Sort array of 0s, 1s, 2s in-place in one pass without extra space.", starter: `public void sortColors(int[] nums) { }`, solution: `public void sortColors(int[] nums) {\n    int lo=0,mid=0,hi=nums.length-1;\n    while(mid<=hi){if(nums[mid]==0){int t=nums[lo];nums[lo++]=nums[mid];nums[mid++]=t;}else if(nums[mid]==1){mid++;}else{int t=nums[hi];nums[hi--]=nums[mid];nums[mid]=t;}}\n}`, testCases: `[2,0,2,1,1,0] → [0,0,1,1,2,2]` },
     ],
   },
   "Bubble Sort": {
     "Beginner": [
-      { id:"bb1", title:"Implement Bubble Sort", company:"TCS", desc:"Sort an integer array in ascending order using Bubble Sort with the swapped-flag optimization.", starter:`public void bubbleSort(int[] arr) { }`, solution:`public void bubbleSort(int[] arr) {\n    int n = arr.length;\n    for (int i=0;i<n-1;i++) {\n        boolean swapped = false;\n        for (int j=0;j<n-1-i;j++) {\n            if (arr[j]>arr[j+1]) {\n                int tmp=arr[j]; arr[j]=arr[j+1]; arr[j+1]=tmp;\n                swapped=true;\n            }\n        }\n        if (!swapped) break;\n    }\n}`, testCases:`[5,3,8,4,2] → [2,3,4,5,8]\n[1,2,3,4,5] → [1,2,3,4,5] (early exit)` },
-      { id:"bb2", title:"Sort Strings Alphabetically", company:"Wipro", desc:"Sort an array of strings alphabetically using Bubble Sort.", starter:`public void sortStrings(String[] arr) { }`, solution:`public void sortStrings(String[] arr) {\n    int n = arr.length;\n    for (int i=0;i<n-1;i++)\n        for (int j=0;j<n-1-i;j++)\n            if (arr[j].compareTo(arr[j+1])>0) {\n                String tmp=arr[j]; arr[j]=arr[j+1]; arr[j+1]=tmp;\n            }\n}`, testCases:`["banana","apple","cherry"] → ["apple","banana","cherry"]` },
-      { id:"bb3", title:"Check if Array is Sorted", company:"Accenture", desc:"Return true if array is sorted in ascending order.", starter:`public boolean isSorted(int[] arr) { }`, solution:`public boolean isSorted(int[] arr) {\n    for (int i=0;i<arr.length-1;i++)\n        if (arr[i]>arr[i+1]) return false;\n    return true;\n}`, testCases:`[1,2,3,4,5] → true\n[1,3,2,4,5] → false` },
+      { id: "bb1", title: "Implement Bubble Sort", company: "TCS", desc: "Sort an integer array in ascending order using Bubble Sort with the swapped-flag optimization.", starter: `public void bubbleSort(int[] arr) { }`, solution: `public void bubbleSort(int[] arr) {\n    int n = arr.length;\n    for (int i=0;i<n-1;i++) {\n        boolean swapped = false;\n        for (int j=0;j<n-1-i;j++) {\n            if (arr[j]>arr[j+1]) {\n                int tmp=arr[j]; arr[j]=arr[j+1]; arr[j+1]=tmp;\n                swapped=true;\n            }\n        }\n        if (!swapped) break;\n    }\n}`, testCases: `[5,3,8,4,2] → [2,3,4,5,8]\n[1,2,3,4,5] → [1,2,3,4,5] (early exit)` },
+      { id: "bb2", title: "Sort Strings Alphabetically", company: "Wipro", desc: "Sort an array of strings alphabetically using Bubble Sort.", starter: `public void sortStrings(String[] arr) { }`, solution: `public void sortStrings(String[] arr) {\n    int n = arr.length;\n    for (int i=0;i<n-1;i++)\n        for (int j=0;j<n-1-i;j++)\n            if (arr[j].compareTo(arr[j+1])>0) {\n                String tmp=arr[j]; arr[j]=arr[j+1]; arr[j+1]=tmp;\n            }\n}`, testCases: `["banana","apple","cherry"] → ["apple","banana","cherry"]` },
+      { id: "bb3", title: "Check if Array is Sorted", company: "Accenture", desc: "Return true if array is sorted in ascending order.", starter: `public boolean isSorted(int[] arr) { }`, solution: `public boolean isSorted(int[] arr) {\n    for (int i=0;i<arr.length-1;i++)\n        if (arr[i]>arr[i+1]) return false;\n    return true;\n}`, testCases: `[1,2,3,4,5] → true\n[1,3,2,4,5] → false` },
     ],
     "Intermediate": [
-      { id:"bi1", title:"Count Inversions", company:"Amazon", desc:"Count the number of inversions in an array. Use merge sort for O(n log n).", starter:`public long countInversions(int[] arr) { }`, solution:`public long countInversions(int[] arr){return mergeCount(arr,0,arr.length-1);}\nprivate long mergeCount(int[]arr,int l,int r){if(l>=r)return 0;int mid=(l+r)/2;long inv=mergeCount(arr,l,mid)+mergeCount(arr,mid+1,r);return inv+merge(arr,l,mid,r);}\nprivate long merge(int[]arr,int l,int mid,int r){int[]tmp=new int[r-l+1];int i=l,j=mid+1,k=0;long inv=0;while(i<=mid&&j<=r){if(arr[i]<=arr[j])tmp[k++]=arr[i++];else{inv+=(mid-i+1);tmp[k++]=arr[j++];}}while(i<=mid)tmp[k++]=arr[i++];while(j<=r)tmp[k++]=arr[j++];System.arraycopy(tmp,0,arr,l,tmp.length);return inv;}`, testCases:`[2,4,1,3,5] → 3\n[2,3,4,5,6,1] → 5` },
-      { id:"bi2", title:"Merge Sort Implementation", company:"Google", desc:"Implement Merge Sort. Understand why it's O(n log n) while Bubble Sort is O(n²).", starter:`public void mergeSort(int[] arr, int left, int right) { }`, solution:`public void mergeSort(int[]arr,int left,int right){if(left>=right)return;int mid=(left+right)/2;mergeSort(arr,left,mid);mergeSort(arr,mid+1,right);merge(arr,left,mid,right);}\nprivate void merge(int[]arr,int l,int mid,int r){int[]tmp=new int[r-l+1];int i=l,j=mid+1,k=0;while(i<=mid&&j<=r)tmp[k++]=arr[i]<=arr[j]?arr[i++]:arr[j++];while(i<=mid)tmp[k++]=arr[i++];while(j<=r)tmp[k++]=arr[j++];System.arraycopy(tmp,0,arr,l,tmp.length);}`, testCases:`[5,3,8,4,2] → [2,3,4,5,8]` },
-      { id:"bi3", title:"Sort Array of 0s, 1s, 2s", company:"Microsoft", desc:"Sort array containing only 0s, 1s, and 2s in O(n) without extra space.", starter:`public void sortColors(int[] nums) { }`, solution:`public void sortColors(int[]nums){int lo=0,mid=0,hi=nums.length-1;while(mid<=hi){if(nums[mid]==0){int t=nums[lo];nums[lo++]=nums[mid];nums[mid++]=t;}else if(nums[mid]==1)mid++;else{int t=nums[hi];nums[hi--]=nums[mid];nums[mid]=t;}}}`, testCases:`[2,0,2,1,1,0] → [0,0,1,1,2,2]` },
+      { id: "bi1", title: "Count Inversions", company: "Amazon", desc: "Count the number of inversions in an array. Use merge sort for O(n log n).", starter: `public long countInversions(int[] arr) { }`, solution: `public long countInversions(int[] arr){return mergeCount(arr,0,arr.length-1);}\nprivate long mergeCount(int[]arr,int l,int r){if(l>=r)return 0;int mid=(l+r)/2;long inv=mergeCount(arr,l,mid)+mergeCount(arr,mid+1,r);return inv+merge(arr,l,mid,r);}\nprivate long merge(int[]arr,int l,int mid,int r){int[]tmp=new int[r-l+1];int i=l,j=mid+1,k=0;long inv=0;while(i<=mid&&j<=r){if(arr[i]<=arr[j])tmp[k++]=arr[i++];else{inv+=(mid-i+1);tmp[k++]=arr[j++];}}while(i<=mid)tmp[k++]=arr[i++];while(j<=r)tmp[k++]=arr[j++];System.arraycopy(tmp,0,arr,l,tmp.length);return inv;}`, testCases: `[2,4,1,3,5] → 3\n[2,3,4,5,6,1] → 5` },
+      { id: "bi2", title: "Merge Sort Implementation", company: "Google", desc: "Implement Merge Sort. Understand why it's O(n log n) while Bubble Sort is O(n²).", starter: `public void mergeSort(int[] arr, int left, int right) { }`, solution: `public void mergeSort(int[]arr,int left,int right){if(left>=right)return;int mid=(left+right)/2;mergeSort(arr,left,mid);mergeSort(arr,mid+1,right);merge(arr,left,mid,right);}\nprivate void merge(int[]arr,int l,int mid,int r){int[]tmp=new int[r-l+1];int i=l,j=mid+1,k=0;while(i<=mid&&j<=r)tmp[k++]=arr[i]<=arr[j]?arr[i++]:arr[j++];while(i<=mid)tmp[k++]=arr[i++];while(j<=r)tmp[k++]=arr[j++];System.arraycopy(tmp,0,arr,l,tmp.length);}`, testCases: `[5,3,8,4,2] → [2,3,4,5,8]` },
+      { id: "bi3", title: "Sort Array of 0s, 1s, 2s", company: "Microsoft", desc: "Sort array containing only 0s, 1s, and 2s in O(n) without extra space.", starter: `public void sortColors(int[] nums) { }`, solution: `public void sortColors(int[]nums){int lo=0,mid=0,hi=nums.length-1;while(mid<=hi){if(nums[mid]==0){int t=nums[lo];nums[lo++]=nums[mid];nums[mid++]=t;}else if(nums[mid]==1)mid++;else{int t=nums[hi];nums[hi--]=nums[mid];nums[mid]=t;}}}`, testCases: `[2,0,2,1,1,0] → [0,0,1,1,2,2]` },
     ],
     "Advanced": [
-      { id:"ba1", title:"Sort K-Sorted Array", company:"Amazon", desc:"Sort an array where each element is at most k positions from its sorted position using a Min-Heap.", starter:`public int[] sortKSortedArray(int[] arr, int k) { }`, solution:`public int[] sortKSortedArray(int[]arr,int k){PriorityQueue<Integer> pq=new PriorityQueue<>();int[]result=new int[arr.length];int ri=0;for(int i=0;i<arr.length;i++){pq.offer(arr[i]);if(pq.size()>k)result[ri++]=pq.poll();}while(!pq.isEmpty())result[ri++]=pq.poll();return result;}`, testCases:`[6,5,3,2,8,10,9], k=3 → [2,3,5,6,8,9,10]` },
-      { id:"ba2", title:"Quick Sort Implementation", company:"Google", desc:"Implement Quick Sort with Lomuto partition scheme.", starter:`public void quickSort(int[] arr, int low, int high) { }`, solution:`public void quickSort(int[]arr,int low,int high){if(low<high){int pi=partition(arr,low,high);quickSort(arr,low,pi-1);quickSort(arr,pi+1,high);}}\nprivate int partition(int[]arr,int low,int high){int pivot=arr[high],i=low-1;for(int j=low;j<high;j++)if(arr[j]<=pivot){i++;int tmp=arr[i];arr[i]=arr[j];arr[j]=tmp;}int tmp=arr[i+1];arr[i+1]=arr[high];arr[high]=tmp;return i+1;}`, testCases:`[5,3,8,4,2] → [2,3,4,5,8]` },
-      { id:"ba3", title:"Find Kth Largest Element", company:"Meta", desc:"Find the kth largest element using QuickSelect for O(n) average time.", starter:`public int findKthLargest(int[] nums, int k) { }`, solution:`public int findKthLargest(int[]nums,int k){return quickSelect(nums,0,nums.length-1,nums.length-k);}\nprivate int quickSelect(int[]arr,int lo,int hi,int target){int pivot=arr[hi],i=lo-1;for(int j=lo;j<hi;j++)if(arr[j]<=pivot){i++;int t=arr[i];arr[i]=arr[j];arr[j]=t;}i++;int t=arr[i];arr[i]=arr[hi];arr[hi]=t;if(i==target)return arr[i];return i<target?quickSelect(arr,i+1,hi,target):quickSelect(arr,lo,i-1,target);}`, testCases:`[3,2,1,5,6,4],k=2 → 5` },
+      { id: "ba1", title: "Sort K-Sorted Array", company: "Amazon", desc: "Sort an array where each element is at most k positions from its sorted position using a Min-Heap.", starter: `public int[] sortKSortedArray(int[] arr, int k) { }`, solution: `public int[] sortKSortedArray(int[]arr,int k){PriorityQueue<Integer> pq=new PriorityQueue<>();int[]result=new int[arr.length];int ri=0;for(int i=0;i<arr.length;i++){pq.offer(arr[i]);if(pq.size()>k)result[ri++]=pq.poll();}while(!pq.isEmpty())result[ri++]=pq.poll();return result;}`, testCases: `[6,5,3,2,8,10,9], k=3 → [2,3,5,6,8,9,10]` },
+      { id: "ba2", title: "Quick Sort Implementation", company: "Google", desc: "Implement Quick Sort with Lomuto partition scheme.", starter: `public void quickSort(int[] arr, int low, int high) { }`, solution: `public void quickSort(int[]arr,int low,int high){if(low<high){int pi=partition(arr,low,high);quickSort(arr,low,pi-1);quickSort(arr,pi+1,high);}}\nprivate int partition(int[]arr,int low,int high){int pivot=arr[high],i=low-1;for(int j=low;j<high;j++)if(arr[j]<=pivot){i++;int tmp=arr[i];arr[i]=arr[j];arr[j]=tmp;}int tmp=arr[i+1];arr[i+1]=arr[high];arr[high]=tmp;return i+1;}`, testCases: `[5,3,8,4,2] → [2,3,4,5,8]` },
+      { id: "ba3", title: "Find Kth Largest Element", company: "Meta", desc: "Find the kth largest element using QuickSelect for O(n) average time.", starter: `public int findKthLargest(int[] nums, int k) { }`, solution: `public int findKthLargest(int[]nums,int k){return quickSelect(nums,0,nums.length-1,nums.length-k);}\nprivate int quickSelect(int[]arr,int lo,int hi,int target){int pivot=arr[hi],i=lo-1;for(int j=lo;j<hi;j++)if(arr[j]<=pivot){i++;int t=arr[i];arr[i]=arr[j];arr[j]=t;}i++;int t=arr[i];arr[i]=arr[hi];arr[hi]=t;if(i==target)return arr[i];return i<target?quickSelect(arr,i+1,hi,target):quickSelect(arr,lo,i-1,target);}`, testCases: `[3,2,1,5,6,4],k=2 → 5` },
     ],
   },
 };
@@ -529,28 +529,28 @@ function analyzeCode(code) {
   const errors = [], warnings = [];
   const lines = code.split('\n');
   let open = 0, close = 0;
-  for (const ch of code) { if (ch==='{') open++; if (ch==='}') close++; }
-  if (open !== close) errors.push({ type:"error", msg:`Unmatched braces: ${open} '{' and ${close} '}'` });
+  for (const ch of code) { if (ch === '{') open++; if (ch === '}') close++; }
+  if (open !== close) errors.push({ type: "error", msg: `Unmatched braces: ${open} '{' and ${close} '}'` });
   lines.forEach((line, idx) => {
     const t = line.trim();
     if (!t.length) return;
     const needsSemi = /^(return|int |String |boolean |double |float |long |char |var |List |Map |Set |Deque |Queue |Stack )/.test(t)
       && !t.endsWith(';') && !t.endsWith('{') && !t.endsWith('}') && !t.endsWith(',') && !t.startsWith('//');
-    if (needsSemi) warnings.push({ type:"warning", msg:`Line ${idx+1}: Possible missing semicolon` });
+    if (needsSemi) warnings.push({ type: "warning", msg: `Line ${idx + 1}: Possible missing semicolon` });
   });
-  if (/\bif\s*\([^)]*=[^=]/.test(code)) warnings.push({ type:"warning", msg:"Assignment inside if condition — did you mean '=='?" });
-  if (code.includes('.peek()') && !code.includes('isEmpty')) warnings.push({ type:"warning", msg:"Calling peek() without isEmpty() check — potential NullPointerException" });
-  if (code.includes('.pop()') && !code.includes('isEmpty')) warnings.push({ type:"warning", msg:"Calling pop() without isEmpty() check — potential EmptyStackException" });
+  if (/\bif\s*\([^)]*=[^=]/.test(code)) warnings.push({ type: "warning", msg: "Assignment inside if condition — did you mean '=='?" });
+  if (code.includes('.peek()') && !code.includes('isEmpty')) warnings.push({ type: "warning", msg: "Calling peek() without isEmpty() check — potential NullPointerException" });
+  if (code.includes('.pop()') && !code.includes('isEmpty')) warnings.push({ type: "warning", msg: "Calling pop() without isEmpty() check — potential EmptyStackException" });
   if (open > 0 && open === close && errors.length === 0 && (code.includes('while') || code.includes('for')))
-    warnings.push({ type:"info", msg:"Loop detected — verify termination condition" });
+    warnings.push({ type: "info", msg: "Loop detected — verify termination condition" });
   return { errors, warnings };
 }
 
 /* ============================================================
    CONSTANTS
 ============================================================ */
-const MOD_COLORS = { "Stack":"#0071e3", "Queue":"#34c759", "Linear Search":"#ff9500", "Bubble Sort":"#af52de" };
-const MOD_ICONS = { "Stack":"📚", "Queue":"🔄", "Linear Search":"🔍", "Bubble Sort":"🫧" };
+const MOD_COLORS = { "Stack": "#0071e3", "Queue": "#34c759", "Linear Search": "#ff9500", "Bubble Sort": "#af52de" };
+const MOD_ICONS = { "Stack": "📚", "Queue": "🔄", "Linear Search": "🔍", "Bubble Sort": "🫧" };
 const MODULES = ["Stack", "Queue", "Linear Search", "Bubble Sort"];
 const LEVELS = ["Beginner", "Intermediate", "Advanced"];
 
@@ -562,7 +562,7 @@ const useProgress = () => {
     try { return JSON.parse(localStorage.getItem('dsaProgress_v2') || '{}'); } catch { return {}; }
   });
   const save = useCallback((key, val) => {
-    setProgress(p => { const n = {...p,[key]:val}; try{localStorage.setItem('dsaProgress_v2',JSON.stringify(n))}catch{}; return n; });
+    setProgress(p => { const n = { ...p, [key]: val }; try { localStorage.setItem('dsaProgress_v2', JSON.stringify(n)) } catch { }; return n; });
   }, []);
   return [progress, save];
 };
@@ -572,86 +572,86 @@ const useProgress = () => {
 ============================================================ */
 const FitaAcademyProfile = () => {
   const courses = [
-    { name:"Data Structures & Algorithms", icon:"🧮", color:"#0071e3" },
-    { name:"UI/UX Design", icon:"🎨", color:"#34c759" },
-    { name:"Full Stack Development", icon:"💻", color:"#ff9500" },
-    { name:"Python & Machine Learning", icon:"🤖", color:"#af52de" },
-    { name:"Cloud Computing (AWS/Azure)", icon:"☁️", color:"#ff3b30" },
-    { name:"Placement Training", icon:"🏆", color:"#5ac8fa" },
+    { name: "Data Structures & Algorithms", icon: "🧮", color: "#0071e3" },
+    { name: "UI/UX Design", icon: "🎨", color: "#34c759" },
+    { name: "Full Stack Development", icon: "💻", color: "#ff9500" },
+    { name: "Python & Machine Learning", icon: "🤖", color: "#af52de" },
+    { name: "Cloud Computing (AWS/Azure)", icon: "☁️", color: "#ff3b30" },
+    { name: "Placement Training", icon: "🏆", color: "#5ac8fa" },
   ];
   return (
-    <motion.div initial={{opacity:0,y:30}} animate={{opacity:1,y:0}} transition={{duration:0.6,ease:[0.22,1,0.36,1]}} style={{width:"100%",maxWidth:720}}>
+    <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }} style={{ width: "100%", maxWidth: 720 }}>
       {/* Hero Card */}
-      <div style={{background:"white",borderRadius:24,overflow:"hidden",marginBottom:16,boxShadow:"var(--shadow-lg)"}}>
-        <div style={{background:"linear-gradient(145deg,#f5f5f7,#e8f2ff)",padding:"40px 36px 32px",position:"relative",overflow:"hidden"}}>
-          <div style={{position:"absolute",top:-60,right:-60,width:200,height:200,background:"radial-gradient(circle,rgba(0,113,227,0.12),transparent 70%)"}}/>
-          <div style={{display:"flex",alignItems:"center",gap:24}}>
-            <motion.div animate={{y:[0,-6,0]}} transition={{duration:3,repeat:Infinity,ease:"easeInOut"}}
-              style={{width:80,height:80,borderRadius:20,background:"linear-gradient(135deg,#0071e3,#0a84ff)",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 8px 24px rgba(0,113,227,0.35)",flexShrink:0}}>
-              <span style={{fontSize:36}}>🎓</span>
+      <div style={{ background: "white", borderRadius: 24, overflow: "hidden", marginBottom: 16, boxShadow: "var(--shadow-lg)" }}>
+        <div style={{ background: "linear-gradient(145deg,#f5f5f7,#e8f2ff)", padding: "40px 36px 32px", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: -60, right: -60, width: 200, height: 200, background: "radial-gradient(circle,rgba(0,113,227,0.12),transparent 70%)" }} />
+          <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+            <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              style={{ width: 80, height: 80, borderRadius: 20, background: "linear-gradient(135deg,#0071e3,#0a84ff)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 24px rgba(0,113,227,0.35)", flexShrink: 0 }}>
+              <span style={{ fontSize: 36 }}>🎓</span>
             </motion.div>
             <div>
-              <div style={{display:"flex",gap:8,marginBottom:8,alignItems:"center"}}>
-                <span style={{fontSize:11,fontWeight:600,letterSpacing:0.5,color:"#0071e3",background:"rgba(0,113,227,0.1)",padding:"3px 10px",borderRadius:20}}>IT Training Institute</span>
-                <span style={{fontSize:11,fontWeight:600,color:"#34c759",background:"rgba(52,199,89,0.1)",padding:"3px 10px",borderRadius:20}}>✓ Verified</span>
+              <div style={{ display: "flex", gap: 8, marginBottom: 8, alignItems: "center" }}>
+                <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.5, color: "#0071e3", background: "rgba(0,113,227,0.1)", padding: "3px 10px", borderRadius: 20 }}>IT Training Institute</span>
+                <span style={{ fontSize: 11, fontWeight: 600, color: "#34c759", background: "rgba(52,199,89,0.1)", padding: "3px 10px", borderRadius: 20 }}>✓ Verified</span>
               </div>
-              <h2 style={{fontSize:28,fontWeight:700,color:"#1d1d1f",letterSpacing:-0.5,marginBottom:4}}>FITA Academy</h2>
-              <p style={{fontSize:14,color:"#86868b",fontFamily:"var(--font-mono)"}}>Chennai • Bangalore • malaysia</p>
+              <h2 style={{ fontSize: 28, fontWeight: 700, color: "#1d1d1f", letterSpacing: -0.5, marginBottom: 4 }}>FITA Academy</h2>
+              <p style={{ fontSize: 14, color: "#86868b", fontFamily: "var(--font-mono)" }}>Chennai • Bangalore • malaysia</p>
             </div>
           </div>
           {/* Stats */}
-          <div style={{display:"flex",gap:28,marginTop:24}}>
-            {[["10K+","Students"],["50+","Courses"],["95%","Placement"],["15+","Years"]].map(([n,l])=>(
+          <div style={{ display: "flex", gap: 28, marginTop: 24 }}>
+            {[["10K+", "Students"], ["50+", "Courses"], ["95%", "Placement"], ["15+", "Years"]].map(([n, l]) => (
               <div key={l}>
-                <div style={{fontSize:22,fontWeight:700,color:"#1d1d1f"}}>{n}</div>
-                <div style={{fontSize:11,color:"#86868b",marginTop:1}}>{l}</div>
+                <div style={{ fontSize: 22, fontWeight: 700, color: "#1d1d1f" }}>{n}</div>
+                <div style={{ fontSize: 11, color: "#86868b", marginTop: 1 }}>{l}</div>
               </div>
             ))}
           </div>
         </div>
         {/* Links */}
-        <div style={{padding:"24px 36px",display:"flex",gap:12,flexWrap:"wrap",borderBottom:"1px solid var(--border)"}}>
+        <div style={{ padding: "24px 36px", display: "flex", gap: 12, flexWrap: "wrap", borderBottom: "1px solid var(--border)" }}>
           {[
-            {href:"https://www.linkedin.com/company/fitaofficial/",label:"LinkedIn",color:"#0a66c2",icon:"in"},
-            {href:"https://www.fita.in",label:"fita.in",color:"#0071e3",icon:"🌐"},
-          ].map(({href,label,color,icon})=>(
+            { href: "https://www.linkedin.com/company/fitaofficial/", label: "LinkedIn", color: "#0a66c2", icon: "in" },
+            { href: "https://www.fita.in", label: "fita.in", color: "#0071e3", icon: "🌐" },
+          ].map(({ href, label, color, icon }) => (
             <motion.a key={label} href={href} target="_blank" rel="noopener noreferrer"
-              whileHover={{scale:1.03,y:-1}} whileTap={{scale:0.98}}
-              style={{display:"inline-flex",alignItems:"center",gap:8,padding:"10px 20px",background:"white",border:"1.5px solid var(--border)",borderRadius:12,color,fontWeight:600,fontSize:13,boxShadow:"var(--shadow-sm)"}}>
+              whileHover={{ scale: 1.03, y: -1 }} whileTap={{ scale: 0.98 }}
+              style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 20px", background: "white", border: "1.5px solid var(--border)", borderRadius: 12, color, fontWeight: 600, fontSize: 13, boxShadow: "var(--shadow-sm)" }}>
               <span>{icon}</span>{label} ↗
             </motion.a>
           ))}
         </div>
         {/* CTA */}
-        <div style={{padding:"24px 36px"}}>
-          <p style={{fontSize:14,color:"#424245",lineHeight:1.7,marginBottom:16}}>
+        <div style={{ padding: "24px 36px" }}>
+          <p style={{ fontSize: 14, color: "#424245", lineHeight: 1.7, marginBottom: 16 }}>
             At FITA Academy, you don't just learn — you get placement-ready. From Data Structures & Algorithms to UI/UX Design, expert-led courses crafted for real-world success.
           </p>
-          <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <motion.a href="https://www.fita.in" target="_blank" rel="noopener noreferrer"
-              whileHover={{scale:1.03}} whileTap={{scale:0.97}}
-              style={{display:"inline-flex",alignItems:"center",gap:8,padding:"12px 24px",fontSize:14,fontWeight:600,background:"#0071e3",color:"white",borderRadius:14,boxShadow:"var(--shadow-blue)"}}>
+              whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+              style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 24px", fontSize: 14, fontWeight: 600, background: "#0071e3", color: "white", borderRadius: 14, boxShadow: "var(--shadow-blue)" }}>
               Explore All Courses →
             </motion.a>
             <motion.a href="https://www.linkedin.com/company/fitaofficial/" target="_blank" rel="noopener noreferrer"
-              whileHover={{scale:1.03}} whileTap={{scale:0.97}}
-              style={{display:"inline-flex",alignItems:"center",gap:8,padding:"12px 24px",fontSize:14,fontWeight:600,background:"white",color:"#424245",border:"1.5px solid var(--border)",borderRadius:14}}>
+              whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+              style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 24px", fontSize: 14, fontWeight: 600, background: "white", color: "#424245", border: "1.5px solid var(--border)", borderRadius: 14 }}>
               Follow on LinkedIn
             </motion.a>
           </div>
         </div>
       </div>
       {/* Courses */}
-      <div style={{background:"white",borderRadius:20,padding:"24px",boxShadow:"var(--shadow)"}}>
-        <p style={{fontSize:12,fontWeight:600,letterSpacing:0.5,color:"#86868b",textTransform:"uppercase",marginBottom:16}}>Popular Courses</p>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(190px,1fr))",gap:10}}>
-          {courses.map((c,i)=>(
+      <div style={{ background: "white", borderRadius: 20, padding: "24px", boxShadow: "var(--shadow)" }}>
+        <p style={{ fontSize: 12, fontWeight: 600, letterSpacing: 0.5, color: "#86868b", textTransform: "uppercase", marginBottom: 16 }}>Popular Courses</p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(190px,1fr))", gap: 10 }}>
+          {courses.map((c, i) => (
             <motion.a key={i} href="https://www.fita.in" target="_blank" rel="noopener noreferrer"
-              initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} transition={{delay:i*0.06}}
-              whileHover={{scale:1.03,y:-2}}
-              style={{padding:"14px 16px",background:c.color+"0d",border:`1.5px solid ${c.color}22`,borderRadius:14,display:"flex",alignItems:"center",gap:10}}>
-              <span style={{fontSize:18}}>{c.icon}</span>
-              <span style={{fontSize:12,fontWeight:600,color:c.color,lineHeight:1.4}}>{c.name}</span>
+              initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}
+              whileHover={{ scale: 1.03, y: -2 }}
+              style={{ padding: "14px 16px", background: c.color + "0d", border: `1.5px solid ${c.color}22`, borderRadius: 14, display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 18 }}>{c.icon}</span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: c.color, lineHeight: 1.4 }}>{c.name}</span>
             </motion.a>
           ))}
         </div>
@@ -661,11 +661,12 @@ const FitaAcademyProfile = () => {
 };
 
 const PillBtn = ({ onClick, active, children, color, style: s }) => (
-  <motion.button whileHover={{scale:1.02}} whileTap={{scale:0.97}} onClick={onClick}
-    style={{padding:"9px 20px",fontSize:13,fontWeight:600,borderRadius:50,border:"none",cursor:"pointer",transition:"all 0.2s",
-      background: active ? (color||"#0071e3") : "white",
+  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={onClick}
+    style={{
+      padding: "9px 20px", fontSize: 13, fontWeight: 600, borderRadius: 50, border: "none", cursor: "pointer", transition: "all 0.2s",
+      background: active ? (color || "#0071e3") : "white",
       color: active ? "white" : "#424245",
-      boxShadow: active ? `0 4px 12px ${(color||"#0071e3")}44` : "var(--shadow-sm)",
+      boxShadow: active ? `0 4px 12px ${(color || "#0071e3")}44` : "var(--shadow-sm)",
       ...s
     }}>
     {children}
@@ -678,34 +679,34 @@ const PillBtn = ({ onClick, active, children, color, style: s }) => (
 export const HomeScreen = ({ onEnter, user, onLogout }) => {
   const [tab, setTab] = useState("home");
   return (
-    <div style={{minHeight:"100vh",background:"var(--bg)",position:"relative",overflow:"hidden"}}>
+    <div style={{ minHeight: "100vh", background: "var(--bg)", position: "relative", overflow: "hidden" }}>
       {/* Apple-style background blobs */}
-      <div style={{position:"fixed",inset:0,pointerEvents:"none",zIndex:0}}>
-        <div style={{position:"absolute",top:"-10%",left:"20%",width:600,height:600,background:"radial-gradient(circle,rgba(0,113,227,0.12),transparent 70%)",borderRadius:"50%",filter:"blur(40px)"}}/>
-        <div style={{position:"absolute",bottom:"-10%",right:"10%",width:500,height:500,background:"radial-gradient(circle,rgba(52,199,89,0.1),transparent 70%)",borderRadius:"50%",filter:"blur(40px)"}}/>
-        <div style={{position:"absolute",top:"40%",right:"25%",width:400,height:400,background:"radial-gradient(circle,rgba(175,82,222,0.08),transparent 70%)",borderRadius:"50%",filter:"blur(40px)"}}/>
+      <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0 }}>
+        <div style={{ position: "absolute", top: "-10%", left: "20%", width: 600, height: 600, background: "radial-gradient(circle,rgba(0,113,227,0.12),transparent 70%)", borderRadius: "50%", filter: "blur(40px)" }} />
+        <div style={{ position: "absolute", bottom: "-10%", right: "10%", width: 500, height: 500, background: "radial-gradient(circle,rgba(52,199,89,0.1),transparent 70%)", borderRadius: "50%", filter: "blur(40px)" }} />
+        <div style={{ position: "absolute", top: "40%", right: "25%", width: 400, height: 400, background: "radial-gradient(circle,rgba(175,82,222,0.08),transparent 70%)", borderRadius: "50%", filter: "blur(40px)" }} />
       </div>
 
       {/* Top Nav */}
-      <div style={{position:"fixed",top:0,left:0,right:0,zIndex:100,backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)",background:"rgba(245,245,247,0.8)",borderBottom:"1px solid rgba(0,0,0,0.06)"}}>
-        <div style={{maxWidth:1100,margin:"0 auto",padding:"0 40px",height:52,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-          <div style={{display:"flex",alignItems:"center",gap:8}}>
-            <div style={{width:28,height:28,borderRadius:8,background:"#0071e3",display:"flex",alignItems:"center",justifyContent:"center"}}>
-              <span style={{fontSize:14,fontWeight:800,color:"white",fontFamily:"var(--font-mono)"}}>F</span>
+      <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", background: "rgba(245,245,247,0.8)", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 40px", height: 52, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 28, height: 28, borderRadius: 8, background: "#0071e3", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ fontSize: 14, fontWeight: 800, color: "white", fontFamily: "var(--font-mono)" }}>F</span>
             </div>
-            <span style={{fontSize:15,fontWeight:600,color:"#1d1d1f"}}>FITA DSA</span>
+            <span style={{ fontSize: 15, fontWeight: 600, color: "#1d1d1f" }}>FITA DSA</span>
           </div>
-          <div style={{display:"flex",gap:6,alignItems:"center"}}>
-            {[["home","Home"],["company","FITA Academy"]].map(([t,l])=>(
-              <button key={t} onClick={()=>setTab(t)} style={{padding:"6px 16px",fontSize:13,fontWeight:500,borderRadius:20,background:tab===t?"#0071e3":"transparent",color:tab===t?"white":"#424245",border:"none",cursor:"pointer",transition:"all 0.2s"}}>{l}</button>
+          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+            {[["home", "Home"], ["company", "FITA Academy"]].map(([t, l]) => (
+              <button key={t} onClick={() => setTab(t)} style={{ padding: "6px 16px", fontSize: 13, fontWeight: 500, borderRadius: 20, background: tab === t ? "#0071e3" : "transparent", color: tab === t ? "white" : "#424245", border: "none", cursor: "pointer", transition: "all 0.2s" }}>{l}</button>
             ))}
             {/* User info + logout */}
-            <div style={{display:"flex",alignItems:"center",gap:8,marginLeft:8,paddingLeft:12,borderLeft:"1px solid rgba(0,0,0,0.1)"}}>
-              <div style={{width:28,height:28,borderRadius:8,background:"#0071e3",display:"flex",alignItems:"center",justifyContent:"center"}}>
-                <span style={{fontSize:13,fontWeight:700,color:"white"}}>{user?.name?.[0]?.toUpperCase()||"U"}</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: 8, paddingLeft: 12, borderLeft: "1px solid rgba(0,0,0,0.1)" }}>
+              <div style={{ width: 28, height: 28, borderRadius: 8, background: "#0071e3", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: "white" }}>{user?.name?.[0]?.toUpperCase() || "U"}</span>
               </div>
-              <span style={{fontSize:13,color:"#424245",fontWeight:500,maxWidth:80,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{user?.name||"User"}</span>
-              <button onClick={onLogout} style={{padding:"5px 12px",fontSize:12,fontWeight:600,borderRadius:16,background:"rgba(255,59,48,0.1)",color:"#ff3b30",border:"1px solid rgba(255,59,48,0.2)",cursor:"pointer",transition:"all 0.2s"}}>
+              <span style={{ fontSize: 13, color: "#424245", fontWeight: 500, maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user?.name || "User"}</span>
+              <button onClick={onLogout} style={{ padding: "5px 12px", fontSize: 12, fontWeight: 600, borderRadius: 16, background: "rgba(255,59,48,0.1)", color: "#ff3b30", border: "1px solid rgba(255,59,48,0.2)", cursor: "pointer", transition: "all 0.2s" }}>
                 Sign Out
               </button>
             </div>
@@ -713,69 +714,69 @@ export const HomeScreen = ({ onEnter, user, onLogout }) => {
         </div>
       </div>
 
-      <div style={{paddingTop:52,minHeight:"100vh",display:"flex",justifyContent:"center",alignItems:"center",padding:"72px 40px 60px",position:"relative",zIndex:1}}>
+      <div style={{ paddingTop: 52, minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center", padding: "72px 40px 60px", position: "relative", zIndex: 1 }}>
         <AnimatePresence mode="wait">
-          {tab==="home" && (
-            <motion.div key="hero" initial={{opacity:0,y:30}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-20}} transition={{duration:0.5,ease:[0.22,1,0.36,1]}} style={{textAlign:"center",maxWidth:680}}>
+          {tab === "home" && (
+            <motion.div key="hero" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }} style={{ textAlign: "center", maxWidth: 680 }}>
               {/* Badge */}
-              <motion.div initial={{opacity:0,scale:0.9}} animate={{opacity:1,scale:1}} transition={{delay:0.1}}
-                style={{display:"inline-flex",alignItems:"center",gap:8,background:"white",border:"1.5px solid rgba(0,113,227,0.2)",borderRadius:50,padding:"8px 18px",marginBottom:32,boxShadow:"var(--shadow-sm)"}}>
-                <div style={{width:6,height:6,borderRadius:"50%",background:"#34c759",animation:"pulse-glow 2s infinite"}}/>
-                <span style={{fontSize:13,fontWeight:500,color:"#0071e3"}}>Beginner DSA Learning Platform</span>
+              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}
+                style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "white", border: "1.5px solid rgba(0,113,227,0.2)", borderRadius: 50, padding: "8px 18px", marginBottom: 32, boxShadow: "var(--shadow-sm)" }}>
+                <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#34c759", animation: "pulse-glow 2s infinite" }} />
+                <span style={{ fontSize: 13, fontWeight: 500, color: "#0071e3" }}>Beginner DSA Learning Platform</span>
               </motion.div>
 
               {/* Hero Title */}
-              <motion.h1 initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{delay:0.15}}
-                style={{fontSize:"clamp(2.8rem,7vw,5.2rem)",fontWeight:700,lineHeight:1.05,letterSpacing:-2,color:"#1d1d1f",marginBottom:20}}>
-                Learn Basic<br/>
-                <span style={{color:"#0071e3"}}>Data Structures</span><br/>
-                <span style={{color:"#424245",fontWeight:400,fontSize:"clamp(1.8rem,4vw,3rem)"}}>with FITA Academy</span>
+              <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
+                style={{ fontSize: "clamp(2.8rem,7vw,5.2rem)", fontWeight: 700, lineHeight: 1.05, letterSpacing: -2, color: "#1d1d1f", marginBottom: 20 }}>
+                Learn Basic<br />
+                <span style={{ color: "#0071e3" }}>Data Structures</span><br />
+                <span style={{ color: "#424245", fontWeight: 400, fontSize: "clamp(1.8rem,4vw,3rem)" }}>with FITA Academy</span>
               </motion.h1>
 
-              <motion.p initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{delay:0.2}}
-                style={{fontSize:17,color:"#86868b",lineHeight:1.7,marginBottom:12}}>
-                Interactive visualizations • MNC interview Q&A<br/>Adaptive coding challenges • Progress tracking
+              <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+                style={{ fontSize: 17, color: "#86868b", lineHeight: 1.7, marginBottom: 12 }}>
+                Interactive visualizations • MNC interview Q&A<br />Adaptive coding challenges • Progress tracking
               </motion.p>
 
               {/* FITA badge */}
-              <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:0.25}}
-                onClick={()=>setTab("company")} whileHover={{scale:1.02}} style={{display:"inline-flex",alignItems:"center",gap:10,cursor:"pointer",padding:"10px 20px",background:"white",border:"1.5px solid rgba(0,113,227,0.2)",borderRadius:50,marginBottom:40,boxShadow:"var(--shadow-sm)"}}>
-                <div style={{width:24,height:24,borderRadius:6,background:"#0071e3",display:"flex",alignItems:"center",justifyContent:"center"}}>
-                  <span style={{fontSize:12,fontWeight:800,color:"white",fontFamily:"var(--font-mono)"}}>F</span>
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}
+                onClick={() => setTab("company")} whileHover={{ scale: 1.02 }} style={{ display: "inline-flex", alignItems: "center", gap: 10, cursor: "pointer", padding: "10px 20px", background: "white", border: "1.5px solid rgba(0,113,227,0.2)", borderRadius: 50, marginBottom: 40, boxShadow: "var(--shadow-sm)" }}>
+                <div style={{ width: 24, height: 24, borderRadius: 6, background: "#0071e3", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <span style={{ fontSize: 12, fontWeight: 800, color: "white", fontFamily: "var(--font-mono)" }}>F</span>
                 </div>
-                <span style={{fontSize:13,fontWeight:500,color:"#424245"}}>Powered by <strong style={{color:"#0071e3"}}>FITA Academy</strong></span>
-                <span style={{color:"#86868b"}}>→</span>
+                <span style={{ fontSize: 13, fontWeight: 500, color: "#424245" }}>Powered by <strong style={{ color: "#0071e3" }}>FITA Academy</strong></span>
+                <span style={{ color: "#86868b" }}>→</span>
               </motion.div>
 
-              <br/>
+              <br />
 
-              <motion.button initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{delay:0.3}}
-                whileHover={{scale:1.04,boxShadow:"0 8px 30px rgba(0,113,227,0.35)"}} whileTap={{scale:0.97}}
+              <motion.button initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+                whileHover={{ scale: 1.04, boxShadow: "0 8px 30px rgba(0,113,227,0.35)" }} whileTap={{ scale: 0.97 }}
                 onClick={onEnter}
-                style={{padding:"16px 48px",fontSize:17,fontWeight:600,background:"#0071e3",color:"white",borderRadius:50,border:"none",cursor:"pointer",boxShadow:"var(--shadow-blue)",letterSpacing:-0.2}}>
+                style={{ padding: "16px 48px", fontSize: 17, fontWeight: 600, background: "#0071e3", color: "white", borderRadius: 50, border: "none", cursor: "pointer", boxShadow: "var(--shadow-blue)", letterSpacing: -0.2 }}>
                 Start Learning →
               </motion.button>
 
               {/* Module previews */}
-              <motion.div initial={{opacity:0,y:30}} animate={{opacity:1,y:0}} transition={{delay:0.4}}
-                style={{display:"flex",gap:12,justifyContent:"center",marginTop:60,flexWrap:"wrap"}}>
-                {MODULES.map((m,i)=>(
-                  <motion.div key={m} initial={{opacity:0,scale:0.9}} animate={{opacity:1,scale:1}} transition={{delay:0.45+i*0.07}}
-                    style={{background:"white",border:"1.5px solid var(--border)",borderRadius:16,padding:"14px 20px",display:"flex",alignItems:"center",gap:10,boxShadow:"var(--shadow-sm)"}}>
-                    <span style={{fontSize:18}}>{MOD_ICONS[m]}</span>
+              <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+                style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 60, flexWrap: "wrap" }}>
+                {MODULES.map((m, i) => (
+                  <motion.div key={m} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.45 + i * 0.07 }}
+                    style={{ background: "white", border: "1.5px solid var(--border)", borderRadius: 16, padding: "14px 20px", display: "flex", alignItems: "center", gap: 10, boxShadow: "var(--shadow-sm)" }}>
+                    <span style={{ fontSize: 18 }}>{MOD_ICONS[m]}</span>
                     <div>
-                      <div style={{fontSize:13,fontWeight:600,color:"#1d1d1f"}}>{m}</div>
-                      <div style={{fontSize:11,color:"#86868b"}}>20 Q&A • 9 Problems</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: "#1d1d1f" }}>{m}</div>
+                      <div style={{ fontSize: 11, color: "#86868b" }}>20 Q&A • 9 Problems</div>
                     </div>
                   </motion.div>
                 ))}
               </motion.div>
             </motion.div>
           )}
-          {tab==="company" && (
-            <motion.div key="company" initial={{opacity:0,y:30}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-20}} transition={{duration:0.4}}
-              style={{width:"100%",maxWidth:760,maxHeight:"85vh",overflowY:"auto",paddingTop:20,paddingBottom:40}}>
-              <FitaAcademyProfile/>
+          {tab === "company" && (
+            <motion.div key="company" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.4 }}
+              style={{ width: "100%", maxWidth: 760, maxHeight: "85vh", overflowY: "auto", paddingTop: 20, paddingBottom: 40 }}>
+              <FitaAcademyProfile />
             </motion.div>
           )}
         </AnimatePresence>
@@ -790,20 +791,20 @@ export const HomeScreen = ({ onEnter, user, onLogout }) => {
 const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress }) => {
   const [activeTab, setActiveTab] = useState("learn");
   return (
-    <div style={{minHeight:"100vh",background:"var(--bg)"}}>
+    <div style={{ minHeight: "100vh", background: "var(--bg)" }}>
       {/* Sticky header */}
-      <div style={{position:"sticky",top:0,zIndex:50,backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)",background:"rgba(245,245,247,0.85)",borderBottom:"1px solid rgba(0,0,0,0.06)"}}>
-        <div style={{maxWidth:960,margin:"0 auto",padding:"0 32px",height:56,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-          <div style={{display:"flex",alignItems:"center",gap:16}}>
-            <button onClick={onBack} style={{display:"flex",alignItems:"center",gap:6,color:"#0071e3",fontSize:14,fontWeight:500,cursor:"pointer"}}>
+      <div style={{ position: "sticky", top: 0, zIndex: 50, backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", background: "rgba(245,245,247,0.85)", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+        <div style={{ maxWidth: 960, margin: "0 auto", padding: "0 32px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <button onClick={onBack} style={{ display: "flex", alignItems: "center", gap: 6, color: "#0071e3", fontSize: 14, fontWeight: 500, cursor: "pointer" }}>
               <span>‹</span> Home
             </button>
-            <span style={{color:"#d2d2d7"}}>|</span>
-            <span style={{fontSize:15,fontWeight:600,color:"#1d1d1f"}}>Choose Your Path</span>
+            <span style={{ color: "#d2d2d7" }}>|</span>
+            <span style={{ fontSize: 15, fontWeight: 600, color: "#1d1d1f" }}>Choose Your Path</span>
           </div>
-          <div style={{display:"flex",gap:4,background:"rgba(0,0,0,0.06)",borderRadius:12,padding:3}}>
-            {[["learn","📚 Learn"],["interview","🎤 Interview"],["code","💻 Code"]].map(([t,l])=>(
-              <button key={t} onClick={()=>setActiveTab(t)} style={{padding:"6px 16px",fontSize:13,fontWeight:500,borderRadius:9,border:"none",cursor:"pointer",transition:"all 0.2s",background:activeTab===t?"white":"transparent",color:activeTab===t?"#1d1d1f":"#86868b",boxShadow:activeTab===t?"var(--shadow-sm)":"none"}}>
+          <div style={{ display: "flex", gap: 4, background: "rgba(0,0,0,0.06)", borderRadius: 12, padding: 3 }}>
+            {[["learn", "📚 Learn"], ["interview", "🎤 Interview"], ["code", "💻 Code"]].map(([t, l]) => (
+              <button key={t} onClick={() => setActiveTab(t)} style={{ padding: "6px 16px", fontSize: 13, fontWeight: 500, borderRadius: 9, border: "none", cursor: "pointer", transition: "all 0.2s", background: activeTab === t ? "white" : "transparent", color: activeTab === t ? "#1d1d1f" : "#86868b", boxShadow: activeTab === t ? "var(--shadow-sm)" : "none" }}>
                 {l}
               </button>
             ))}
@@ -811,10 +812,10 @@ const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress }) => {
         </div>
       </div>
 
-      <div style={{maxWidth:960,margin:"0 auto",padding:"40px 32px"}}>
-        {activeTab==="learn" && <LearnTab level={level} setLevel={setLevel} onSelectModule={onSelectModule} progress={progress}/>}
-        {activeTab==="interview" && <InterviewTab/>}
-        {activeTab==="code" && <CodeArenaTab/>}
+      <div style={{ maxWidth: 960, margin: "0 auto", padding: "40px 32px" }}>
+        {activeTab === "learn" && <LearnTab level={level} setLevel={setLevel} onSelectModule={onSelectModule} progress={progress} />}
+        {activeTab === "interview" && <InterviewTab />}
+        {activeTab === "code" && <CodeArenaTab />}
       </div>
     </div>
   );
@@ -825,35 +826,35 @@ const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress }) => {
 ============================================================ */
 const LearnTab = ({ level, setLevel, onSelectModule, progress }) => (
   <div>
-    <div style={{marginBottom:32}}>
-      <h2 style={{fontSize:32,fontWeight:700,letterSpacing:-1,color:"#1d1d1f",marginBottom:6}}>Modules</h2>
-      <p style={{color:"#86868b",fontSize:15}}>Start with fundamentals and progress to advanced concepts</p>
+    <div style={{ marginBottom: 32 }}>
+      <h2 style={{ fontSize: 32, fontWeight: 700, letterSpacing: -1, color: "#1d1d1f", marginBottom: 6 }}>Modules</h2>
+      <p style={{ color: "#86868b", fontSize: 15 }}>Start with fundamentals and progress to advanced concepts</p>
     </div>
-    <div style={{display:"flex",gap:8,marginBottom:32}}>
-      {LEVELS.map(l=><PillBtn key={l} active={level===l} onClick={()=>setLevel(l)} color="#0071e3">{l}</PillBtn>)}
+    <div style={{ display: "flex", gap: 8, marginBottom: 32 }}>
+      {LEVELS.map(l => <PillBtn key={l} active={level === l} onClick={() => setLevel(l)} color="#0071e3">{l}</PillBtn>)}
     </div>
-    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(340px,1fr))",gap:16}}>
-      {MODULES.map((mod,i)=>{
-        const color=MOD_COLORS[mod];
-        const done = Object.keys(progress).filter(k=>k.startsWith(`interview_${mod}`)).length;
-        const codeDone = Object.keys(progress).filter(k=>k.startsWith(`code_${mod}`)).length;
-        return(
-          <motion.button key={mod} initial={{opacity:0,y:24}} animate={{opacity:1,y:0}} transition={{delay:i*0.07,ease:[0.22,1,0.36,1]}}
-            whileHover={{scale:1.02,y:-2,boxShadow:"var(--shadow-lg)"}} whileTap={{scale:0.98}}
-            onClick={()=>onSelectModule(mod)}
-            style={{textAlign:"left",padding:28,background:"white",border:"1.5px solid var(--border)",borderRadius:20,boxShadow:"var(--shadow)",cursor:"pointer",transition:"box-shadow 0.3s"}}>
-            <div style={{width:48,height:48,borderRadius:14,background:`${color}15`,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:16}}>
-              <span style={{fontSize:22}}>{MOD_ICONS[mod]}</span>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(340px,1fr))", gap: 16 }}>
+      {MODULES.map((mod, i) => {
+        const color = MOD_COLORS[mod];
+        const done = Object.keys(progress).filter(k => k.startsWith(`interview_${mod}`)).length;
+        const codeDone = Object.keys(progress).filter(k => k.startsWith(`code_${mod}`)).length;
+        return (
+          <motion.button key={mod} initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07, ease: [0.22, 1, 0.36, 1] }}
+            whileHover={{ scale: 1.02, y: -2, boxShadow: "var(--shadow-lg)" }} whileTap={{ scale: 0.98 }}
+            onClick={() => onSelectModule(mod)}
+            style={{ textAlign: "left", padding: 28, background: "white", border: "1.5px solid var(--border)", borderRadius: 20, boxShadow: "var(--shadow)", cursor: "pointer", transition: "box-shadow 0.3s" }}>
+            <div style={{ width: 48, height: 48, borderRadius: 14, background: `${color}15`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+              <span style={{ fontSize: 22 }}>{MOD_ICONS[mod]}</span>
             </div>
-            <div style={{fontSize:20,fontWeight:700,color:"#1d1d1f",marginBottom:6}}>{mod}</div>
-            <div style={{fontSize:13,color:"#86868b",marginBottom:16}}>{["LIFO structure","FIFO structure","Sequential scan","Comparison sort"][i]}</div>
-            <div style={{display:"flex",gap:12}}>
-              <span style={{fontSize:12,color,fontWeight:500}}>🎤 {done}/20 Q&A</span>
-              <span style={{fontSize:12,color:"#34c759",fontWeight:500}}>💻 {codeDone}/9 solved</span>
+            <div style={{ fontSize: 20, fontWeight: 700, color: "#1d1d1f", marginBottom: 6 }}>{mod}</div>
+            <div style={{ fontSize: 13, color: "#86868b", marginBottom: 16 }}>{["LIFO structure", "FIFO structure", "Sequential scan", "Comparison sort"][i]}</div>
+            <div style={{ display: "flex", gap: 12 }}>
+              <span style={{ fontSize: 12, color, fontWeight: 500 }}>🎤 {done}/20 Q&A</span>
+              <span style={{ fontSize: 12, color: "#34c759", fontWeight: 500 }}>💻 {codeDone}/9 solved</span>
             </div>
-            <div style={{marginTop:16,height:4,background:"#f5f5f7",borderRadius:4,overflow:"hidden"}}>
-              <motion.div initial={{width:0}} animate={{width:`${Math.round(((done+codeDone)/29)*100)}%`}} transition={{duration:0.8,ease:"easeOut"}}
-                style={{height:"100%",background:`linear-gradient(90deg,${color},${color}99)`,borderRadius:4}}/>
+            <div style={{ marginTop: 16, height: 4, background: "#f5f5f7", borderRadius: 4, overflow: "hidden" }}>
+              <motion.div initial={{ width: 0 }} animate={{ width: `${Math.round(((done + codeDone) / 29) * 100)}%` }} transition={{ duration: 0.8, ease: "easeOut" }}
+                style={{ height: "100%", background: `linear-gradient(90deg,${color},${color}99)`, borderRadius: 4 }} />
             </div>
           </motion.button>
         );
@@ -872,76 +873,76 @@ const InterviewTab = () => {
   const [revealed, setReveal] = useState({});
 
   const questions = INTERVIEW_DATA[selMod] || [];
-  const filtered = filter==="All" ? questions : questions.filter(q=>q.difficulty===filter);
+  const filtered = filter === "All" ? questions : questions.filter(q => q.difficulty === filter);
 
-  const toggleReveal = (id) => setReveal(p=>({...p,[id]:!p[id]}));
+  const toggleReveal = (id) => setReveal(p => ({ ...p, [id]: !p[id] }));
   const markAnswer = (id, correct) => saveProgress(`interview_${selMod}_${id}`, correct ? "correct" : "wrong");
 
   return (
     <div>
-      <div style={{marginBottom:28}}>
-        <h2 style={{fontSize:32,fontWeight:700,letterSpacing:-1,color:"#1d1d1f",marginBottom:6}}>Mock Interview</h2>
-        <p style={{color:"#86868b",fontSize:15}}>20 MNC-sourced questions per module with real company tags</p>
+      <div style={{ marginBottom: 28 }}>
+        <h2 style={{ fontSize: 32, fontWeight: 700, letterSpacing: -1, color: "#1d1d1f", marginBottom: 6 }}>Mock Interview</h2>
+        <p style={{ color: "#86868b", fontSize: 15 }}>20 MNC-sourced questions per module with real company tags</p>
       </div>
 
-      <div style={{display:"flex",gap:8,marginBottom:20,flexWrap:"wrap"}}>
-        {MODULES.map(m=>{
-          const c=MOD_COLORS[m];
-          return <PillBtn key={m} active={selMod===m} onClick={()=>{setSelMod(m);setReveal({});}} color={c}>{MOD_ICONS[m]} {m}</PillBtn>;
+      <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
+        {MODULES.map(m => {
+          const c = MOD_COLORS[m];
+          return <PillBtn key={m} active={selMod === m} onClick={() => { setSelMod(m); setReveal({}); }} color={c}>{MOD_ICONS[m]} {m}</PillBtn>;
         })}
       </div>
 
-      <ProgressCard module={selMod} progress={progress} total={20} type="interview"/>
+      <ProgressCard module={selMod} progress={progress} total={20} type="interview" />
 
-      <div style={{display:"flex",gap:8,marginBottom:24,flexWrap:"wrap"}}>
-        {["All","Easy","Medium","Hard"].map(f=>(
-          <button key={f} onClick={()=>setFilter(f)} style={{padding:"6px 16px",fontSize:12,fontWeight:600,borderRadius:20,border:"1.5px solid",borderColor:filter===f?"transparent":"var(--border)",cursor:"pointer",transition:"all 0.2s",background:filter===f?({All:"#1d1d1f",Easy:"#34c759",Medium:"#ff9500",Hard:"#ff3b30"}[f]):"white",color:filter===f?"white":"#424245"}}>
+      <div style={{ display: "flex", gap: 8, marginBottom: 24, flexWrap: "wrap" }}>
+        {["All", "Easy", "Medium", "Hard"].map(f => (
+          <button key={f} onClick={() => setFilter(f)} style={{ padding: "6px 16px", fontSize: 12, fontWeight: 600, borderRadius: 20, border: "1.5px solid", borderColor: filter === f ? "transparent" : "var(--border)", cursor: "pointer", transition: "all 0.2s", background: filter === f ? ({ All: "#1d1d1f", Easy: "#34c759", Medium: "#ff9500", Hard: "#ff3b30" }[f]) : "white", color: filter === f ? "white" : "#424245" }}>
             {f}
           </button>
         ))}
       </div>
 
-      <div style={{display:"flex",flexDirection:"column",gap:12}}>
-        {filtered.map((item, idx)=>{
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {filtered.map((item, idx) => {
           const qid = `q${questions.indexOf(item)}`;
           const key = `interview_${selMod}_${qid}`;
           const status = progress[key];
           const isRevealed = revealed[qid];
-          const diffData = {Easy:{color:"#34c759",bg:"#e8f9ee"},Medium:{color:"#ff9500",bg:"#fff4e6"},Hard:{color:"#ff3b30",bg:"#fff1f0"}}[item.difficulty];
-          return(
-            <motion.div key={qid} initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} transition={{delay:idx*0.02,ease:[0.22,1,0.36,1]}}
-              style={{background:"white",border:"1.5px solid",borderColor:status==="correct"?"rgba(52,199,89,0.3)":status==="wrong"?"rgba(255,59,48,0.3)":"var(--border)",borderRadius:18,overflow:"hidden",boxShadow:"var(--shadow-sm)"}}>
-              <div style={{padding:"20px 24px",cursor:"pointer"}} onClick={()=>toggleReveal(qid)}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:16}}>
-                  <div style={{flex:1}}>
-                    <div style={{display:"flex",gap:8,marginBottom:10,flexWrap:"wrap",alignItems:"center"}}>
-                      <span style={{fontSize:11,fontWeight:600,color:diffData.color,background:diffData.bg,padding:"3px 10px",borderRadius:20}}>{item.difficulty}</span>
-                      <span style={{fontSize:11,fontWeight:500,color:"#86868b",background:"#f5f5f7",padding:"3px 10px",borderRadius:20}}>{item.company}</span>
-                      {status==="correct" && <span style={{fontSize:11,color:"#34c759",fontWeight:600}}>✓ Got it</span>}
-                      {status==="wrong" && <span style={{fontSize:11,color:"#ff3b30",fontWeight:600}}>Review needed</span>}
+          const diffData = { Easy: { color: "#34c759", bg: "#e8f9ee" }, Medium: { color: "#ff9500", bg: "#fff4e6" }, Hard: { color: "#ff3b30", bg: "#fff1f0" } }[item.difficulty];
+          return (
+            <motion.div key={qid} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.02, ease: [0.22, 1, 0.36, 1] }}
+              style={{ background: "white", border: "1.5px solid", borderColor: status === "correct" ? "rgba(52,199,89,0.3)" : status === "wrong" ? "rgba(255,59,48,0.3)" : "var(--border)", borderRadius: 18, overflow: "hidden", boxShadow: "var(--shadow-sm)" }}>
+              <div style={{ padding: "20px 24px", cursor: "pointer" }} onClick={() => toggleReveal(qid)}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16 }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap", alignItems: "center" }}>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: diffData.color, background: diffData.bg, padding: "3px 10px", borderRadius: 20 }}>{item.difficulty}</span>
+                      <span style={{ fontSize: 11, fontWeight: 500, color: "#86868b", background: "#f5f5f7", padding: "3px 10px", borderRadius: 20 }}>{item.company}</span>
+                      {status === "correct" && <span style={{ fontSize: 11, color: "#34c759", fontWeight: 600 }}>✓ Got it</span>}
+                      {status === "wrong" && <span style={{ fontSize: 11, color: "#ff3b30", fontWeight: 600 }}>Review needed</span>}
                     </div>
-                    <p style={{fontSize:15,fontWeight:500,lineHeight:1.6,color:"#1d1d1f"}}>{item.q}</p>
+                    <p style={{ fontSize: 15, fontWeight: 500, lineHeight: 1.6, color: "#1d1d1f" }}>{item.q}</p>
                   </div>
-                  <motion.span animate={{rotate:isRevealed?180:0}} transition={{duration:0.2}}
-                    style={{fontSize:16,color:"#86868b",flexShrink:0,marginTop:2}}>↓</motion.span>
+                  <motion.span animate={{ rotate: isRevealed ? 180 : 0 }} transition={{ duration: 0.2 }}
+                    style={{ fontSize: 16, color: "#86868b", flexShrink: 0, marginTop: 2 }}>↓</motion.span>
                 </div>
               </div>
               <AnimatePresence>
                 {isRevealed && (
-                  <motion.div initial={{height:0,opacity:0}} animate={{height:"auto",opacity:1}} exit={{height:0,opacity:0}} transition={{duration:0.25,ease:[0.22,1,0.36,1]}}>
-                    <div style={{padding:"0 24px 20px",borderTop:"1px solid var(--border)"}}>
-                      <div style={{padding:"16px 20px",background:"#f5f5f7",borderRadius:14,margin:"16px 0",borderLeft:`3px solid ${MOD_COLORS[selMod]}`}}>
-                        <div style={{fontSize:11,fontWeight:600,letterSpacing:0.5,color:MOD_COLORS[selMod],textTransform:"uppercase",marginBottom:8}}>Answer</div>
-                        <p style={{fontSize:14,lineHeight:1.8,color:"#1d1d1f"}}>{item.a}</p>
+                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}>
+                    <div style={{ padding: "0 24px 20px", borderTop: "1px solid var(--border)" }}>
+                      <div style={{ padding: "16px 20px", background: "#f5f5f7", borderRadius: 14, margin: "16px 0", borderLeft: `3px solid ${MOD_COLORS[selMod]}` }}>
+                        <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.5, color: MOD_COLORS[selMod], textTransform: "uppercase", marginBottom: 8 }}>Answer</div>
+                        <p style={{ fontSize: 14, lineHeight: 1.8, color: "#1d1d1f" }}>{item.a}</p>
                       </div>
                       {!status && (
-                        <div style={{display:"flex",gap:10}}>
-                          <motion.button whileHover={{scale:1.02}} whileTap={{scale:0.97}} onClick={()=>markAnswer(qid,true)}
-                            style={{padding:"9px 20px",fontSize:13,fontWeight:600,background:"#34c75918",color:"#34c759",border:"1.5px solid #34c75944",borderRadius:12,cursor:"pointer"}}>
+                        <div style={{ display: "flex", gap: 10 }}>
+                          <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={() => markAnswer(qid, true)}
+                            style={{ padding: "9px 20px", fontSize: 13, fontWeight: 600, background: "#34c75918", color: "#34c759", border: "1.5px solid #34c75944", borderRadius: 12, cursor: "pointer" }}>
                             ✓ Got it right
                           </motion.button>
-                          <motion.button whileHover={{scale:1.02}} whileTap={{scale:0.97}} onClick={()=>markAnswer(qid,false)}
-                            style={{padding:"9px 20px",fontSize:13,fontWeight:600,background:"#ff3b3018",color:"#ff3b30",border:"1.5px solid #ff3b3044",borderRadius:12,cursor:"pointer"}}>
+                          <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={() => markAnswer(qid, false)}
+                            style={{ padding: "9px 20px", fontSize: 13, fontWeight: 600, background: "#ff3b3018", color: "#ff3b30", border: "1.5px solid #ff3b3044", borderRadius: 12, cursor: "pointer" }}>
                             Need more practice
                           </motion.button>
                         </div>
@@ -969,42 +970,42 @@ const CodeArenaTab = () => {
 
   const challenges = CODING_CHALLENGES[selMod]?.[selLevel] || [];
 
-  if (selChallenge) return <CodeEditor challenge={selChallenge} progress={progress} saveProgress={saveProgress} module={selMod} onBack={()=>setSelChallenge(null)}/>;
+  if (selChallenge) return <CodeEditor challenge={selChallenge} progress={progress} saveProgress={saveProgress} module={selMod} onBack={() => setSelChallenge(null)} />;
 
   const color = MOD_COLORS[selMod];
 
-  return(
+  return (
     <div>
-      <div style={{marginBottom:28}}>
-        <h2 style={{fontSize:32,fontWeight:700,letterSpacing:-1,color:"#1d1d1f",marginBottom:6}}>Code Arena</h2>
-        <p style={{color:"#86868b",fontSize:15}}>9 challenges per module, 3 levels from Beginner to Advanced</p>
+      <div style={{ marginBottom: 28 }}>
+        <h2 style={{ fontSize: 32, fontWeight: 700, letterSpacing: -1, color: "#1d1d1f", marginBottom: 6 }}>Code Arena</h2>
+        <p style={{ color: "#86868b", fontSize: 15 }}>9 challenges per module, 3 levels from Beginner to Advanced</p>
       </div>
-      <div style={{display:"flex",gap:8,marginBottom:16,flexWrap:"wrap"}}>
-        {MODULES.map(m=>{const c=MOD_COLORS[m];return<PillBtn key={m} active={selMod===m} onClick={()=>setSelMod(m)} color={c}>{MOD_ICONS[m]} {m}</PillBtn>;})}
+      <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
+        {MODULES.map(m => { const c = MOD_COLORS[m]; return <PillBtn key={m} active={selMod === m} onClick={() => setSelMod(m)} color={c}>{MOD_ICONS[m]} {m}</PillBtn>; })}
       </div>
-      <div style={{display:"flex",gap:8,marginBottom:28}}>
-        {LEVELS.map(l=><PillBtn key={l} active={selLevel===l} onClick={()=>setSelLevel(l)} color="#424245">{l}</PillBtn>)}
+      <div style={{ display: "flex", gap: 8, marginBottom: 28 }}>
+        {LEVELS.map(l => <PillBtn key={l} active={selLevel === l} onClick={() => setSelLevel(l)} color="#424245">{l}</PillBtn>)}
       </div>
-      <ProgressCard module={selMod} progress={progress} total={9} type="code"/>
-      <div style={{display:"flex",flexDirection:"column",gap:12,marginTop:24}}>
-        {challenges.map((ch,i)=>{
-          const key=`code_${selMod}_${ch.id}`;
-          const status=progress[key];
-          return(
-            <motion.div key={ch.id} initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{delay:i*0.07,ease:[0.22,1,0.36,1]}}
-              whileHover={{scale:1.01,y:-1,boxShadow:"var(--shadow-lg)"}} style={{background:"white",border:"1.5px solid",borderColor:status==="solved"?`${color}44`:"var(--border)",borderRadius:18,padding:24,cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",boxShadow:"var(--shadow-sm)",transition:"box-shadow 0.3s"}}
-              onClick={()=>setSelChallenge(ch)}>
+      <ProgressCard module={selMod} progress={progress} total={9} type="code" />
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 24 }}>
+        {challenges.map((ch, i) => {
+          const key = `code_${selMod}_${ch.id}`;
+          const status = progress[key];
+          return (
+            <motion.div key={ch.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07, ease: [0.22, 1, 0.36, 1] }}
+              whileHover={{ scale: 1.01, y: -1, boxShadow: "var(--shadow-lg)" }} style={{ background: "white", border: "1.5px solid", borderColor: status === "solved" ? `${color}44` : "var(--border)", borderRadius: 18, padding: 24, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "var(--shadow-sm)", transition: "box-shadow 0.3s" }}
+              onClick={() => setSelChallenge(ch)}>
               <div>
-                <div style={{display:"flex",gap:8,marginBottom:10,alignItems:"center"}}>
-                  <span style={{fontSize:11,fontWeight:600,color,background:`${color}12`,padding:"3px 10px",borderRadius:20}}>{selLevel}</span>
-                  <span style={{fontSize:11,fontWeight:500,color:"#86868b",background:"#f5f5f7",padding:"3px 10px",borderRadius:20}}>{ch.company}</span>
-                  {status==="solved" && <span style={{fontSize:11,fontWeight:600,color:"#34c759",background:"#e8f9ee",padding:"3px 10px",borderRadius:20}}>✓ Solved</span>}
+                <div style={{ display: "flex", gap: 8, marginBottom: 10, alignItems: "center" }}>
+                  <span style={{ fontSize: 11, fontWeight: 600, color, background: `${color}12`, padding: "3px 10px", borderRadius: 20 }}>{selLevel}</span>
+                  <span style={{ fontSize: 11, fontWeight: 500, color: "#86868b", background: "#f5f5f7", padding: "3px 10px", borderRadius: 20 }}>{ch.company}</span>
+                  {status === "solved" && <span style={{ fontSize: 11, fontWeight: 600, color: "#34c759", background: "#e8f9ee", padding: "3px 10px", borderRadius: 20 }}>✓ Solved</span>}
                 </div>
-                <div style={{fontSize:18,fontWeight:700,color:"#1d1d1f",marginBottom:6}}>{ch.title}</div>
-                <div style={{fontSize:13,color:"#86868b",lineHeight:1.6}}>{ch.desc}</div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: "#1d1d1f", marginBottom: 6 }}>{ch.title}</div>
+                <div style={{ fontSize: 13, color: "#86868b", lineHeight: 1.6 }}>{ch.desc}</div>
               </div>
-              <div style={{width:40,height:40,borderRadius:12,background:`${color}12`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginLeft:20}}>
-                <span style={{color,fontSize:18}}>→</span>
+              <div style={{ width: 40, height: 40, borderRadius: 12, background: `${color}12`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginLeft: 20 }}>
+                <span style={{ color, fontSize: 18 }}>→</span>
               </div>
             </motion.div>
           );
@@ -1026,62 +1027,62 @@ const CodeEditor = ({ challenge, progress, saveProgress, module: mod, onBack }) 
   const key = `code_${mod}_${challenge.id}`;
   const isSolved = progress[key] === "solved";
 
-  return(
+  return (
     <div>
-      <button onClick={onBack} style={{display:"flex",alignItems:"center",gap:6,color:"#0071e3",fontSize:14,fontWeight:500,cursor:"pointer",marginBottom:24}}>
+      <button onClick={onBack} style={{ display: "flex", alignItems: "center", gap: 6, color: "#0071e3", fontSize: 14, fontWeight: 500, cursor: "pointer", marginBottom: 24 }}>
         ‹ Back to Challenges
       </button>
 
-      <div style={{display:"flex",gap:8,marginBottom:16,alignItems:"center",flexWrap:"wrap"}}>
-        <span style={{fontSize:11,fontWeight:600,color,background:`${color}12`,padding:"3px 10px",borderRadius:20}}>{mod}</span>
-        <span style={{fontSize:11,fontWeight:500,color:"#86868b",background:"#f5f5f7",padding:"3px 10px",borderRadius:20}}>{challenge.company}</span>
-        {isSolved && <span style={{fontSize:11,fontWeight:600,color:"#34c759",background:"#e8f9ee",padding:"3px 10px",borderRadius:20}}>✓ Solved</span>}
+      <div style={{ display: "flex", gap: 8, marginBottom: 16, alignItems: "center", flexWrap: "wrap" }}>
+        <span style={{ fontSize: 11, fontWeight: 600, color, background: `${color}12`, padding: "3px 10px", borderRadius: 20 }}>{mod}</span>
+        <span style={{ fontSize: 11, fontWeight: 500, color: "#86868b", background: "#f5f5f7", padding: "3px 10px", borderRadius: 20 }}>{challenge.company}</span>
+        {isSolved && <span style={{ fontSize: 11, fontWeight: 600, color: "#34c759", background: "#e8f9ee", padding: "3px 10px", borderRadius: 20 }}>✓ Solved</span>}
       </div>
 
-      <h2 style={{fontSize:28,fontWeight:700,letterSpacing:-0.5,color:"#1d1d1f",marginBottom:10}}>{challenge.title}</h2>
-      <p style={{color:"#424245",fontSize:15,lineHeight:1.7,marginBottom:24}}>{challenge.desc}</p>
+      <h2 style={{ fontSize: 28, fontWeight: 700, letterSpacing: -0.5, color: "#1d1d1f", marginBottom: 10 }}>{challenge.title}</h2>
+      <p style={{ color: "#424245", fontSize: 15, lineHeight: 1.7, marginBottom: 24 }}>{challenge.desc}</p>
 
       {/* Test Cases */}
-      <div style={{background:"#f5f5f7",border:"1.5px solid var(--border)",borderRadius:14,padding:"16px 20px",marginBottom:24}}>
-        <div style={{fontSize:11,fontWeight:600,letterSpacing:0.5,color:"#0071e3",textTransform:"uppercase",marginBottom:10}}>Test Cases</div>
-        <pre style={{fontSize:13,color:"#1d1d1f",lineHeight:1.8,whiteSpace:"pre-wrap",fontFamily:"var(--font-mono)"}}>{challenge.testCases}</pre>
+      <div style={{ background: "#f5f5f7", border: "1.5px solid var(--border)", borderRadius: 14, padding: "16px 20px", marginBottom: 24 }}>
+        <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.5, color: "#0071e3", textTransform: "uppercase", marginBottom: 10 }}>Test Cases</div>
+        <pre style={{ fontSize: 13, color: "#1d1d1f", lineHeight: 1.8, whiteSpace: "pre-wrap", fontFamily: "var(--font-mono)" }}>{challenge.testCases}</pre>
       </div>
 
       {/* Tab switcher */}
-      <div style={{display:"flex",gap:8,marginBottom:16,background:"rgba(0,0,0,0.05)",borderRadius:12,padding:3,width:"fit-content"}}>
-        {[["editor","✏️ Your Code"],["solution","💡 Solution"]].map(([t,l])=>(
-          <button key={t} onClick={()=>setTab(t)} style={{padding:"8px 20px",fontSize:13,fontWeight:500,borderRadius:9,border:"none",cursor:"pointer",transition:"all 0.2s",background:tab===t?"white":"transparent",color:tab===t?"#1d1d1f":"#86868b",boxShadow:tab===t?"var(--shadow-sm)":"none"}}>
+      <div style={{ display: "flex", gap: 8, marginBottom: 16, background: "rgba(0,0,0,0.05)", borderRadius: 12, padding: 3, width: "fit-content" }}>
+        {[["editor", "✏️ Your Code"], ["solution", "💡 Solution"]].map(([t, l]) => (
+          <button key={t} onClick={() => setTab(t)} style={{ padding: "8px 20px", fontSize: 13, fontWeight: 500, borderRadius: 9, border: "none", cursor: "pointer", transition: "all 0.2s", background: tab === t ? "white" : "transparent", color: tab === t ? "#1d1d1f" : "#86868b", boxShadow: tab === t ? "var(--shadow-sm)" : "none" }}>
             {l}
           </button>
         ))}
       </div>
 
-      {tab==="editor" && (
+      {tab === "editor" && (
         <div>
-          <div style={{background:"#1d2126",borderRadius:18,overflow:"hidden",marginBottom:16,boxShadow:"var(--shadow-lg)"}}>
-            <div style={{padding:"12px 20px",borderBottom:"1px solid rgba(255,255,255,0.06)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-              <div style={{display:"flex",gap:7}}>
-                {["#ff5f56","#ffbd2e","#27c93f"].map(c=><div key={c} style={{width:12,height:12,borderRadius:"50%",background:c}}/>)}
+          <div style={{ background: "#1d2126", borderRadius: 18, overflow: "hidden", marginBottom: 16, boxShadow: "var(--shadow-lg)" }}>
+            <div style={{ padding: "12px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div style={{ display: "flex", gap: 7 }}>
+                {["#ff5f56", "#ffbd2e", "#27c93f"].map(c => <div key={c} style={{ width: 12, height: 12, borderRadius: "50%", background: c }} />)}
               </div>
-              <span style={{fontFamily:"var(--font-mono)",fontSize:12,color:"rgba(255,255,255,0.35)"}}>{challenge.title}.java</span>
-              <span style={{fontSize:11,fontFamily:"var(--font-mono)",color:"rgba(255,255,255,0.25)"}}>{code.split('\n').length} lines</span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "rgba(255,255,255,0.35)" }}>{challenge.title}.java</span>
+              <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", color: "rgba(255,255,255,0.25)" }}>{code.split('\n').length} lines</span>
             </div>
-            <textarea value={code} onChange={e=>{setCode(e.target.value);setAnalysis(null);}} spellCheck={false}
-              style={{width:"100%",minHeight:320,padding:"24px",background:"transparent",border:"none",color:"#abb2bf",fontSize:13,lineHeight:1.9,outline:"none",caretColor:"#e8ff5a"}}/>
+            <textarea value={code} onChange={e => { setCode(e.target.value); setAnalysis(null); }} spellCheck={false}
+              style={{ width: "100%", minHeight: 320, padding: "24px", background: "transparent", border: "none", color: "#abb2bf", fontSize: 13, lineHeight: 1.9, outline: "none", caretColor: "#e8ff5a" }} />
           </div>
 
-          <div style={{display:"flex",gap:10,flexWrap:"wrap",marginBottom:20}}>
-            <motion.button whileHover={{scale:1.03}} whileTap={{scale:0.97}} onClick={()=>setAnalysis(analyzeCode(code))}
-              style={{padding:"10px 22px",fontSize:13,fontWeight:600,background:`${color}12`,color,border:`1.5px solid ${color}30`,borderRadius:12,cursor:"pointer"}}>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 20 }}>
+            <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => setAnalysis(analyzeCode(code))}
+              style={{ padding: "10px 22px", fontSize: 13, fontWeight: 600, background: `${color}12`, color, border: `1.5px solid ${color}30`, borderRadius: 12, cursor: "pointer" }}>
               🔍 Analyze Code
             </motion.button>
-            <motion.button whileHover={{scale:1.03}} whileTap={{scale:0.97}} onClick={()=>setCode(challenge.starter)}
-              style={{padding:"10px 22px",fontSize:13,fontWeight:600,background:"#f5f5f7",color:"#424245",border:"1.5px solid var(--border)",borderRadius:12,cursor:"pointer"}}>
+            <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => setCode(challenge.starter)}
+              style={{ padding: "10px 22px", fontSize: 13, fontWeight: 600, background: "#f5f5f7", color: "#424245", border: "1.5px solid var(--border)", borderRadius: 12, cursor: "pointer" }}>
               ↺ Reset
             </motion.button>
             {!isSolved && (
-              <motion.button whileHover={{scale:1.03}} whileTap={{scale:0.97}} onClick={()=>saveProgress(key,"solved")}
-                style={{padding:"10px 22px",fontSize:13,fontWeight:600,background:"#34c75918",color:"#34c759",border:"1.5px solid #34c75944",borderRadius:12,cursor:"pointer"}}>
+              <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => saveProgress(key, "solved")}
+                style={{ padding: "10px 22px", fontSize: 13, fontWeight: 600, background: "#34c75918", color: "#34c759", border: "1.5px solid #34c75944", borderRadius: 12, cursor: "pointer" }}>
                 ✓ Mark as Solved
               </motion.button>
             )}
@@ -1089,31 +1090,31 @@ const CodeEditor = ({ challenge, progress, saveProgress, module: mod, onBack }) 
 
           <AnimatePresence>
             {analysis && (
-              <motion.div initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} exit={{opacity:0}}
-                style={{background:"white",border:"1.5px solid var(--border)",borderRadius:18,padding:"20px 24px",boxShadow:"var(--shadow)"}}>
-                <div style={{fontSize:11,fontWeight:600,letterSpacing:0.5,color:"#0071e3",textTransform:"uppercase",marginBottom:16}}>Code Analysis</div>
-                {analysis.errors.length===0 && analysis.warnings.length===0 &&
-                  <div style={{color:"#34c759",fontSize:14,fontWeight:500}}>✓ No issues found — code looks structurally clean.</div>}
-                {analysis.errors.map((e,i)=>(
-                  <div key={i} style={{display:"flex",gap:12,padding:"10px 14px",background:"#fff1f0",border:"1.5px solid rgba(255,59,48,0.2)",borderRadius:10,marginBottom:8}}>
-                    <span style={{color:"#ff3b30",flexShrink:0}}>✗</span>
-                    <span style={{color:"#ff3b30",fontSize:13,lineHeight:1.6}}>{e.msg}</span>
+              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                style={{ background: "white", border: "1.5px solid var(--border)", borderRadius: 18, padding: "20px 24px", boxShadow: "var(--shadow)" }}>
+                <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.5, color: "#0071e3", textTransform: "uppercase", marginBottom: 16 }}>Code Analysis</div>
+                {analysis.errors.length === 0 && analysis.warnings.length === 0 &&
+                  <div style={{ color: "#34c759", fontSize: 14, fontWeight: 500 }}>✓ No issues found — code looks structurally clean.</div>}
+                {analysis.errors.map((e, i) => (
+                  <div key={i} style={{ display: "flex", gap: 12, padding: "10px 14px", background: "#fff1f0", border: "1.5px solid rgba(255,59,48,0.2)", borderRadius: 10, marginBottom: 8 }}>
+                    <span style={{ color: "#ff3b30", flexShrink: 0 }}>✗</span>
+                    <span style={{ color: "#ff3b30", fontSize: 13, lineHeight: 1.6 }}>{e.msg}</span>
                   </div>
                 ))}
-                {analysis.warnings.map((w,i)=>{
-                  const isInfo=w.type==="info";
-                  const wStyle=isInfo?{bg:"#e8f2ff",border:"rgba(0,113,227,0.2)",color:"#0071e3"}:{bg:"#fff4e6",border:"rgba(255,149,0,0.2)",color:"#ff9500"};
-                  return(
-                    <div key={i} style={{display:"flex",gap:12,padding:"10px 14px",background:wStyle.bg,border:`1.5px solid ${wStyle.border}`,borderRadius:10,marginBottom:8}}>
-                      <span style={{color:wStyle.color,flexShrink:0}}>{isInfo?"ℹ":"⚠"}</span>
-                      <span style={{color:wStyle.color,fontSize:13,lineHeight:1.6}}>{w.msg}</span>
+                {analysis.warnings.map((w, i) => {
+                  const isInfo = w.type === "info";
+                  const wStyle = isInfo ? { bg: "#e8f2ff", border: "rgba(0,113,227,0.2)", color: "#0071e3" } : { bg: "#fff4e6", border: "rgba(255,149,0,0.2)", color: "#ff9500" };
+                  return (
+                    <div key={i} style={{ display: "flex", gap: 12, padding: "10px 14px", background: wStyle.bg, border: `1.5px solid ${wStyle.border}`, borderRadius: 10, marginBottom: 8 }}>
+                      <span style={{ color: wStyle.color, flexShrink: 0 }}>{isInfo ? "ℹ" : "⚠"}</span>
+                      <span style={{ color: wStyle.color, fontSize: 13, lineHeight: 1.6 }}>{w.msg}</span>
                     </div>
                   );
                 })}
-                <div style={{marginTop:14,paddingTop:14,borderTop:"1px solid var(--border)",display:"flex",gap:20}}>
-                  <span style={{fontSize:12,color:"#ff3b30",fontFamily:"var(--font-mono)",fontWeight:500}}>Errors: {analysis.errors.length}</span>
-                  <span style={{fontSize:12,color:"#ff9500",fontFamily:"var(--font-mono)",fontWeight:500}}>Warnings: {analysis.warnings.filter(w=>w.type==="warning").length}</span>
-                  <span style={{fontSize:12,color:"#0071e3",fontFamily:"var(--font-mono)",fontWeight:500}}>Info: {analysis.warnings.filter(w=>w.type==="info").length}</span>
+                <div style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid var(--border)", display: "flex", gap: 20 }}>
+                  <span style={{ fontSize: 12, color: "#ff3b30", fontFamily: "var(--font-mono)", fontWeight: 500 }}>Errors: {analysis.errors.length}</span>
+                  <span style={{ fontSize: 12, color: "#ff9500", fontFamily: "var(--font-mono)", fontWeight: 500 }}>Warnings: {analysis.warnings.filter(w => w.type === "warning").length}</span>
+                  <span style={{ fontSize: 12, color: "#0071e3", fontFamily: "var(--font-mono)", fontWeight: 500 }}>Info: {analysis.warnings.filter(w => w.type === "info").length}</span>
                 </div>
               </motion.div>
             )}
@@ -1121,14 +1122,14 @@ const CodeEditor = ({ challenge, progress, saveProgress, module: mod, onBack }) 
         </div>
       )}
 
-      {tab==="solution" && (
-        <motion.div initial={{opacity:0,y:12}} animate={{opacity:1,y:0}}>
-          <div style={{background:"#1d2126",borderRadius:18,overflow:"hidden",boxShadow:"var(--shadow-lg)"}}>
-            <div style={{padding:"12px 20px",borderBottom:"1px solid rgba(255,255,255,0.06)",display:"flex",gap:7,alignItems:"center"}}>
-              {["#ff5f56","#ffbd2e","#27c93f"].map(c=><div key={c} style={{width:12,height:12,borderRadius:"50%",background:c}}/>)}
-              <span style={{fontFamily:"var(--font-mono)",fontSize:12,color:"rgba(255,255,255,0.35)",marginLeft:8}}>Solution — {challenge.title}.java</span>
+      {tab === "solution" && (
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+          <div style={{ background: "#1d2126", borderRadius: 18, overflow: "hidden", boxShadow: "var(--shadow-lg)" }}>
+            <div style={{ padding: "12px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", gap: 7, alignItems: "center" }}>
+              {["#ff5f56", "#ffbd2e", "#27c93f"].map(c => <div key={c} style={{ width: 12, height: 12, borderRadius: "50%", background: c }} />)}
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "rgba(255,255,255,0.35)", marginLeft: 8 }}>Solution — {challenge.title}.java</span>
             </div>
-            <pre style={{padding:28,fontSize:13,lineHeight:1.9,color:"#abb2bf",overflowX:"auto",maxHeight:520}}>
+            <pre style={{ padding: 28, fontSize: 13, lineHeight: 1.9, color: "#abb2bf", overflowX: "auto", maxHeight: 520 }}>
               <code>{challenge.solution}</code>
             </pre>
           </div>
@@ -1144,38 +1145,38 @@ const CodeEditor = ({ challenge, progress, saveProgress, module: mod, onBack }) 
 const ProgressCard = ({ module: mod, progress, total, type }) => {
   const color = MOD_COLORS[mod];
   let done, correct, wrong;
-  if (type==="interview") {
-    const keys = INTERVIEW_DATA[mod]?.map((_,i)=>`interview_${mod}_q${i}`) || [];
-    done = keys.filter(k=>progress[k]!==undefined).length;
-    correct = keys.filter(k=>progress[k]==="correct").length;
-    wrong = keys.filter(k=>progress[k]==="wrong").length;
+  if (type === "interview") {
+    const keys = INTERVIEW_DATA[mod]?.map((_, i) => `interview_${mod}_q${i}`) || [];
+    done = keys.filter(k => progress[k] !== undefined).length;
+    correct = keys.filter(k => progress[k] === "correct").length;
+    wrong = keys.filter(k => progress[k] === "wrong").length;
   } else {
-    const allChallenges = Object.values(CODING_CHALLENGES[mod]||{}).flat();
-    done = allChallenges.filter(ch=>progress[`code_${mod}_${ch.id}`]==="solved").length;
+    const allChallenges = Object.values(CODING_CHALLENGES[mod] || {}).flat();
+    done = allChallenges.filter(ch => progress[`code_${mod}_${ch.id}`] === "solved").length;
     correct = done; wrong = 0;
     total = allChallenges.length;
   }
-  const pct = total > 0 ? Math.round((done/total)*100) : 0;
-  return(
-    <div style={{background:"white",border:"1.5px solid var(--border)",borderRadius:18,padding:"20px 24px",marginBottom:24,boxShadow:"var(--shadow-sm)"}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  return (
+    <div style={{ background: "white", border: "1.5px solid var(--border)", borderRadius: 18, padding: "20px 24px", marginBottom: 24, boxShadow: "var(--shadow-sm)" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
         <div>
-          <div style={{fontSize:11,fontWeight:600,letterSpacing:0.5,color:"#86868b",textTransform:"uppercase",marginBottom:4}}>{mod} Progress</div>
-          <div style={{fontSize:28,fontWeight:700,color:"#1d1d1f",letterSpacing:-1}}>{pct}%</div>
+          <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.5, color: "#86868b", textTransform: "uppercase", marginBottom: 4 }}>{mod} Progress</div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: "#1d1d1f", letterSpacing: -1 }}>{pct}%</div>
         </div>
-        <div style={{textAlign:"right"}}>
-          <div style={{fontSize:13,color:"#86868b",fontWeight:500}}>{done} / {total} completed</div>
-          {type==="interview" && <>
-            <div style={{fontSize:12,color:"#34c759",fontWeight:600}}>✓ {correct} correct</div>
-            {wrong>0 && <div style={{fontSize:12,color:"#ff3b30",fontWeight:600}}>✗ {wrong} needs review</div>}
+        <div style={{ textAlign: "right" }}>
+          <div style={{ fontSize: 13, color: "#86868b", fontWeight: 500 }}>{done} / {total} completed</div>
+          {type === "interview" && <>
+            <div style={{ fontSize: 12, color: "#34c759", fontWeight: 600 }}>✓ {correct} correct</div>
+            {wrong > 0 && <div style={{ fontSize: 12, color: "#ff3b30", fontWeight: 600 }}>✗ {wrong} needs review</div>}
           </>}
         </div>
       </div>
-      <div style={{height:6,background:"#f5f5f7",borderRadius:10,overflow:"hidden"}}>
-        <motion.div initial={{width:0}} animate={{width:`${pct}%`}} transition={{duration:0.9,ease:[0.22,1,0.36,1]}}
-          style={{height:"100%",background:`linear-gradient(90deg,${color},${color}bb)`,borderRadius:10}}/>
+      <div style={{ height: 6, background: "#f5f5f7", borderRadius: 10, overflow: "hidden" }}>
+        <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+          style={{ height: "100%", background: `linear-gradient(90deg,${color},${color}bb)`, borderRadius: 10 }} />
       </div>
-      {pct===100 && <div style={{marginTop:10,fontSize:13,color:"#34c759",fontWeight:600}}>🎉 Module Complete! MNC-ready.</div>}
+      {pct === 100 && <div style={{ marginTop: 10, fontSize: 13, color: "#34c759", fontWeight: 600 }}>🎉 Module Complete! MNC-ready.</div>}
     </div>
   );
 };
@@ -1185,40 +1186,42 @@ const ProgressCard = ({ module: mod, progress, total, type }) => {
 ============================================================ */
 const ModuleScreen = ({ module: mod, data, subScreen, setSubScreen, onBack }) => {
   const color = MOD_COLORS[mod] || "#0071e3";
-  return(
-    <div style={{minHeight:"100vh",background:"var(--bg)"}}>
+  return (
+    <div style={{ minHeight: "100vh", background: "var(--bg)" }}>
       {/* Header */}
-      <div style={{position:"sticky",top:0,zIndex:50,backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)",background:"rgba(245,245,247,0.85)",borderBottom:"1px solid rgba(0,0,0,0.06)"}}>
-        <div style={{maxWidth:960,margin:"0 auto",padding:"0 32px",height:56,display:"flex",alignItems:"center",gap:16}}>
-          <button onClick={onBack} style={{display:"flex",alignItems:"center",gap:6,color:"#0071e3",fontSize:14,fontWeight:500,cursor:"pointer"}}>
+      <div style={{ position: "sticky", top: 0, zIndex: 50, backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", background: "rgba(245,245,247,0.85)", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+        <div style={{ maxWidth: 960, margin: "0 auto", padding: "0 32px", height: 56, display: "flex", alignItems: "center", gap: 16 }}>
+          <button onClick={onBack} style={{ display: "flex", alignItems: "center", gap: 6, color: "#0071e3", fontSize: 14, fontWeight: 500, cursor: "pointer" }}>
             ‹ Modules
           </button>
-          <span style={{color:"#d2d2d7"}}>|</span>
-          <span style={{fontSize:14,fontWeight:600,color:"#1d1d1f"}}>{mod}</span>
+          <span style={{ color: "#d2d2d7" }}>|</span>
+          <span style={{ fontSize: 14, fontWeight: 600, color: "#1d1d1f" }}>{mod}</span>
         </div>
       </div>
 
-      <div style={{maxWidth:960,margin:"0 auto",padding:"48px 32px"}}>
+      <div style={{ maxWidth: 960, margin: "0 auto", padding: "48px 32px" }}>
         {/* Hero */}
-        <div style={{display:"flex",gap:20,alignItems:"center",marginBottom:40}}>
-          <div style={{width:72,height:72,borderRadius:20,background:`${color}15`,display:"flex",alignItems:"center",justifyContent:"center",border:`1.5px solid ${color}25`,flexShrink:0}}>
-            <span style={{fontSize:32}}>{MOD_ICONS[mod]}</span>
+        <div style={{ display: "flex", gap: 20, alignItems: "center", marginBottom: 40 }}>
+          <div style={{ width: 72, height: 72, borderRadius: 20, background: `${color}15`, display: "flex", alignItems: "center", justifyContent: "center", border: `1.5px solid ${color}25`, flexShrink: 0 }}>
+            <span style={{ fontSize: 32 }}>{MOD_ICONS[mod]}</span>
           </div>
           <div>
-            <h1 style={{fontSize:"clamp(2rem,5vw,3rem)",fontWeight:700,letterSpacing:-1,color:"#1d1d1f",marginBottom:6}}>{mod}</h1>
-            <p style={{color:"#86868b",fontSize:15}}>Select a section to start exploring</p>
+            <h1 style={{ fontSize: "clamp(2rem,5vw,3rem)", fontWeight: 700, letterSpacing: -1, color: "#1d1d1f", marginBottom: 6 }}>{mod}</h1>
+            <p style={{ color: "#86868b", fontSize: 15 }}>Select a section to start exploring</p>
           </div>
         </div>
 
         {/* Section buttons */}
-        <div style={{display:"flex",gap:12,marginBottom:40,flexWrap:"wrap"}}>
-          {[["concept","📖 Concept"],["visual","🎬 Visualizer"],["program","💻 Code"]].map(([s,l])=>(
-            <motion.button key={s} whileHover={{scale:1.03}} whileTap={{scale:0.97}} onClick={()=>setSubScreen(subScreen===s?null:s)}
-              style={{padding:"12px 28px",fontSize:14,fontWeight:600,borderRadius:14,border:"1.5px solid",cursor:"pointer",transition:"all 0.2s",
-                borderColor:subScreen===s?color:"var(--border)",
-                background:subScreen===s?color:"white",
-                color:subScreen===s?"white":"#424245",
-                boxShadow:subScreen===s?`0 4px 16px ${color}44`:"var(--shadow-sm)"}}>
+        <div style={{ display: "flex", gap: 12, marginBottom: 40, flexWrap: "wrap" }}>
+          {[["concept", "📖 Concept"], ["visual", "🎬 Visualizer"], ["program", "💻 Code"]].map(([s, l]) => (
+            <motion.button key={s} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => setSubScreen(subScreen === s ? null : s)}
+              style={{
+                padding: "12px 28px", fontSize: 14, fontWeight: 600, borderRadius: 14, border: "1.5px solid", cursor: "pointer", transition: "all 0.2s",
+                borderColor: subScreen === s ? color : "var(--border)",
+                background: subScreen === s ? color : "white",
+                color: subScreen === s ? "white" : "#424245",
+                boxShadow: subScreen === s ? `0 4px 16px ${color}44` : "var(--shadow-sm)"
+              }}>
               {l}
             </motion.button>
           ))}
@@ -1226,30 +1229,30 @@ const ModuleScreen = ({ module: mod, data, subScreen, setSubScreen, onBack }) =>
 
         <AnimatePresence mode="wait">
           {!subScreen && (
-            <motion.div key="ph" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}
-              style={{textAlign:"center",padding:"80px 0",color:"#86868b",fontSize:15}}>
+            <motion.div key="ph" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              style={{ textAlign: "center", padding: "80px 0", color: "#86868b", fontSize: 15 }}>
               Select a section above to explore {mod}
             </motion.div>
           )}
-          {subScreen==="concept" && data && (
-            <motion.div key="c" initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-10}} transition={{ease:[0.22,1,0.36,1]}}>
-              <ConceptPanel data={data} color={color}/>
+          {subScreen === "concept" && data && (
+            <motion.div key="c" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ ease: [0.22, 1, 0.36, 1] }}>
+              <ConceptPanel data={data} color={color} />
             </motion.div>
           )}
-          {subScreen==="visual" && (
-            <motion.div key="v" initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-10}} transition={{ease:[0.22,1,0.36,1]}}>
-              <VisualPanel module={mod} color={color}/>
+          {subScreen === "visual" && (
+            <motion.div key="v" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ ease: [0.22, 1, 0.36, 1] }}>
+              <VisualPanel module={mod} color={color} />
             </motion.div>
           )}
-          {subScreen==="program" && data && (
-            <motion.div key="p" initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-10}} transition={{ease:[0.22,1,0.36,1]}}>
-              <ProgramPanel data={data} module={mod} color={color}/>
+          {subScreen === "program" && data && (
+            <motion.div key="p" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ ease: [0.22, 1, 0.36, 1] }}>
+              <ProgramPanel data={data} module={mod} color={color} />
             </motion.div>
           )}
-          {(subScreen==="concept"||subScreen==="program") && !data && (
-            <motion.div key="l" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}
-              style={{color:"#86868b",fontSize:14,padding:"40px 0",textAlign:"center"}}>
-              ⏳ Loading module data...
+          {(subScreen === "concept" || subScreen === "program") && !data && (
+            <motion.div key="l" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              style={{ color: "#86868b", fontSize: 14, padding: "40px 0", textAlign: "center" }}>
+              ⏳ Loading from backend... (may take ~15s on first load if server is waking up)
             </motion.div>
           )}
         </AnimatePresence>
@@ -1259,22 +1262,34 @@ const ModuleScreen = ({ module: mod, data, subScreen, setSubScreen, onBack }) =>
 };
 
 const ConceptPanel = ({ data, color }) => (
-  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
     {[
-      {label:"Definition",content:<p style={{lineHeight:1.8,fontSize:14,color:"#424245"}}>{data.definition}</p>},
-      {label:"How It Works",content:<p style={{lineHeight:1.8,fontSize:14,color:"#424245"}}>{data.working}</p>},
-      data.algorithm && {label:"Algorithm",content:<pre style={{fontSize:12,color:"#0071e3",lineHeight:1.8,whiteSpace:"pre-wrap",fontFamily:"var(--font-mono)"}}>{data.algorithm}</pre>,wide:true},
-      {label:"Time Complexity",content:typeof data.time_complexity==="object"?Object.entries(data.time_complexity).map(([k,v])=>(
-        <div key={k} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:"1px solid var(--border)"}}>
-          <span style={{fontSize:13,color:"#86868b",fontFamily:"var(--font-mono)"}}>{k}</span>
-          <span style={{fontSize:13,color:"#0071e3",fontFamily:"var(--font-mono)",fontWeight:600}}>{v}</span>
-        </div>
-      )):<pre style={{fontSize:13,color:"#0071e3"}}>{JSON.stringify(data.time_complexity,null,2)}</pre>,wide:true},
-      data.applications && {label:"Applications",content:<p style={{lineHeight:1.8,fontSize:14,color:"#86868b"}}>{data.applications}</p>,wide:true},
-      data.interview_notes && {label:"Interview Tips ★",content:<p style={{lineHeight:1.8,fontSize:14,color:"#424245"}}>{data.interview_notes}</p>,wide:true},
-    ].filter(Boolean).map(({label,content,wide},i)=>(
-      <div key={i} style={{background:"white",border:"1.5px solid var(--border)",borderTop:`3px solid ${color}`,borderRadius:18,padding:24,gridColumn:wide?"1/-1":undefined,boxShadow:"var(--shadow-sm)"}}>
-        <div style={{fontSize:11,fontWeight:600,letterSpacing:0.5,color,textTransform:"uppercase",marginBottom:14}}>{label}</div>
+      { label: "Definition", content: <p style={{ lineHeight: 1.8, fontSize: 14, color: "#424245" }}>{data.definition}</p> },
+      { label: "How It Works", content: <p style={{ lineHeight: 1.8, fontSize: 14, color: "#424245" }}>{data.working}</p> },
+      data.algorithm && { label: "Algorithm", content: <pre style={{ fontSize: 12, color: "#0071e3", lineHeight: 1.8, whiteSpace: "pre-wrap", fontFamily: "var(--font-mono)" }}>{data.algorithm}</pre>, wide: true },
+      {
+        label: "Time Complexity", content: (
+          <div>
+            {typeof data.time_complexity === "object" ? Object.entries(data.time_complexity).map(([k, v]) => (
+              <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: "1px solid var(--border)" }}>
+                <span style={{ fontSize: 13, color: "#86868b", fontFamily: "var(--font-mono)" }}>{k}</span>
+                <span style={{ fontSize: 13, color: "#0071e3", fontFamily: "var(--font-mono)", fontWeight: 600 }}>{v}</span>
+              </div>
+            )) : <pre style={{ fontSize: 13, color: "#0071e3" }}>{JSON.stringify(data.time_complexity, null, 2)}</pre>}
+            {data.space_complexity && <div style={{ marginTop: 10, padding: "8px 0", borderTop: "2px solid var(--border)" }}>
+              <span style={{ fontSize: 12, color: "#86868b", fontWeight: 600 }}>Space: </span>
+              <span style={{ fontSize: 13, color: "#af52de", fontFamily: "var(--font-mono)", fontWeight: 600 }}>{data.space_complexity}</span>
+            </div>}
+          </div>
+        ), wide: true
+      },
+      data.advantages && { label: "✅ Advantages", content: <p style={{ lineHeight: 1.9, fontSize: 13, color: "#34c759", whiteSpace: "pre-line" }}>{data.advantages}</p> },
+      data.disadvantages && { label: "❌ Disadvantages", content: <p style={{ lineHeight: 1.9, fontSize: 13, color: "#ff3b30", whiteSpace: "pre-line" }}>{data.disadvantages}</p> },
+      data.applications && { label: "Applications", content: <p style={{ lineHeight: 1.9, fontSize: 13, color: "#86868b", whiteSpace: "pre-line" }}>{data.applications}</p>, wide: true },
+      data.interview_notes && { label: "Interview Tips ★", content: <p style={{ lineHeight: 1.9, fontSize: 13, color: "#424245", whiteSpace: "pre-line" }}>{data.interview_notes}</p>, wide: true },
+    ].filter(Boolean).map(({ label, content, wide }, i) => (
+      <div key={i} style={{ background: "white", border: "1.5px solid var(--border)", borderTop: `3px solid ${color}`, borderRadius: 18, padding: 24, gridColumn: wide ? "1/-1" : undefined, boxShadow: "var(--shadow-sm)" }}>
+        <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.5, color, textTransform: "uppercase", marginBottom: 14 }}>{label}</div>
         {content}
       </div>
     ))}
@@ -1283,17 +1298,17 @@ const ConceptPanel = ({ data, color }) => (
 
 const ProgramPanel = ({ data, module: mod, color }) => {
   const [copied, setCopied] = useState(false);
-  const copy = () => {navigator.clipboard.writeText(data.java||"");setCopied(true);setTimeout(()=>setCopied(false),2000);};
-  return(
-    <div style={{background:"#1d2126",borderRadius:20,overflow:"hidden",boxShadow:"var(--shadow-lg)"}}>
-      <div style={{padding:"14px 20px",borderBottom:"1px solid rgba(255,255,255,0.06)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-        <div style={{display:"flex",gap:7}}>{["#ff5f56","#ffbd2e","#27c93f"].map(c=><div key={c} style={{width:12,height:12,borderRadius:"50%",background:c}}/>)}</div>
-        <span style={{fontFamily:"var(--font-mono)",fontSize:12,color:"rgba(255,255,255,0.35)"}}>{mod}.java</span>
-        <button onClick={copy} style={{fontSize:12,fontFamily:"var(--font-mono)",color:copied?"#27c93f":"rgba(255,255,255,0.35)",background:"none",cursor:"pointer",transition:"color 0.2s",fontWeight:copied?600:400}}>
-          {copied?"✓ Copied":"Copy"}
+  const copy = () => { navigator.clipboard.writeText(data.java || ""); setCopied(true); setTimeout(() => setCopied(false), 2000); };
+  return (
+    <div style={{ background: "#1d2126", borderRadius: 20, overflow: "hidden", boxShadow: "var(--shadow-lg)" }}>
+      <div style={{ padding: "14px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", gap: 7 }}>{["#ff5f56", "#ffbd2e", "#27c93f"].map(c => <div key={c} style={{ width: 12, height: 12, borderRadius: "50%", background: c }} />)}</div>
+        <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "rgba(255,255,255,0.35)" }}>{mod}.java</span>
+        <button onClick={copy} style={{ fontSize: 12, fontFamily: "var(--font-mono)", color: copied ? "#27c93f" : "rgba(255,255,255,0.35)", background: "none", cursor: "pointer", transition: "color 0.2s", fontWeight: copied ? 600 : 400 }}>
+          {copied ? "✓ Copied" : "Copy"}
         </button>
       </div>
-      <pre style={{padding:28,fontSize:13,lineHeight:1.9,color:"#abb2bf",overflowX:"auto",maxHeight:520}}><code>{data.java}</code></pre>
+      <pre style={{ padding: 28, fontSize: 13, lineHeight: 1.9, color: "#abb2bf", overflowX: "auto", maxHeight: 520 }}><code>{data.java}</code></pre>
     </div>
   );
 };
@@ -1302,114 +1317,114 @@ const ProgramPanel = ({ data, module: mod, color }) => {
    VISUALIZERS — Apple-style
 ============================================================ */
 const VisualPanel = ({ module: mod, color }) => (
-  <div style={{background:"white",border:"1.5px solid var(--border)",borderRadius:20,padding:36,boxShadow:"var(--shadow)"}}>
-    {mod==="Stack" && <StackVisual color={color}/>}
-    {mod==="Queue" && <QueueVisual color={color}/>}
-    {mod==="Linear Search" && <LinearSearchVisual color={color}/>}
-    {mod==="Bubble Sort" && <BubbleSortVisual color={color}/>}
+  <div style={{ background: "white", border: "1.5px solid var(--border)", borderRadius: 20, padding: 36, boxShadow: "var(--shadow)" }}>
+    {mod === "Stack" && <StackVisual color={color} />}
+    {mod === "Queue" && <QueueVisual color={color} />}
+    {mod === "Linear Search" && <LinearSearchVisual color={color} />}
+    {mod === "Bubble Sort" && <BubbleSortVisual color={color} />}
   </div>
 );
 
-const VizBtn = ({onClick,children,color})=>(
-  <motion.button whileHover={{scale:1.04,y:-1}} whileTap={{scale:0.96}} onClick={onClick}
-    style={{padding:"10px 24px",fontSize:13,fontWeight:600,borderRadius:12,background:`${color}12`,color,border:`1.5px solid ${color}30`,marginRight:10,cursor:"pointer",boxShadow:"var(--shadow-sm)"}}>
+const VizBtn = ({ onClick, children, color }) => (
+  <motion.button whileHover={{ scale: 1.04, y: -1 }} whileTap={{ scale: 0.96 }} onClick={onClick}
+    style={{ padding: "10px 24px", fontSize: 13, fontWeight: 600, borderRadius: 12, background: `${color}12`, color, border: `1.5px solid ${color}30`, marginRight: 10, cursor: "pointer", boxShadow: "var(--shadow-sm)" }}>
     {children}
   </motion.button>
 );
 
 function StackVisual({ color }) {
-  const [stack,setStack]=useState([42,17]);
-  return(
+  const [stack, setStack] = useState([42, 17]);
+  return (
     <div>
-      <div style={{fontSize:12,fontWeight:600,letterSpacing:0.5,color:"#86868b",textTransform:"uppercase",marginBottom:20}}>Stack — Last In, First Out</div>
-      <div style={{display:"flex",flexDirection:"column-reverse",alignItems:"flex-start",minHeight:180,gap:8,marginBottom:28}}>
+      <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: 0.5, color: "#86868b", textTransform: "uppercase", marginBottom: 20 }}>Stack — Last In, First Out</div>
+      <div style={{ display: "flex", flexDirection: "column-reverse", alignItems: "flex-start", minHeight: 180, gap: 8, marginBottom: 28 }}>
         <AnimatePresence>
-          {stack.map((item,i)=>(
-            <motion.div key={`${item}-${i}`} layout initial={{opacity:0,x:-30,scale:0.8}} animate={{opacity:1,x:0,scale:1}} exit={{opacity:0,x:30,scale:0.8}} transition={{type:"spring",stiffness:400,damping:28}}
-              style={{width:160,padding:"12px 20px",background:i===stack.length-1?color:`${color}12`,color:i===stack.length-1?"white":color,fontFamily:"var(--font-mono)",fontWeight:700,fontSize:15,borderRadius:12,display:"flex",justifyContent:"space-between",alignItems:"center",border:`1.5px solid ${color}30`,boxShadow:i===stack.length-1?`0 4px 16px ${color}44`:"none"}}>
-              {item}{i===stack.length-1&&<span style={{fontSize:10,opacity:0.7,fontWeight:500}}>TOP</span>}
+          {stack.map((item, i) => (
+            <motion.div key={`${item}-${i}`} layout initial={{ opacity: 0, x: -30, scale: 0.8 }} animate={{ opacity: 1, x: 0, scale: 1 }} exit={{ opacity: 0, x: 30, scale: 0.8 }} transition={{ type: "spring", stiffness: 400, damping: 28 }}
+              style={{ width: 160, padding: "12px 20px", background: i === stack.length - 1 ? color : `${color}12`, color: i === stack.length - 1 ? "white" : color, fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: 15, borderRadius: 12, display: "flex", justifyContent: "space-between", alignItems: "center", border: `1.5px solid ${color}30`, boxShadow: i === stack.length - 1 ? `0 4px 16px ${color}44` : "none" }}>
+              {item}{i === stack.length - 1 && <span style={{ fontSize: 10, opacity: 0.7, fontWeight: 500 }}>TOP</span>}
             </motion.div>
           ))}
         </AnimatePresence>
       </div>
-      <VizBtn onClick={()=>setStack(p=>[...p,Math.floor(Math.random()*99)+1])} color={color}>Push</VizBtn>
-      <VizBtn onClick={()=>setStack(p=>p.slice(0,-1))} color={color}>Pop</VizBtn>
+      <VizBtn onClick={() => setStack(p => [...p, Math.floor(Math.random() * 99) + 1])} color={color}>Push</VizBtn>
+      <VizBtn onClick={() => setStack(p => p.slice(0, -1))} color={color}>Pop</VizBtn>
     </div>
   );
 }
 
 function QueueVisual({ color }) {
-  const [queue,setQueue]=useState([10,30,55]);
-  return(
+  const [queue, setQueue] = useState([10, 30, 55]);
+  return (
     <div>
-      <div style={{fontSize:12,fontWeight:600,letterSpacing:0.5,color:"#86868b",textTransform:"uppercase",marginBottom:20}}>Queue — First In, First Out</div>
-      <div style={{display:"flex",gap:10,alignItems:"center",flexWrap:"wrap",marginBottom:28,minHeight:70}}>
-        <span style={{fontSize:11,color:"#86868b",fontFamily:"var(--font-mono)",fontWeight:500}}>FRONT →</span>
+      <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: 0.5, color: "#86868b", textTransform: "uppercase", marginBottom: 20 }}>Queue — First In, First Out</div>
+      <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginBottom: 28, minHeight: 70 }}>
+        <span style={{ fontSize: 11, color: "#86868b", fontFamily: "var(--font-mono)", fontWeight: 500 }}>FRONT →</span>
         <AnimatePresence>
-          {queue.map((item,i)=>(
-            <motion.div key={`${item}-${i}`} layout initial={{opacity:0,y:-20,scale:0.8}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,scale:0.5}} transition={{type:"spring",stiffness:350,damping:25}}
-              style={{width:58,height:58,display:"flex",alignItems:"center",justifyContent:"center",background:i===0?color:`${color}12`,color:i===0?"white":color,fontFamily:"var(--font-mono)",fontWeight:700,fontSize:16,borderRadius:14,border:`1.5px solid ${color}30`,boxShadow:i===0?`0 4px 16px ${color}44`:"none"}}>
+          {queue.map((item, i) => (
+            <motion.div key={`${item}-${i}`} layout initial={{ opacity: 0, y: -20, scale: 0.8 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }} transition={{ type: "spring", stiffness: 350, damping: 25 }}
+              style={{ width: 58, height: 58, display: "flex", alignItems: "center", justifyContent: "center", background: i === 0 ? color : `${color}12`, color: i === 0 ? "white" : color, fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: 16, borderRadius: 14, border: `1.5px solid ${color}30`, boxShadow: i === 0 ? `0 4px 16px ${color}44` : "none" }}>
               {item}
             </motion.div>
           ))}
         </AnimatePresence>
-        <span style={{fontSize:11,color:"#86868b",fontFamily:"var(--font-mono)",fontWeight:500}}>← REAR</span>
+        <span style={{ fontSize: 11, color: "#86868b", fontFamily: "var(--font-mono)", fontWeight: 500 }}>← REAR</span>
       </div>
-      <VizBtn onClick={()=>setQueue(p=>[...p,Math.floor(Math.random()*99)+1])} color={color}>Enqueue</VizBtn>
-      <VizBtn onClick={()=>setQueue(p=>p.slice(1))} color={color}>Dequeue</VizBtn>
+      <VizBtn onClick={() => setQueue(p => [...p, Math.floor(Math.random() * 99) + 1])} color={color}>Enqueue</VizBtn>
+      <VizBtn onClick={() => setQueue(p => p.slice(1))} color={color}>Dequeue</VizBtn>
     </div>
   );
 }
 
 function LinearSearchVisual({ color }) {
-  const [array]=useState([4,8,2,9,5,1,7,3]);
-  const [current,setCurrent]=useState(-1);
-  const [found,setFound]=useState(-1);
-  const [target]=useState(9);
-  const running=useRef(false);
-  const search=()=>{
-    if(running.current)return;running.current=true;setCurrent(-1);setFound(-1);
-    let i=0;
-    const iv=setInterval(()=>{setCurrent(i);if(array[i]===target){setFound(i);clearInterval(iv);running.current=false;return;}i++;if(i>=array.length){clearInterval(iv);running.current=false;}},500);
+  const [array] = useState([4, 8, 2, 9, 5, 1, 7, 3]);
+  const [current, setCurrent] = useState(-1);
+  const [found, setFound] = useState(-1);
+  const [target] = useState(9);
+  const running = useRef(false);
+  const search = () => {
+    if (running.current) return; running.current = true; setCurrent(-1); setFound(-1);
+    let i = 0;
+    const iv = setInterval(() => { setCurrent(i); if (array[i] === target) { setFound(i); clearInterval(iv); running.current = false; return; } i++; if (i >= array.length) { clearInterval(iv); running.current = false; } }, 500);
   };
-  return(
+  return (
     <div>
-      <div style={{fontSize:12,fontWeight:600,letterSpacing:0.5,color:"#86868b",textTransform:"uppercase",marginBottom:20}}>Linear Search — Target: {target}</div>
-      <div style={{display:"flex",gap:10,flexWrap:"wrap",marginBottom:28}}>
-        {array.map((num,i)=>(
-          <motion.div key={i} animate={{scale:current===i?1.15:1,y:current===i?-4:0}} transition={{type:"spring",stiffness:400,damping:20}}
-            style={{width:54,height:54,display:"flex",alignItems:"center",justifyContent:"center",background:found===i?color:current===i?`${color}18`:"#f5f5f7",color:found===i?"white":current===i?color:"#424245",fontFamily:"var(--font-mono)",fontWeight:700,fontSize:16,borderRadius:14,border:`1.5px solid ${found===i||current===i?color:"transparent"}`,transition:"background 0.25s,color 0.25s",boxShadow:found===i?`0 4px 16px ${color}44`:"none"}}>
+      <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: 0.5, color: "#86868b", textTransform: "uppercase", marginBottom: 20 }}>Linear Search — Target: {target}</div>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 28 }}>
+        {array.map((num, i) => (
+          <motion.div key={i} animate={{ scale: current === i ? 1.15 : 1, y: current === i ? -4 : 0 }} transition={{ type: "spring", stiffness: 400, damping: 20 }}
+            style={{ width: 54, height: 54, display: "flex", alignItems: "center", justifyContent: "center", background: found === i ? color : current === i ? `${color}18` : "#f5f5f7", color: found === i ? "white" : current === i ? color : "#424245", fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: 16, borderRadius: 14, border: `1.5px solid ${found === i || current === i ? color : "transparent"}`, transition: "background 0.25s,color 0.25s", boxShadow: found === i ? `0 4px 16px ${color}44` : "none" }}>
             {num}
           </motion.div>
         ))}
       </div>
-      {found!==-1&&<motion.p initial={{opacity:0,y:4}} animate={{opacity:1,y:0}} style={{fontFamily:"var(--font-mono)",fontSize:13,color,marginBottom:16,fontWeight:600}}>✓ Found {target} at index {found}</motion.p>}
+      {found !== -1 && <motion.p initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} style={{ fontFamily: "var(--font-mono)", fontSize: 13, color, marginBottom: 16, fontWeight: 600 }}>✓ Found {target} at index {found}</motion.p>}
       <VizBtn onClick={search} color={color}>▶ Start Search</VizBtn>
     </div>
   );
 }
 
 function BubbleSortVisual({ color }) {
-  const init=[5,3,8,4,2,7,1,6];
-  const [array,setArray]=useState([...init]);
-  const [active,setActive]=useState([-1,-1]);
-  const running=useRef(false);
-  const reset=()=>{setArray([...init]);setActive([-1,-1]);};
-  const sort=()=>{
-    if(running.current)return;running.current=true;
-    let arr=[...array],steps=[];
-    for(let i=0;i<arr.length-1;i++){for(let j=0;j<arr.length-1-i;j++){steps.push({arr:[...arr],comparing:[j,j+1]});if(arr[j]>arr[j+1]){[arr[j],arr[j+1]]=[arr[j+1],arr[j]];steps.push({arr:[...arr],comparing:[j,j+1]});}}}
-    steps.push({arr:[...arr],comparing:[-1,-1]});
-    let s=0;const iv=setInterval(()=>{if(s>=steps.length){clearInterval(iv);running.current=false;setActive([-1,-1]);return;}setArray(steps[s].arr);setActive(steps[s].comparing);s++;},180);
+  const init = [5, 3, 8, 4, 2, 7, 1, 6];
+  const [array, setArray] = useState([...init]);
+  const [active, setActive] = useState([-1, -1]);
+  const running = useRef(false);
+  const reset = () => { setArray([...init]); setActive([-1, -1]); };
+  const sort = () => {
+    if (running.current) return; running.current = true;
+    let arr = [...array], steps = [];
+    for (let i = 0; i < arr.length - 1; i++) { for (let j = 0; j < arr.length - 1 - i; j++) { steps.push({ arr: [...arr], comparing: [j, j + 1] }); if (arr[j] > arr[j + 1]) { [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]]; steps.push({ arr: [...arr], comparing: [j, j + 1] }); } } }
+    steps.push({ arr: [...arr], comparing: [-1, -1] });
+    let s = 0; const iv = setInterval(() => { if (s >= steps.length) { clearInterval(iv); running.current = false; setActive([-1, -1]); return; } setArray(steps[s].arr); setActive(steps[s].comparing); s++; }, 180);
   };
-  const maxVal=Math.max(...array);
-  return(
+  const maxVal = Math.max(...array);
+  return (
     <div>
-      <div style={{fontSize:12,fontWeight:600,letterSpacing:0.5,color:"#86868b",textTransform:"uppercase",marginBottom:20}}>Bubble Sort — Adjacent Comparisons</div>
-      <div style={{display:"flex",gap:8,alignItems:"flex-end",marginBottom:28,height:160}}>
-        {array.map((num,i)=>(
-          <motion.div key={i} layout transition={{type:"spring",stiffness:350,damping:28}}
-            style={{flex:1,height:`${(num/maxVal)*140}px`,background:active[0]===i||active[1]===i?color:`${color}20`,borderRadius:"10px 10px 0 0",display:"flex",alignItems:"flex-start",justifyContent:"center",paddingTop:6,color:active[0]===i||active[1]===i?"white":color,fontFamily:"var(--font-mono)",fontWeight:700,fontSize:13,transition:"background 0.15s,color 0.15s",boxShadow:active[0]===i||active[1]===i?`0 4px 16px ${color}44`:"none"}}>
+      <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: 0.5, color: "#86868b", textTransform: "uppercase", marginBottom: 20 }}>Bubble Sort — Adjacent Comparisons</div>
+      <div style={{ display: "flex", gap: 8, alignItems: "flex-end", marginBottom: 28, height: 160 }}>
+        {array.map((num, i) => (
+          <motion.div key={i} layout transition={{ type: "spring", stiffness: 350, damping: 28 }}
+            style={{ flex: 1, height: `${(num / maxVal) * 140}px`, background: active[0] === i || active[1] === i ? color : `${color}20`, borderRadius: "10px 10px 0 0", display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: 6, color: active[0] === i || active[1] === i ? "white" : color, fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: 13, transition: "background 0.15s,color 0.15s", boxShadow: active[0] === i || active[1] === i ? `0 4px 16px ${color}44` : "none" }}>
             {num}
           </motion.div>
         ))}
@@ -2249,7 +2264,19 @@ export default function App() {
 
   useEffect(() => {
     if (!module) return;
-    setData(getLocalData(module, level));
+    setData(null);
+    const encodedModule = encodeURIComponent(module);
+    const encodedLevel = encodeURIComponent(level);
+    fetch(`https://backend-vix7.onrender.com/module/${encodedModule}/${encodedLevel}`)
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then(setData)
+      .catch(err => {
+        console.error("Backend fetch failed, using local data:", err);
+        setData(getLocalData(module, level));
+      });
   }, [module, level]);
 
   const selectModule = (mod) => { setModule(mod); setSubScreen(null); setScreen("module"); };
@@ -2270,32 +2297,32 @@ export default function App() {
   // Show login if not authenticated
   if (!user) {
     return (
-      <div style={{background:"var(--bg)",minHeight:"100vh",color:"var(--text)"}}>
+      <div style={{ background: "var(--bg)", minHeight: "100vh", color: "var(--text)" }}>
         <AnimatePresence mode="wait">
-          <motion.div key="login" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} transition={{duration:0.4}}>
-            <LoginScreen onLogin={handleLogin}/>
+          <motion.div key="login" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }}>
+            <LoginScreen onLogin={handleLogin} />
           </motion.div>
         </AnimatePresence>
       </div>
     );
   }
 
-  return(
-    <div style={{background:"var(--bg)",minHeight:"100vh",color:"var(--text)"}}>
+  return (
+    <div style={{ background: "var(--bg)", minHeight: "100vh", color: "var(--text)" }}>
       <AnimatePresence mode="wait">
-        {screen==="home" && (
-          <motion.div key="home" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0,scale:0.98}} transition={{duration:0.4}}>
-            <HomeScreen onEnter={()=>setScreen("dsa")} user={user} onLogout={handleLogout}/>
+        {screen === "home" && (
+          <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.4 }}>
+            <HomeScreen onEnter={() => setScreen("dsa")} user={user} onLogout={handleLogout} />
           </motion.div>
         )}
-        {screen==="dsa" && (
-          <motion.div key="dsa" initial={{opacity:0,x:40}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-40}} transition={{duration:0.35,ease:[0.22,1,0.36,1]}}>
-            <DSAScreen level={level} setLevel={setLevel} onSelectModule={selectModule} onBack={()=>setScreen("home")} progress={progress}/>
+        {screen === "dsa" && (
+          <motion.div key="dsa" initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
+            <DSAScreen level={level} setLevel={setLevel} onSelectModule={selectModule} onBack={() => setScreen("home")} progress={progress} />
           </motion.div>
         )}
-        {screen==="module" && (
-          <motion.div key="module" initial={{opacity:0,x:40}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-40}} transition={{duration:0.35,ease:[0.22,1,0.36,1]}}>
-            <ModuleScreen module={module} data={data} subScreen={subScreen} setSubScreen={setSubScreen} onBack={()=>{setScreen("dsa");setSubScreen(null);}}/>
+        {screen === "module" && (
+          <motion.div key="module" initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
+            <ModuleScreen module={module} data={data} subScreen={subScreen} setSubScreen={setSubScreen} onBack={() => { setScreen("dsa"); setSubScreen(null); }} />
           </motion.div>
         )}
       </AnimatePresence>
