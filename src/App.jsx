@@ -6,8 +6,8 @@ import { motion, AnimatePresence } from "framer-motion";
    1. Go to https://supabase.com → New Project
    2. Settings → API → copy Project URL and anon key
 ============================================================ */
-const SUPABASE_URL = "https://YOUR_PROJECT.supabase.co";
-const SUPABASE_ANON_KEY = "YOUR_ANON_KEY_HERE";
+const SUPABASE_URL = "https://hmshjaqpraxlzydpkdml.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhtc2hqYXFwcmF4bHp5ZHBrZG1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0MTg0NjEsImV4cCI6MjA4Nzk5NDQ2MX0.cLUg_LAcnWv-_MNune2UttgPq4IQ1zwILmUyBmxxTYE";
 
 // Minimal Supabase auth client (no SDK needed)
 const supabase = {
