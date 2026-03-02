@@ -46,7 +46,7 @@ const supabase = {
   },
 };
 
-const SESSION_KEY = "codeloom_supabase_session";
+const SESSION_KEY = "fita_supabase_session";
 
 /* ============================================================
    GLOBAL STYLES — Apple Design Language
@@ -365,7 +365,7 @@ const LoginScreen = ({ onLogin }) => {
         </div>
 
         <p style={{ textAlign: "center", marginTop: 16, fontSize: 12, color: "#a1a1a6" }}>
-          Powered by <strong style={{ color: "#0071e3" }}>CodeLoom</strong> · Chennai & Bangalore
+          Powered by <strong style={{ color: "#0071e3" }}>FITA Academy</strong> · Chennai & Bangalore
         </p>
       </motion.div>
     </div>
@@ -593,7 +593,7 @@ const useProgress = (userId) => {
 /* ============================================================
    FITA ACADEMY PROFILE
 ============================================================ */
-const CodeLoomProfile = () => {
+const FitaAcademyProfile = () => {
   const courses = [
     { name: "Data Structures & Algorithms", icon: "🧮", color: "#0071e3" },
     { name: "UI/UX Design", icon: "🎨", color: "#34c759" },
@@ -617,7 +617,7 @@ const CodeLoomProfile = () => {
                 <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.5, color: "#0071e3", background: "rgba(0,113,227,0.1)", padding: "3px 10px", borderRadius: 20 }}>IT Training Institute</span>
                 <span style={{ fontSize: 11, fontWeight: 600, color: "#34c759", background: "rgba(52,199,89,0.1)", padding: "3px 10px", borderRadius: 20 }}>✓ Verified</span>
               </div>
-              <h2 style={{ fontSize: 28, fontWeight: 700, color: "#1d1d1f", letterSpacing: -0.5, marginBottom: 4 }}>CodeLoom</h2>
+              <h2 style={{ fontSize: 28, fontWeight: 700, color: "#1d1d1f", letterSpacing: -0.5, marginBottom: 4 }}>FITA Academy</h2>
               <p style={{ fontSize: 14, color: "#86868b", fontFamily: "var(--font-mono)" }}>Chennai • Bangalore • Malaysia</p>
             </div>
           </div>
@@ -636,7 +636,7 @@ const CodeLoomProfile = () => {
           ))}
         </div>
         <div style={{ padding: "24px 36px" }}>
-          <p style={{ fontSize: 14, color: "#424245", lineHeight: 1.7, marginBottom: 16 }}>At CodeLoom, you don't just learn — you get placement-ready. From Data Structures & Algorithms to UI/UX Design, expert-led courses crafted for real-world success.</p>
+          <p style={{ fontSize: 14, color: "#424245", lineHeight: 1.7, marginBottom: 16 }}>At FITA Academy, you don't just learn — you get placement-ready. From Data Structures & Algorithms to UI/UX Design, expert-led courses crafted for real-world success.</p>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <motion.a href="https://www.fita.in" target="_blank" rel="noopener noreferrer" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
               style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 24px", fontSize: 14, fontWeight: 600, background: "#0071e3", color: "white", borderRadius: 14, boxShadow: "var(--shadow-blue)" }}>
@@ -705,7 +705,7 @@ export const HomeScreen = ({ onEnter, user, onLogout }) => {
             <span style={{ fontSize: 15, fontWeight: 600, color: "#1d1d1f" }}>CodeLoom</span>
           </div>
           <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-            {[["home", "Home"], ["company", "CodeLoom"]].map(([t, l]) => (
+            {[["home", "Home"], ["company", "FITA Academy"]].map(([t, l]) => (
               <button key={t} onClick={() => setTab(t)} style={{ padding: "6px 16px", fontSize: 13, fontWeight: 500, borderRadius: 20, background: tab === t ? "#0071e3" : "transparent", color: tab === t ? "white" : "#424245", border: "none", cursor: "pointer", transition: "all 0.2s" }}>{l}</button>
             ))}
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: 8, paddingLeft: 12, borderLeft: "1px solid rgba(0,0,0,0.1)" }}>
@@ -733,7 +733,7 @@ export const HomeScreen = ({ onEnter, user, onLogout }) => {
               <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
                 style={{ fontSize: "clamp(2.8rem,7vw,5.2rem)", fontWeight: 700, lineHeight: 1.05, letterSpacing: -2, color: "#1d1d1f", marginBottom: 20 }}>
                 Learn Basic<br /><span style={{ color: "#0071e3" }}>Data Structures</span><br />
-                <span style={{ color: "#424245", fontWeight: 400, fontSize: "clamp(1.8rem,4vw,3rem)" }}>with CodeLoom</span>
+                <span style={{ color: "#424245", fontWeight: 400, fontSize: "clamp(1.8rem,4vw,3rem)" }}>with FITA Academy</span>
               </motion.h1>
               <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
                 style={{ fontSize: 17, color: "#86868b", lineHeight: 1.7, marginBottom: 12 }}>
@@ -742,9 +742,9 @@ export const HomeScreen = ({ onEnter, user, onLogout }) => {
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}
                 onClick={() => setTab("company")} whileHover={{ scale: 1.02 }} style={{ display: "inline-flex", alignItems: "center", gap: 10, cursor: "pointer", padding: "10px 20px", background: "white", border: "1.5px solid rgba(0,113,227,0.2)", borderRadius: 50, marginBottom: 40, boxShadow: "var(--shadow-sm)" }}>
                 <div style={{ width: 24, height: 24, borderRadius: 6, background: "#0071e3", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <span style={{ fontSize: 12, fontWeight: 800, color: "white", fontFamily: "var(--font-mono)" }}>C</span>
+                  <span style={{ fontSize: 12, fontWeight: 800, color: "white", fontFamily: "var(--font-mono)" }}>F</span>
                 </div>
-                <span style={{ fontSize: 13, fontWeight: 500, color: "#424245" }}>Powered by <strong style={{ color: "#0071e3" }}>CodeLoom</strong></span>
+                <span style={{ fontSize: 13, fontWeight: 500, color: "#424245" }}>Powered by <strong style={{ color: "#0071e3" }}>FITA Academy</strong></span>
                 <span style={{ color: "#86868b" }}>→</span>
               </motion.div>
               <br />
@@ -769,7 +769,7 @@ export const HomeScreen = ({ onEnter, user, onLogout }) => {
           {tab === "company" && (
             <motion.div key="company" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.4 }}
               style={{ width: "100%", maxWidth: 760, maxHeight: "85vh", overflowY: "auto", paddingTop: 20, paddingBottom: 40 }}>
-              <CodeLoomProfile />
+              <FitaAcademyProfile />
             </motion.div>
           )}
         </AnimatePresence>
