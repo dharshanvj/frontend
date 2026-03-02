@@ -1,5 +1,52 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+
+/* ============================================================
+   SUPABASE CONFIG — Replace with your own project credentials
+   1. Go to https://supabase.com → New Project
+   2. Settings → API → copy Project URL and anon key
+============================================================ */
+const SUPABASE_URL = "https://YOUR_PROJECT.supabase.co";
+const SUPABASE_ANON_KEY = "YOUR_ANON_KEY_HERE";
+
+// Minimal Supabase auth client (no SDK needed)
+const supabase = {
+  async signUp(email, password) {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", apikey: SUPABASE_ANON_KEY },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error_description || data.msg || "Sign up failed");
+    return data;
+  },
+  async signIn(email, password) {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", apikey: SUPABASE_ANON_KEY },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error_description || data.msg || "Sign in failed");
+    return data;
+  },
+  async signOut(accessToken) {
+    await fetch(`${SUPABASE_URL}/auth/v1/logout`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${accessToken}` },
+    });
+  },
+  async getUser(accessToken) {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+      headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${accessToken}` },
+    });
+    if (!res.ok) return null;
+    return res.json();
+  },
+};
+
+const SESSION_KEY = "fita_supabase_session";
 
 /* ============================================================
    GLOBAL STYLES — Apple Design Language
@@ -55,39 +102,15 @@ const GLOBAL_CSS = `
   ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 10px; }
   ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
   
-  @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
-  }
-  @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-12px); }
-  }
-  @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(0,113,227,0.3); }
-    50% { box-shadow: 0 0 0 8px rgba(0,113,227,0); }
-  }
-  @keyframes login-float {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    33% { transform: translateY(-8px) rotate(1deg); }
-    66% { transform: translateY(-4px) rotate(-1deg); }
-  }
-  @keyframes orb-drift {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    25% { transform: translate(30px, -20px) scale(1.05); }
-    50% { transform: translate(-20px, 30px) scale(0.95); }
-    75% { transform: translate(20px, 10px) scale(1.02); }
-  }
-  @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    20% { transform: translateX(-8px); }
-    40% { transform: translateX(8px); }
-    60% { transform: translateX(-5px); }
-    80% { transform: translateX(5px); }
-  }
+  @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+  @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-12px); } }
+  @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(0,113,227,0.3); } 50% { box-shadow: 0 0 0 8px rgba(0,113,227,0); } }
+  @keyframes login-float { 0%, 100% { transform: translateY(0px) rotate(0deg); } 33% { transform: translateY(-8px) rotate(1deg); } 66% { transform: translateY(-4px) rotate(-1deg); } }
+  @keyframes orb-drift { 0%, 100% { transform: translate(0, 0) scale(1); } 25% { transform: translate(30px, -20px) scale(1.05); } 50% { transform: translate(-20px, 30px) scale(0.95); } 75% { transform: translate(20px, 10px) scale(1.02); } }
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(5px); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
   .shake { animation: shake 0.4s ease; }
 
-  /* Login input styles */
   .login-input {
     width: 100%;
     padding: 14px 18px;
@@ -100,16 +123,9 @@ const GLOBAL_CSS = `
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
   }
-  .login-input:focus {
-    border-color: #0071e3;
-    box-shadow: 0 0 0 4px rgba(0,113,227,0.12);
-    background: white;
-  }
+  .login-input:focus { border-color: #0071e3; box-shadow: 0 0 0 4px rgba(0,113,227,0.12); background: white; }
   .login-input::placeholder { color: #a1a1a6; }
-  .login-input.error {
-    border-color: #ff3b30;
-    box-shadow: 0 0 0 4px rgba(255,59,48,0.1);
-  }
+  .login-input.error { border-color: #ff3b30; box-shadow: 0 0 0 4px rgba(255,59,48,0.1); }
 `;
 
 function useGlobalStyle(css) {
@@ -122,70 +138,71 @@ function useGlobalStyle(css) {
 }
 
 /* ============================================================
-   LOGIN SCREEN
+   SUPABASE NOT CONFIGURED BANNER
 ============================================================ */
-const DEMO_USERS = [
-  { username: "student", password: "fita123", name: "Student" },
-  { username: "admin", password: "admin123", name: "Admin" },
-  { username: "demo", password: "demo", name: "Demo User" },
-];
+const isSupabaseConfigured = () =>
+  SUPABASE_URL !== "https://YOUR_PROJECT.supabase.co" && SUPABASE_ANON_KEY !== "YOUR_ANON_KEY_HERE";
 
+/* ============================================================
+   LOGIN SCREEN — Real Supabase Auth
+============================================================ */
 const LoginScreen = ({ onLogin }) => {
-  const [mode, setMode] = useState("login"); // "login" | "signup"
-  const [username, setUsername] = useState("");
+  const [mode, setMode] = useState("login");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [name, setName] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
   const [shakeKey, setShakeKey] = useState(0);
-  const [users, setUsers] = useState(() => {
-    try { return JSON.parse(localStorage.getItem("fita_users") || "[]"); } catch { return []; }
-  });
 
-  const allUsers = [...DEMO_USERS, ...users];
+  const configured = isSupabaseConfigured();
 
-  const triggerError = (msg) => {
-    setError(msg);
-    setShakeKey(k => k + 1);
+  const triggerError = (msg) => { setError(msg); setShakeKey(k => k + 1); };
+
+  const handleLogin = async () => {
+    if (!email.trim() || !password) { triggerError("Please enter your email and password."); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { triggerError("Please enter a valid email address."); return; }
+    setLoading(true); setError(""); setInfo("");
+    try {
+      const data = await supabase.signIn(email.trim().toLowerCase(), password);
+      const session = {
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+        user: data.user,
+        name: data.user?.user_metadata?.display_name || email.split("@")[0],
+        username: email.split("@")[0],
+      };
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+      onLogin(session);
+    } catch (err) {
+      setLoading(false);
+      triggerError(err.message || "Invalid email or password.");
+    }
   };
 
-  const handleLogin = () => {
-    if (!username.trim() || !password) { triggerError("Please enter your credentials."); return; }
-    setLoading(true);
-    setTimeout(() => {
-      const user = allUsers.find(u => u.username.toLowerCase() === username.trim().toLowerCase() && u.password === password);
-      if (user) {
-        localStorage.setItem("fita_session", JSON.stringify({ username: user.username, name: user.name }));
-        onLogin(user);
-      } else {
-        setLoading(false);
-        triggerError("Invalid username or password.");
-      }
-    }, 800);
-  };
-
-  const handleSignup = () => {
-    if (!name.trim()) { triggerError("Please enter your name."); return; }
-    if (!username.trim()) { triggerError("Please enter a username."); return; }
-    if (username.length < 3) { triggerError("Username must be at least 3 characters."); return; }
-    if (allUsers.find(u => u.username.toLowerCase() === username.trim().toLowerCase())) { triggerError("Username already exists."); return; }
-    if (password.length < 4) { triggerError("Password must be at least 4 characters."); return; }
+  const handleSignup = async () => {
+    if (!displayName.trim()) { triggerError("Please enter your display name."); return; }
+    if (!email.trim()) { triggerError("Please enter your email address."); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { triggerError("Please enter a valid email address."); return; }
+    if (password.length < 6) { triggerError("Password must be at least 6 characters."); return; }
     if (password !== confirmPassword) { triggerError("Passwords do not match."); return; }
-    setLoading(true);
-    setTimeout(() => {
-      const newUser = { username: username.trim(), password, name: name.trim() };
-      const updated = [...users, newUser];
-      setUsers(updated);
-      localStorage.setItem("fita_users", JSON.stringify(updated));
-      localStorage.setItem("fita_session", JSON.stringify({ username: newUser.username, name: newUser.name }));
-      onLogin(newUser);
-    }, 800);
+    setLoading(true); setError(""); setInfo("");
+    try {
+      await supabase.signUp(email.trim().toLowerCase(), password);
+      setLoading(false);
+      setInfo("✅ Account created! Check your email to confirm, then sign in.");
+      setMode("login");
+      setPassword(""); setConfirmPassword("");
+    } catch (err) {
+      setLoading(false);
+      triggerError(err.message || "Sign up failed. Try a different email.");
+    }
   };
 
   const handleSubmit = () => { setError(""); mode === "login" ? handleLogin() : handleSignup(); };
-
   const handleKeyDown = (e) => { if (e.key === "Enter") handleSubmit(); };
 
   return (
@@ -222,10 +239,7 @@ const LoginScreen = ({ onLogin }) => {
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         style={{ position: "relative", zIndex: 10, width: "100%", maxWidth: 420, margin: "0 24px" }}
       >
-        {/* Card */}
         <div style={{ background: "rgba(255,255,255,0.88)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", borderRadius: 28, boxShadow: "0 24px 80px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.06)", border: "1.5px solid rgba(255,255,255,0.9)", overflow: "hidden" }}>
-
-          {/* Top accent */}
           <div style={{ height: 4, background: "linear-gradient(90deg, #0071e3, #34c759, #af52de, #ff9500)" }} />
 
           <div style={{ padding: "36px 36px 32px" }}>
@@ -240,22 +254,42 @@ const LoginScreen = ({ onLogin }) => {
               </div>
             </div>
 
+            {/* Supabase not configured warning */}
+            {!configured && (
+              <div style={{ background: "#fff4e6", border: "1.5px solid rgba(255,149,0,0.3)", borderRadius: 14, padding: "12px 16px", marginBottom: 20 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: "#ff9500", marginBottom: 6 }}>⚙️ Setup Required</div>
+                <p style={{ fontSize: 12, color: "#424245", lineHeight: 1.6 }}>
+                  Add your Supabase credentials at the top of this file to enable real authentication. Go to{" "}
+                  <a href="https://supabase.com" target="_blank" rel="noopener noreferrer" style={{ color: "#0071e3", fontWeight: 600 }}>supabase.com</a>
+                  {" "}→ New Project → Settings → API.
+                </p>
+              </div>
+            )}
+
             {/* Mode toggle */}
             <div style={{ display: "flex", background: "rgba(0,0,0,0.05)", borderRadius: 14, padding: 3, marginBottom: 28 }}>
               {[["login", "Sign In"], ["signup", "Sign Up"]].map(([m, l]) => (
-                <button key={m} onClick={() => { setMode(m); setError(""); }} style={{ flex: 1, padding: "9px 0", fontSize: 13, fontWeight: 600, borderRadius: 11, border: "none", cursor: "pointer", transition: "all 0.2s", background: mode === m ? "white" : "transparent", color: mode === m ? "#1d1d1f" : "#86868b", boxShadow: mode === m ? "var(--shadow-sm)" : "none" }}>
+                <button key={m} onClick={() => { setMode(m); setError(""); setInfo(""); }} style={{ flex: 1, padding: "9px 0", fontSize: 13, fontWeight: 600, borderRadius: 11, border: "none", cursor: "pointer", transition: "all 0.2s", background: mode === m ? "white" : "transparent", color: mode === m ? "#1d1d1f" : "#86868b", boxShadow: mode === m ? "var(--shadow-sm)" : "none" }}>
                   {l}
                 </button>
               ))}
             </div>
 
-            {/* Title */}
             <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: -0.5, color: "#1d1d1f", marginBottom: 4 }}>
               {mode === "login" ? "Welcome back" : "Create account"}
             </h2>
             <p style={{ fontSize: 13, color: "#86868b", marginBottom: 24 }}>
               {mode === "login" ? "Sign in to continue learning" : "Join FITA DSA Platform"}
             </p>
+
+            {/* Info message */}
+            <AnimatePresence>
+              {info && (
+                <motion.div initial={{ opacity: 0, y: -8, height: 0 }} animate={{ opacity: 1, y: 0, height: "auto" }} exit={{ opacity: 0, y: -8, height: 0 }} style={{ background: "#e8f9ee", border: "1.5px solid rgba(52,199,89,0.3)", borderRadius: 12, padding: "10px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 13, color: "#34c759", fontWeight: 500 }}>{info}</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Error */}
             <AnimatePresence>
@@ -272,23 +306,21 @@ const LoginScreen = ({ onLogin }) => {
               <AnimatePresence>
                 {mode === "signup" && (
                   <motion.div key="name-field" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} style={{ overflow: "hidden" }}>
-                    <div style={{ paddingBottom: 0 }}>
-                      <label style={{ fontSize: 12, fontWeight: 600, color: "#424245", display: "block", marginBottom: 6, letterSpacing: 0.2 }}>Full Name</label>
-                      <input className={`login-input${error && !name ? " error" : ""}`} type="text" placeholder="Your name" value={name} onChange={e => setName(e.target.value)} onKeyDown={handleKeyDown} autoComplete="name" />
-                    </div>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: "#424245", display: "block", marginBottom: 6, letterSpacing: 0.2 }}>Display Name</label>
+                    <input className="login-input" type="text" placeholder="Your name" value={displayName} onChange={e => setDisplayName(e.target.value)} onKeyDown={handleKeyDown} autoComplete="name" />
                   </motion.div>
                 )}
               </AnimatePresence>
 
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "#424245", display: "block", marginBottom: 6, letterSpacing: 0.2 }}>Username</label>
-                <input className="login-input" type="text" placeholder={mode === "login" ? "Enter username" : "Choose a username"} value={username} onChange={e => setUsername(e.target.value)} onKeyDown={handleKeyDown} autoComplete="username" autoFocus />
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#424245", display: "block", marginBottom: 6, letterSpacing: 0.2 }}>Email Address</label>
+                <input className="login-input" type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} onKeyDown={handleKeyDown} autoComplete="email" autoFocus />
               </div>
 
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: "#424245", display: "block", marginBottom: 6, letterSpacing: 0.2 }}>Password</label>
                 <div style={{ position: "relative" }}>
-                  <input className="login-input" type={showPass ? "text" : "password"} placeholder={mode === "login" ? "Enter password" : "Create password (min 4 chars)"} value={password} onChange={e => setPassword(e.target.value)} onKeyDown={handleKeyDown} autoComplete={mode === "login" ? "current-password" : "new-password"} style={{ paddingRight: 48 }} />
+                  <input className="login-input" type={showPass ? "text" : "password"} placeholder={mode === "login" ? "Enter password" : "Min 6 characters"} value={password} onChange={e => setPassword(e.target.value)} onKeyDown={handleKeyDown} autoComplete={mode === "login" ? "current-password" : "new-password"} style={{ paddingRight: 48 }} />
                   <button onClick={() => setShowPass(p => !p)} style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", fontSize: 16, color: "#86868b", background: "none", border: "none", cursor: "pointer", padding: 4 }}>
                     {showPass ? "🙈" : "👁️"}
                   </button>
@@ -305,51 +337,37 @@ const LoginScreen = ({ onLogin }) => {
               </AnimatePresence>
             </div>
 
-            {/* Submit */}
             <motion.button
               whileHover={{ scale: 1.02, boxShadow: "0 8px 28px rgba(0,113,227,0.35)" }}
               whileTap={{ scale: 0.97 }}
               onClick={handleSubmit}
-              disabled={loading}
-              style={{ width: "100%", marginTop: 20, padding: "14px", fontSize: 15, fontWeight: 600, background: loading ? "#86868b" : "#0071e3", color: "white", borderRadius: 14, border: "none", cursor: loading ? "not-allowed" : "pointer", boxShadow: "var(--shadow-blue)", transition: "background 0.2s", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+              disabled={loading || !configured}
+              style={{ width: "100%", marginTop: 20, padding: "14px", fontSize: 15, fontWeight: 600, background: !configured ? "#a1a1a6" : loading ? "#86868b" : "#0071e3", color: "white", borderRadius: 14, border: "none", cursor: loading || !configured ? "not-allowed" : "pointer", boxShadow: "var(--shadow-blue)", transition: "background 0.2s", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
             >
               {loading ? (
                 <>
                   <div style={{ width: 16, height: 16, border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "white", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
                   {mode === "login" ? "Signing in..." : "Creating account..."}
                 </>
+              ) : !configured ? (
+                "Configure Supabase First"
               ) : (
                 mode === "login" ? "Sign In →" : "Create Account →"
               )}
             </motion.button>
 
-            {/* Demo hint (login mode only) */}
-            {mode === "login" && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
-                style={{ marginTop: 20, padding: "14px 16px", background: "#e8f2ff", border: "1.5px solid rgba(0,113,227,0.15)", borderRadius: 14 }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: "#0071e3", marginBottom: 8, letterSpacing: 0.3, textTransform: "uppercase" }}>Quick Demo Access</div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  {[["student", "fita123"], ["demo", "demo"]].map(([u, p]) => (
-                    <button key={u} onClick={() => { setUsername(u); setPassword(p); setError(""); }}
-                      style={{ textAlign: "left", padding: "6px 10px", background: "white", border: "1.5px solid rgba(0,113,227,0.15)", borderRadius: 8, cursor: "pointer", fontSize: 12, fontFamily: "var(--font-mono)", color: "#0071e3", fontWeight: 500, transition: "background 0.15s" }}>
-                      {u} / {p}
-                    </button>
-                  ))}
-                </div>
-              </motion.div>
-            )}
+            {/* Security note */}
+            <div style={{ marginTop: 20, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+              <span style={{ fontSize: 11, color: "#a1a1a6" }}>🔒</span>
+              <span style={{ fontSize: 11, color: "#a1a1a6" }}>Secured by Supabase Auth · Passwords never stored in plain text</span>
+            </div>
           </div>
         </div>
 
-        {/* Bottom note */}
         <p style={{ textAlign: "center", marginTop: 16, fontSize: 12, color: "#a1a1a6" }}>
           Powered by <strong style={{ color: "#0071e3" }}>FITA Academy</strong> · Chennai & Bangalore
         </p>
       </motion.div>
-
-      <style>{`
-        @keyframes spin { to { transform: rotate(360deg); } }
-      `}</style>
     </div>
   );
 };
@@ -557,18 +575,23 @@ const LEVELS = ["Beginner", "Intermediate", "Advanced"];
 /* ============================================================
    PROGRESS STORE
 ============================================================ */
-const useProgress = () => {
+const useProgress = (userId) => {
+  const storageKey = `dsaProgress_v2_${userId || "guest"}`;
   const [progress, setProgress] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('dsaProgress_v2') || '{}'); } catch { return {}; }
+    try { return JSON.parse(sessionStorage.getItem(storageKey) || '{}'); } catch { return {}; }
   });
   const save = useCallback((key, val) => {
-    setProgress(p => { const n = { ...p, [key]: val }; try { localStorage.setItem('dsaProgress_v2', JSON.stringify(n)) } catch { }; return n; });
-  }, []);
+    setProgress(p => {
+      const n = { ...p, [key]: val };
+      try { sessionStorage.setItem(storageKey, JSON.stringify(n)); } catch { }
+      return n;
+    });
+  }, [storageKey]);
   return [progress, save];
 };
 
 /* ============================================================
-   FITA ACADEMY PROFILE — Apple Style
+   FITA ACADEMY PROFILE
 ============================================================ */
 const FitaAcademyProfile = () => {
   const courses = [
@@ -581,7 +604,6 @@ const FitaAcademyProfile = () => {
   ];
   return (
     <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }} style={{ width: "100%", maxWidth: 720 }}>
-      {/* Hero Card */}
       <div style={{ background: "white", borderRadius: 24, overflow: "hidden", marginBottom: 16, boxShadow: "var(--shadow-lg)" }}>
         <div style={{ background: "linear-gradient(145deg,#f5f5f7,#e8f2ff)", padding: "40px 36px 32px", position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", top: -60, right: -60, width: 200, height: 200, background: "radial-gradient(circle,rgba(0,113,227,0.12),transparent 70%)" }} />
@@ -596,52 +618,37 @@ const FitaAcademyProfile = () => {
                 <span style={{ fontSize: 11, fontWeight: 600, color: "#34c759", background: "rgba(52,199,89,0.1)", padding: "3px 10px", borderRadius: 20 }}>✓ Verified</span>
               </div>
               <h2 style={{ fontSize: 28, fontWeight: 700, color: "#1d1d1f", letterSpacing: -0.5, marginBottom: 4 }}>FITA Academy</h2>
-              <p style={{ fontSize: 14, color: "#86868b", fontFamily: "var(--font-mono)" }}>Chennai • Bangalore • malaysia</p>
+              <p style={{ fontSize: 14, color: "#86868b", fontFamily: "var(--font-mono)" }}>Chennai • Bangalore • Malaysia</p>
             </div>
           </div>
-          {/* Stats */}
           <div style={{ display: "flex", gap: 28, marginTop: 24 }}>
             {[["10K+", "Students"], ["50+", "Courses"], ["95%", "Placement"], ["15+", "Years"]].map(([n, l]) => (
-              <div key={l}>
-                <div style={{ fontSize: 22, fontWeight: 700, color: "#1d1d1f" }}>{n}</div>
-                <div style={{ fontSize: 11, color: "#86868b", marginTop: 1 }}>{l}</div>
-              </div>
+              <div key={l}><div style={{ fontSize: 22, fontWeight: 700, color: "#1d1d1f" }}>{n}</div><div style={{ fontSize: 11, color: "#86868b", marginTop: 1 }}>{l}</div></div>
             ))}
           </div>
         </div>
-        {/* Links */}
         <div style={{ padding: "24px 36px", display: "flex", gap: 12, flexWrap: "wrap", borderBottom: "1px solid var(--border)" }}>
-          {[
-            { href: "https://www.linkedin.com/company/fitaofficial/", label: "LinkedIn", color: "#0a66c2", icon: "in" },
-            { href: "https://www.fita.in", label: "fita.in", color: "#0071e3", icon: "🌐" },
-          ].map(({ href, label, color, icon }) => (
-            <motion.a key={label} href={href} target="_blank" rel="noopener noreferrer"
-              whileHover={{ scale: 1.03, y: -1 }} whileTap={{ scale: 0.98 }}
+          {[{ href: "https://www.linkedin.com/company/fitaofficial/", label: "LinkedIn", color: "#0a66c2", icon: "in" }, { href: "https://www.fita.in", label: "fita.in", color: "#0071e3", icon: "🌐" }].map(({ href, label, color, icon }) => (
+            <motion.a key={label} href={href} target="_blank" rel="noopener noreferrer" whileHover={{ scale: 1.03, y: -1 }} whileTap={{ scale: 0.98 }}
               style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 20px", background: "white", border: "1.5px solid var(--border)", borderRadius: 12, color, fontWeight: 600, fontSize: 13, boxShadow: "var(--shadow-sm)" }}>
               <span>{icon}</span>{label} ↗
             </motion.a>
           ))}
         </div>
-        {/* CTA */}
         <div style={{ padding: "24px 36px" }}>
-          <p style={{ fontSize: 14, color: "#424245", lineHeight: 1.7, marginBottom: 16 }}>
-            At FITA Academy, you don't just learn — you get placement-ready. From Data Structures & Algorithms to UI/UX Design, expert-led courses crafted for real-world success.
-          </p>
+          <p style={{ fontSize: 14, color: "#424245", lineHeight: 1.7, marginBottom: 16 }}>At FITA Academy, you don't just learn — you get placement-ready. From Data Structures & Algorithms to UI/UX Design, expert-led courses crafted for real-world success.</p>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            <motion.a href="https://www.fita.in" target="_blank" rel="noopener noreferrer"
-              whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+            <motion.a href="https://www.fita.in" target="_blank" rel="noopener noreferrer" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
               style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 24px", fontSize: 14, fontWeight: 600, background: "#0071e3", color: "white", borderRadius: 14, boxShadow: "var(--shadow-blue)" }}>
               Explore All Courses →
             </motion.a>
-            <motion.a href="https://www.linkedin.com/company/fitaofficial/" target="_blank" rel="noopener noreferrer"
-              whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+            <motion.a href="https://www.linkedin.com/company/fitaofficial/" target="_blank" rel="noopener noreferrer" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
               style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 24px", fontSize: 14, fontWeight: 600, background: "white", color: "#424245", border: "1.5px solid var(--border)", borderRadius: 14 }}>
               Follow on LinkedIn
             </motion.a>
           </div>
         </div>
       </div>
-      {/* Courses */}
       <div style={{ background: "white", borderRadius: 20, padding: "24px", boxShadow: "var(--shadow)" }}>
         <p style={{ fontSize: 12, fontWeight: 600, letterSpacing: 0.5, color: "#86868b", textTransform: "uppercase", marginBottom: 16 }}>Popular Courses</p>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(190px,1fr))", gap: 10 }}>
@@ -674,20 +681,21 @@ const PillBtn = ({ onClick, active, children, color, style: s }) => (
 );
 
 /* ============================================================
-   HOME SCREEN — Apple-style
+   HOME SCREEN
 ============================================================ */
 export const HomeScreen = ({ onEnter, user, onLogout }) => {
   const [tab, setTab] = useState("home");
+  const displayName = user?.name || user?.user?.user_metadata?.display_name || user?.username || "User";
+  const initial = displayName?.[0]?.toUpperCase() || "U";
+
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg)", position: "relative", overflow: "hidden" }}>
-      {/* Apple-style background blobs */}
       <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0 }}>
         <div style={{ position: "absolute", top: "-10%", left: "20%", width: 600, height: 600, background: "radial-gradient(circle,rgba(0,113,227,0.12),transparent 70%)", borderRadius: "50%", filter: "blur(40px)" }} />
         <div style={{ position: "absolute", bottom: "-10%", right: "10%", width: 500, height: 500, background: "radial-gradient(circle,rgba(52,199,89,0.1),transparent 70%)", borderRadius: "50%", filter: "blur(40px)" }} />
         <div style={{ position: "absolute", top: "40%", right: "25%", width: 400, height: 400, background: "radial-gradient(circle,rgba(175,82,222,0.08),transparent 70%)", borderRadius: "50%", filter: "blur(40px)" }} />
       </div>
 
-      {/* Top Nav */}
       <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", background: "rgba(245,245,247,0.8)", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 40px", height: 52, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -700,12 +708,11 @@ export const HomeScreen = ({ onEnter, user, onLogout }) => {
             {[["home", "Home"], ["company", "FITA Academy"]].map(([t, l]) => (
               <button key={t} onClick={() => setTab(t)} style={{ padding: "6px 16px", fontSize: 13, fontWeight: 500, borderRadius: 20, background: tab === t ? "#0071e3" : "transparent", color: tab === t ? "white" : "#424245", border: "none", cursor: "pointer", transition: "all 0.2s" }}>{l}</button>
             ))}
-            {/* User info + logout */}
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: 8, paddingLeft: 12, borderLeft: "1px solid rgba(0,0,0,0.1)" }}>
               <div style={{ width: 28, height: 28, borderRadius: 8, background: "#0071e3", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <span style={{ fontSize: 13, fontWeight: 700, color: "white" }}>{user?.name?.[0]?.toUpperCase() || "U"}</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: "white" }}>{initial}</span>
               </div>
-              <span style={{ fontSize: 13, color: "#424245", fontWeight: 500, maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user?.name || "User"}</span>
+              <span style={{ fontSize: 13, color: "#424245", fontWeight: 500, maxWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{displayName}</span>
               <button onClick={onLogout} style={{ padding: "5px 12px", fontSize: 12, fontWeight: 600, borderRadius: 16, background: "rgba(255,59,48,0.1)", color: "#ff3b30", border: "1px solid rgba(255,59,48,0.2)", cursor: "pointer", transition: "all 0.2s" }}>
                 Sign Out
               </button>
@@ -718,27 +725,20 @@ export const HomeScreen = ({ onEnter, user, onLogout }) => {
         <AnimatePresence mode="wait">
           {tab === "home" && (
             <motion.div key="hero" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }} style={{ textAlign: "center", maxWidth: 680 }}>
-              {/* Badge */}
               <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}
                 style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "white", border: "1.5px solid rgba(0,113,227,0.2)", borderRadius: 50, padding: "8px 18px", marginBottom: 32, boxShadow: "var(--shadow-sm)" }}>
                 <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#34c759", animation: "pulse-glow 2s infinite" }} />
                 <span style={{ fontSize: 13, fontWeight: 500, color: "#0071e3" }}>Beginner DSA Learning Platform</span>
               </motion.div>
-
-              {/* Hero Title */}
               <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
                 style={{ fontSize: "clamp(2.8rem,7vw,5.2rem)", fontWeight: 700, lineHeight: 1.05, letterSpacing: -2, color: "#1d1d1f", marginBottom: 20 }}>
-                Learn Basic<br />
-                <span style={{ color: "#0071e3" }}>Data Structures</span><br />
+                Learn Basic<br /><span style={{ color: "#0071e3" }}>Data Structures</span><br />
                 <span style={{ color: "#424245", fontWeight: 400, fontSize: "clamp(1.8rem,4vw,3rem)" }}>with FITA Academy</span>
               </motion.h1>
-
               <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
                 style={{ fontSize: 17, color: "#86868b", lineHeight: 1.7, marginBottom: 12 }}>
                 Interactive visualizations • MNC interview Q&A<br />Adaptive coding challenges • Progress tracking
               </motion.p>
-
-              {/* FITA badge */}
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}
                 onClick={() => setTab("company")} whileHover={{ scale: 1.02 }} style={{ display: "inline-flex", alignItems: "center", gap: 10, cursor: "pointer", padding: "10px 20px", background: "white", border: "1.5px solid rgba(0,113,227,0.2)", borderRadius: 50, marginBottom: 40, boxShadow: "var(--shadow-sm)" }}>
                 <div style={{ width: 24, height: 24, borderRadius: 6, background: "#0071e3", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -747,27 +747,20 @@ export const HomeScreen = ({ onEnter, user, onLogout }) => {
                 <span style={{ fontSize: 13, fontWeight: 500, color: "#424245" }}>Powered by <strong style={{ color: "#0071e3" }}>FITA Academy</strong></span>
                 <span style={{ color: "#86868b" }}>→</span>
               </motion.div>
-
               <br />
-
               <motion.button initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
                 whileHover={{ scale: 1.04, boxShadow: "0 8px 30px rgba(0,113,227,0.35)" }} whileTap={{ scale: 0.97 }}
                 onClick={onEnter}
                 style={{ padding: "16px 48px", fontSize: 17, fontWeight: 600, background: "#0071e3", color: "white", borderRadius: 50, border: "none", cursor: "pointer", boxShadow: "var(--shadow-blue)", letterSpacing: -0.2 }}>
                 Start Learning →
               </motion.button>
-
-              {/* Module previews */}
               <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
                 style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 60, flexWrap: "wrap" }}>
                 {MODULES.map((m, i) => (
                   <motion.div key={m} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.45 + i * 0.07 }}
                     style={{ background: "white", border: "1.5px solid var(--border)", borderRadius: 16, padding: "14px 20px", display: "flex", alignItems: "center", gap: 10, boxShadow: "var(--shadow-sm)" }}>
                     <span style={{ fontSize: 18 }}>{MOD_ICONS[m]}</span>
-                    <div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: "#1d1d1f" }}>{m}</div>
-                      <div style={{ fontSize: 11, color: "#86868b" }}>20 Q&A • 9 Problems</div>
-                    </div>
+                    <div><div style={{ fontSize: 13, fontWeight: 600, color: "#1d1d1f" }}>{m}</div><div style={{ fontSize: 11, color: "#86868b" }}>20 Q&A • 9 Problems</div></div>
                   </motion.div>
                 ))}
               </motion.div>
@@ -792,26 +785,20 @@ const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress }) => {
   const [activeTab, setActiveTab] = useState("learn");
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg)" }}>
-      {/* Sticky header */}
       <div style={{ position: "sticky", top: 0, zIndex: 50, backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", background: "rgba(245,245,247,0.85)", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
         <div style={{ maxWidth: 960, margin: "0 auto", padding: "0 32px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <button onClick={onBack} style={{ display: "flex", alignItems: "center", gap: 6, color: "#0071e3", fontSize: 14, fontWeight: 500, cursor: "pointer" }}>
-              <span>‹</span> Home
-            </button>
+            <button onClick={onBack} style={{ display: "flex", alignItems: "center", gap: 6, color: "#0071e3", fontSize: 14, fontWeight: 500, cursor: "pointer" }}>‹ Home</button>
             <span style={{ color: "#d2d2d7" }}>|</span>
             <span style={{ fontSize: 15, fontWeight: 600, color: "#1d1d1f" }}>Choose Your Path</span>
           </div>
           <div style={{ display: "flex", gap: 4, background: "rgba(0,0,0,0.06)", borderRadius: 12, padding: 3 }}>
             {[["learn", "📚 Learn"], ["interview", "🎤 Interview"], ["code", "💻 Code"]].map(([t, l]) => (
-              <button key={t} onClick={() => setActiveTab(t)} style={{ padding: "6px 16px", fontSize: 13, fontWeight: 500, borderRadius: 9, border: "none", cursor: "pointer", transition: "all 0.2s", background: activeTab === t ? "white" : "transparent", color: activeTab === t ? "#1d1d1f" : "#86868b", boxShadow: activeTab === t ? "var(--shadow-sm)" : "none" }}>
-                {l}
-              </button>
+              <button key={t} onClick={() => setActiveTab(t)} style={{ padding: "6px 16px", fontSize: 13, fontWeight: 500, borderRadius: 9, border: "none", cursor: "pointer", transition: "all 0.2s", background: activeTab === t ? "white" : "transparent", color: activeTab === t ? "#1d1d1f" : "#86868b", boxShadow: activeTab === t ? "var(--shadow-sm)" : "none" }}>{l}</button>
             ))}
           </div>
         </div>
       </div>
-
       <div style={{ maxWidth: 960, margin: "0 auto", padding: "40px 32px" }}>
         {activeTab === "learn" && <LearnTab level={level} setLevel={setLevel} onSelectModule={onSelectModule} progress={progress} />}
         {activeTab === "interview" && <InterviewTab />}
@@ -821,9 +808,6 @@ const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress }) => {
   );
 };
 
-/* ============================================================
-   LEARN TAB
-============================================================ */
 const LearnTab = ({ level, setLevel, onSelectModule, progress }) => (
   <div>
     <div style={{ marginBottom: 32 }}>
@@ -863,37 +847,25 @@ const LearnTab = ({ level, setLevel, onSelectModule, progress }) => (
   </div>
 );
 
-/* ============================================================
-   MOCK INTERVIEW TAB
-============================================================ */
 const InterviewTab = () => {
   const [progress, saveProgress] = useProgress();
   const [selMod, setSelMod] = useState("Stack");
   const [filter, setFilter] = useState("All");
   const [revealed, setReveal] = useState({});
-
   const questions = INTERVIEW_DATA[selMod] || [];
   const filtered = filter === "All" ? questions : questions.filter(q => q.difficulty === filter);
-
   const toggleReveal = (id) => setReveal(p => ({ ...p, [id]: !p[id] }));
   const markAnswer = (id, correct) => saveProgress(`interview_${selMod}_${id}`, correct ? "correct" : "wrong");
-
   return (
     <div>
       <div style={{ marginBottom: 28 }}>
         <h2 style={{ fontSize: 32, fontWeight: 700, letterSpacing: -1, color: "#1d1d1f", marginBottom: 6 }}>Mock Interview</h2>
         <p style={{ color: "#86868b", fontSize: 15 }}>20 MNC-sourced questions per module with real company tags</p>
       </div>
-
       <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
-        {MODULES.map(m => {
-          const c = MOD_COLORS[m];
-          return <PillBtn key={m} active={selMod === m} onClick={() => { setSelMod(m); setReveal({}); }} color={c}>{MOD_ICONS[m]} {m}</PillBtn>;
-        })}
+        {MODULES.map(m => { const c = MOD_COLORS[m]; return <PillBtn key={m} active={selMod === m} onClick={() => { setSelMod(m); setReveal({}); }} color={c}>{MOD_ICONS[m]} {m}</PillBtn>; })}
       </div>
-
       <ProgressCard module={selMod} progress={progress} total={20} type="interview" />
-
       <div style={{ display: "flex", gap: 8, marginBottom: 24, flexWrap: "wrap" }}>
         {["All", "Easy", "Medium", "Hard"].map(f => (
           <button key={f} onClick={() => setFilter(f)} style={{ padding: "6px 16px", fontSize: 12, fontWeight: 600, borderRadius: 20, border: "1.5px solid", borderColor: filter === f ? "transparent" : "var(--border)", cursor: "pointer", transition: "all 0.2s", background: filter === f ? ({ All: "#1d1d1f", Easy: "#34c759", Medium: "#ff9500", Hard: "#ff3b30" }[f]) : "white", color: filter === f ? "white" : "#424245" }}>
@@ -901,7 +873,6 @@ const InterviewTab = () => {
           </button>
         ))}
       </div>
-
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {filtered.map((item, idx) => {
           const qid = `q${questions.indexOf(item)}`;
@@ -923,8 +894,7 @@ const InterviewTab = () => {
                     </div>
                     <p style={{ fontSize: 15, fontWeight: 500, lineHeight: 1.6, color: "#1d1d1f" }}>{item.q}</p>
                   </div>
-                  <motion.span animate={{ rotate: isRevealed ? 180 : 0 }} transition={{ duration: 0.2 }}
-                    style={{ fontSize: 16, color: "#86868b", flexShrink: 0, marginTop: 2 }}>↓</motion.span>
+                  <motion.span animate={{ rotate: isRevealed ? 180 : 0 }} transition={{ duration: 0.2 }} style={{ fontSize: 16, color: "#86868b", flexShrink: 0, marginTop: 2 }}>↓</motion.span>
                 </div>
               </div>
               <AnimatePresence>
@@ -959,21 +929,14 @@ const InterviewTab = () => {
   );
 };
 
-/* ============================================================
-   CODE ARENA TAB
-============================================================ */
 const CodeArenaTab = () => {
   const [progress, saveProgress] = useProgress();
   const [selMod, setSelMod] = useState("Stack");
   const [selLevel, setSelLevel] = useState("Beginner");
   const [selChallenge, setSelChallenge] = useState(null);
-
   const challenges = CODING_CHALLENGES[selMod]?.[selLevel] || [];
-
   if (selChallenge) return <CodeEditor challenge={selChallenge} progress={progress} saveProgress={saveProgress} module={selMod} onBack={() => setSelChallenge(null)} />;
-
   const color = MOD_COLORS[selMod];
-
   return (
     <div>
       <div style={{ marginBottom: 28 }}>
@@ -1015,62 +978,43 @@ const CodeArenaTab = () => {
   );
 };
 
-/* ============================================================
-   CODE EDITOR — Apple style
-============================================================ */
 const CodeEditor = ({ challenge, progress, saveProgress, module: mod, onBack }) => {
   const [code, setCode] = useState(challenge.starter);
-  const [showSolution, setShowSolution] = useState(false);
   const [analysis, setAnalysis] = useState(null);
   const [tab, setTab] = useState("editor");
   const color = MOD_COLORS[mod];
   const key = `code_${mod}_${challenge.id}`;
   const isSolved = progress[key] === "solved";
-
   return (
     <div>
-      <button onClick={onBack} style={{ display: "flex", alignItems: "center", gap: 6, color: "#0071e3", fontSize: 14, fontWeight: 500, cursor: "pointer", marginBottom: 24 }}>
-        ‹ Back to Challenges
-      </button>
-
+      <button onClick={onBack} style={{ display: "flex", alignItems: "center", gap: 6, color: "#0071e3", fontSize: 14, fontWeight: 500, cursor: "pointer", marginBottom: 24 }}>‹ Back to Challenges</button>
       <div style={{ display: "flex", gap: 8, marginBottom: 16, alignItems: "center", flexWrap: "wrap" }}>
         <span style={{ fontSize: 11, fontWeight: 600, color, background: `${color}12`, padding: "3px 10px", borderRadius: 20 }}>{mod}</span>
         <span style={{ fontSize: 11, fontWeight: 500, color: "#86868b", background: "#f5f5f7", padding: "3px 10px", borderRadius: 20 }}>{challenge.company}</span>
         {isSolved && <span style={{ fontSize: 11, fontWeight: 600, color: "#34c759", background: "#e8f9ee", padding: "3px 10px", borderRadius: 20 }}>✓ Solved</span>}
       </div>
-
       <h2 style={{ fontSize: 28, fontWeight: 700, letterSpacing: -0.5, color: "#1d1d1f", marginBottom: 10 }}>{challenge.title}</h2>
       <p style={{ color: "#424245", fontSize: 15, lineHeight: 1.7, marginBottom: 24 }}>{challenge.desc}</p>
-
-      {/* Test Cases */}
       <div style={{ background: "#f5f5f7", border: "1.5px solid var(--border)", borderRadius: 14, padding: "16px 20px", marginBottom: 24 }}>
         <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.5, color: "#0071e3", textTransform: "uppercase", marginBottom: 10 }}>Test Cases</div>
         <pre style={{ fontSize: 13, color: "#1d1d1f", lineHeight: 1.8, whiteSpace: "pre-wrap", fontFamily: "var(--font-mono)" }}>{challenge.testCases}</pre>
       </div>
-
-      {/* Tab switcher */}
       <div style={{ display: "flex", gap: 8, marginBottom: 16, background: "rgba(0,0,0,0.05)", borderRadius: 12, padding: 3, width: "fit-content" }}>
         {[["editor", "✏️ Your Code"], ["solution", "💡 Solution"]].map(([t, l]) => (
-          <button key={t} onClick={() => setTab(t)} style={{ padding: "8px 20px", fontSize: 13, fontWeight: 500, borderRadius: 9, border: "none", cursor: "pointer", transition: "all 0.2s", background: tab === t ? "white" : "transparent", color: tab === t ? "#1d1d1f" : "#86868b", boxShadow: tab === t ? "var(--shadow-sm)" : "none" }}>
-            {l}
-          </button>
+          <button key={t} onClick={() => setTab(t)} style={{ padding: "8px 20px", fontSize: 13, fontWeight: 500, borderRadius: 9, border: "none", cursor: "pointer", transition: "all 0.2s", background: tab === t ? "white" : "transparent", color: tab === t ? "#1d1d1f" : "#86868b", boxShadow: tab === t ? "var(--shadow-sm)" : "none" }}>{l}</button>
         ))}
       </div>
-
       {tab === "editor" && (
         <div>
           <div style={{ background: "#1d2126", borderRadius: 18, overflow: "hidden", marginBottom: 16, boxShadow: "var(--shadow-lg)" }}>
             <div style={{ padding: "12px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <div style={{ display: "flex", gap: 7 }}>
-                {["#ff5f56", "#ffbd2e", "#27c93f"].map(c => <div key={c} style={{ width: 12, height: 12, borderRadius: "50%", background: c }} />)}
-              </div>
+              <div style={{ display: "flex", gap: 7 }}>{["#ff5f56", "#ffbd2e", "#27c93f"].map(c => <div key={c} style={{ width: 12, height: 12, borderRadius: "50%", background: c }} />)}</div>
               <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "rgba(255,255,255,0.35)" }}>{challenge.title}.java</span>
               <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", color: "rgba(255,255,255,0.25)" }}>{code.split('\n').length} lines</span>
             </div>
             <textarea value={code} onChange={e => { setCode(e.target.value); setAnalysis(null); }} spellCheck={false}
               style={{ width: "100%", minHeight: 320, padding: "24px", background: "transparent", border: "none", color: "#abb2bf", fontSize: 13, lineHeight: 1.9, outline: "none", caretColor: "#e8ff5a" }} />
           </div>
-
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 20 }}>
             <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => setAnalysis(analyzeCode(code))}
               style={{ padding: "10px 22px", fontSize: 13, fontWeight: 600, background: `${color}12`, color, border: `1.5px solid ${color}30`, borderRadius: 12, cursor: "pointer" }}>
@@ -1087,7 +1031,6 @@ const CodeEditor = ({ challenge, progress, saveProgress, module: mod, onBack }) 
               </motion.button>
             )}
           </div>
-
           <AnimatePresence>
             {analysis && (
               <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
@@ -1121,17 +1064,14 @@ const CodeEditor = ({ challenge, progress, saveProgress, module: mod, onBack }) 
           </AnimatePresence>
         </div>
       )}
-
       {tab === "solution" && (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-          <div style={{ background: "#1d2126", borderRadius: 18, overflow: "hidden", boxShadow: "var(--shadow-lg)" }}>
+          <div style={{ background: "#1d2126", borderRadius: 20, overflow: "hidden", boxShadow: "var(--shadow-lg)" }}>
             <div style={{ padding: "12px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", gap: 7, alignItems: "center" }}>
               {["#ff5f56", "#ffbd2e", "#27c93f"].map(c => <div key={c} style={{ width: 12, height: 12, borderRadius: "50%", background: c }} />)}
               <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "rgba(255,255,255,0.35)", marginLeft: 8 }}>Solution — {challenge.title}.java</span>
             </div>
-            <pre style={{ padding: 28, fontSize: 13, lineHeight: 1.9, color: "#abb2bf", overflowX: "auto", maxHeight: 520 }}>
-              <code>{challenge.solution}</code>
-            </pre>
+            <pre style={{ padding: 28, fontSize: 13, lineHeight: 1.9, color: "#abb2bf", overflowX: "auto", maxHeight: 520 }}><code>{challenge.solution}</code></pre>
           </div>
         </motion.div>
       )}
@@ -1139,9 +1079,6 @@ const CodeEditor = ({ challenge, progress, saveProgress, module: mod, onBack }) 
   );
 };
 
-/* ============================================================
-   PROGRESS CARD — Apple style
-============================================================ */
 const ProgressCard = ({ module: mod, progress, total, type }) => {
   const color = MOD_COLORS[mod];
   let done, correct, wrong;
@@ -1188,19 +1125,14 @@ const ModuleScreen = ({ module: mod, data, subScreen, setSubScreen, onBack }) =>
   const color = MOD_COLORS[mod] || "#0071e3";
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg)" }}>
-      {/* Header */}
       <div style={{ position: "sticky", top: 0, zIndex: 50, backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", background: "rgba(245,245,247,0.85)", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
         <div style={{ maxWidth: 960, margin: "0 auto", padding: "0 32px", height: 56, display: "flex", alignItems: "center", gap: 16 }}>
-          <button onClick={onBack} style={{ display: "flex", alignItems: "center", gap: 6, color: "#0071e3", fontSize: 14, fontWeight: 500, cursor: "pointer" }}>
-            ‹ Modules
-          </button>
+          <button onClick={onBack} style={{ display: "flex", alignItems: "center", gap: 6, color: "#0071e3", fontSize: 14, fontWeight: 500, cursor: "pointer" }}>‹ Modules</button>
           <span style={{ color: "#d2d2d7" }}>|</span>
           <span style={{ fontSize: 14, fontWeight: 600, color: "#1d1d1f" }}>{mod}</span>
         </div>
       </div>
-
       <div style={{ maxWidth: 960, margin: "0 auto", padding: "48px 32px" }}>
-        {/* Hero */}
         <div style={{ display: "flex", gap: 20, alignItems: "center", marginBottom: 40 }}>
           <div style={{ width: 72, height: 72, borderRadius: 20, background: `${color}15`, display: "flex", alignItems: "center", justifyContent: "center", border: `1.5px solid ${color}25`, flexShrink: 0 }}>
             <span style={{ fontSize: 32 }}>{MOD_ICONS[mod]}</span>
@@ -1210,27 +1142,21 @@ const ModuleScreen = ({ module: mod, data, subScreen, setSubScreen, onBack }) =>
             <p style={{ color: "#86868b", fontSize: 15 }}>Select a section to start exploring</p>
           </div>
         </div>
-
-        {/* Section buttons */}
         <div style={{ display: "flex", gap: 12, marginBottom: 40, flexWrap: "wrap" }}>
           {[["concept", "📖 Concept"], ["visual", "🎬 Visualizer"], ["program", "💻 Code"]].map(([s, l]) => (
             <motion.button key={s} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => setSubScreen(subScreen === s ? null : s)}
               style={{
                 padding: "12px 28px", fontSize: 14, fontWeight: 600, borderRadius: 14, border: "1.5px solid", cursor: "pointer", transition: "all 0.2s",
-                borderColor: subScreen === s ? color : "var(--border)",
-                background: subScreen === s ? color : "white",
-                color: subScreen === s ? "white" : "#424245",
+                borderColor: subScreen === s ? color : "var(--border)", background: subScreen === s ? color : "white", color: subScreen === s ? "white" : "#424245",
                 boxShadow: subScreen === s ? `0 4px 16px ${color}44` : "var(--shadow-sm)"
               }}>
               {l}
             </motion.button>
           ))}
         </div>
-
         <AnimatePresence mode="wait">
           {!subScreen && (
-            <motion.div key="ph" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              style={{ textAlign: "center", padding: "80px 0", color: "#86868b", fontSize: 15 }}>
+            <motion.div key="ph" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ textAlign: "center", padding: "80px 0", color: "#86868b", fontSize: 15 }}>
               Select a section above to explore {mod}
             </motion.div>
           )}
@@ -1250,9 +1176,8 @@ const ModuleScreen = ({ module: mod, data, subScreen, setSubScreen, onBack }) =>
             </motion.div>
           )}
           {(subScreen === "concept" || subScreen === "program") && !data && (
-            <motion.div key="l" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              style={{ color: "#86868b", fontSize: 14, padding: "40px 0", textAlign: "center" }}>
-              ⏳ Loading from backend... (may take ~15s on first load if server is waking up)
+            <motion.div key="l" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ color: "#86868b", fontSize: 14, padding: "40px 0", textAlign: "center" }}>
+              ⏳ Loading...
             </motion.div>
           )}
         </AnimatePresence>
@@ -1314,7 +1239,7 @@ const ProgramPanel = ({ data, module: mod, color }) => {
 };
 
 /* ============================================================
-   VISUALIZERS — Apple-style
+   VISUALIZERS
 ============================================================ */
 const VisualPanel = ({ module: mod, color }) => (
   <div style={{ background: "white", border: "1.5px solid var(--border)", borderRadius: 20, padding: 36, boxShadow: "var(--shadow)" }}>
@@ -1436,7 +1361,7 @@ function BubbleSortVisual({ color }) {
 }
 
 /* ============================================================
-   LOCAL MODULE DATA — replaces backend fetch
+   LOCAL MODULE DATA
 ============================================================ */
 const LOCAL_MODULE_DATA = {
   "Stack": {
@@ -1445,798 +1370,9 @@ const LOCAL_MODULE_DATA = {
       working: "Push adds an element to the top. Pop removes the top element. Peek returns the top element without removing it. isEmpty checks if the stack has no elements. The top pointer tracks the current top position, initialized to -1 for an empty stack.",
       algorithm: "PUSH(stack, x):\n  if top == MAX-1 → Overflow error\n  top = top + 1\n  stack[top] = x\n\nPOP(stack):\n  if top == -1 → Underflow error\n  x = stack[top]\n  top = top - 1\n  return x\n\nPEEK(stack):\n  return stack[top]",
       time_complexity: { "Push": "O(1)", "Pop": "O(1)", "Peek": "O(1)", "isEmpty": "O(1)", "Search": "O(n)", "Space": "O(n)" },
-      applications: "Undo/Redo in text editors, browser back/forward history, function call stack in operating systems, expression evaluation (postfix/prefix), balanced parentheses checking in compilers, backtracking algorithms (maze solving, DFS).",
-      interview_notes: "Always clarify if the stack should handle overflow. Prefer ArrayDeque over java.util.Stack in Java (Stack extends Vector which is synchronized and slower). Common patterns: monotonic stack for NGE problems, two-stack trick for queue simulation.",
-      java: `import java.util.Stack;
-import java.util.ArrayDeque;
-import java.util.Deque;
-
-public class StackDemo {
-    public static void main(String[] args) {
-        // Preferred: ArrayDeque as Stack
-        Deque<Integer> stack = new ArrayDeque<>();
-        
-        // Push elements
-        stack.push(10);
-        stack.push(20);
-        stack.push(30);
-        System.out.println("Stack: " + stack); // [30, 20, 10]
-        
-        // Peek - view top without removing
-        System.out.println("Peek: " + stack.peek()); // 30
-        
-        // Pop - remove top element
-        System.out.println("Pop: " + stack.pop()); // 30
-        System.out.println("After pop: " + stack); // [20, 10]
-        
-        // Check if empty
-        System.out.println("isEmpty: " + stack.isEmpty()); // false
-        
-        // Valid Parentheses example
-        System.out.println("Valid '()[]{}': " + isValid("()[]{}")); // true
-        System.out.println("Valid '(]': " + isValid("(]")); // false
-    }
-    
-    // Classic stack problem: balanced parentheses
-    public static boolean isValid(String s) {
-        Deque<Character> stack = new ArrayDeque<>();
-        for (char c : s.toCharArray()) {
-            if (c == '(' || c == '{' || c == '[') {
-                stack.push(c);
-            } else {
-                if (stack.isEmpty()) return false;
-                char top = stack.pop();
-                if (c == ')' && top != '(') return false;
-                if (c == '}' && top != '{') return false;
-                if (c == ']' && top != '[') return false;
-            }
-        }
-        return stack.isEmpty();
-    }
-}`
-    },
-    "Intermediate": {
-      definition: "At the intermediate level, stacks power advanced patterns: monotonic stacks maintain elements in sorted order enabling O(n) solutions, two-stack designs support O(1) getMin(), and expression evaluation uses operator precedence rules.",
-      working: "Monotonic Stack: maintain increasing or decreasing order — pop elements that violate the property. Min Stack: maintain a parallel minStack; push to minStack only when new value ≤ current min. This ensures O(1) getMin() without scanning the whole stack.",
-      algorithm: "MONOTONIC STACK (Next Greater Element):\n  for i = 0 to n-1:\n    while stack not empty AND arr[stack.top] < arr[i]:\n      result[stack.pop()] = arr[i]\n    stack.push(i)\n\nMIN STACK push(x):\n  mainStack.push(x)\n  if minStack empty OR x <= minStack.peek():\n    minStack.push(x)",
-      time_complexity: { "Monotonic Stack": "O(n)", "Min Stack push": "O(1)", "Min Stack getMin": "O(1)", "Infix to Postfix": "O(n)", "Evaluate Postfix": "O(n)" },
-      applications: "Next Greater Element, Stock Span Problem, Largest Rectangle in Histogram (setup), Daily Temperatures, Expression evaluation and conversion, Browser history with back/forward, Undo history with size limit.",
-      interview_notes: "Monotonic stack is the key pattern for O(n) solutions to 'next greater/smaller' problems. For Min Stack, remember to pop minStack only when popped value equals minStack.peek() (use .equals() not == for Integer in Java). Daily Temperatures and Stock Span are must-know problems.",
-      java: `import java.util.*;
-
-public class IntermediateStack {
-    
-    // MIN STACK - O(1) getMin
-    static class MinStack {
-        Deque<Integer> stack = new ArrayDeque<>();
-        Deque<Integer> minStack = new ArrayDeque<>();
-        
-        public void push(int val) {
-            stack.push(val);
-            if (minStack.isEmpty() || val <= minStack.peek())
-                minStack.push(val);
-        }
-        public void pop() {
-            if (stack.pop().equals(minStack.peek()))
-                minStack.pop();
-        }
-        public int top() { return stack.peek(); }
-        public int getMin() { return minStack.peek(); }
-    }
-    
-    // NEXT GREATER ELEMENT - Monotonic Stack O(n)
-    public static int[] nextGreaterElement(int[] nums) {
-        int n = nums.length;
-        int[] result = new int[n];
-        Arrays.fill(result, -1);
-        Deque<Integer> stack = new ArrayDeque<>(); // indices
-        
-        for (int i = 0; i < n; i++) {
-            while (!stack.isEmpty() && nums[stack.peek()] < nums[i]) {
-                result[stack.pop()] = nums[i];
-            }
-            stack.push(i);
-        }
-        return result;
-    }
-    
-    // DAILY TEMPERATURES
-    public static int[] dailyTemperatures(int[] temps) {
-        int n = temps.length;
-        int[] result = new int[n];
-        Deque<Integer> stack = new ArrayDeque<>();
-        for (int i = 0; i < n; i++) {
-            while (!stack.isEmpty() && temps[i] > temps[stack.peek()]) {
-                int idx = stack.pop();
-                result[idx] = i - idx;
-            }
-            stack.push(i);
-        }
-        return result;
-    }
-    
-    public static void main(String[] args) {
-        int[] nge = nextGreaterElement(new int[]{4, 1, 2, 3});
-        System.out.println("NGE: " + Arrays.toString(nge)); // [-1,2,3,-1]
-        
-        int[] dt = dailyTemperatures(new int[]{73,74,75,71,69,72,76,73});
-        System.out.println("Daily Temps: " + Arrays.toString(dt)); // [1,1,4,2,1,1,0,0]
-    }
-}`
-    },
-    "Advanced": {
-      definition: "Advanced stack problems involve complex simulations, multi-dimensional thinking, and optimal area/volume calculations. Largest Rectangle in Histogram, Trapping Rain Water, and Asteroid Collision are canonical hard problems solved elegantly with stacks.",
-      working: "Histogram Rectangle: use monotonic stack of indices. When a shorter bar is found, pop and calculate area using the current index and new stack top as boundaries. Trap Rain Water: for each bar, the water trapped depends on min(leftMax, rightMax) - height. Stack tracks candidate boundaries.",
-      algorithm: "LARGEST RECTANGLE (Histogram):\n  push sentinel 0 at end\n  for i = 0 to n:\n    while stack not empty AND heights[stack.top] > curr:\n      h = heights[stack.pop()]\n      w = stack.empty ? i : i - stack.peek() - 1\n      maxArea = max(maxArea, h * w)\n    push i\n\nASTEROID COLLISION:\n  for each asteroid a:\n    alive = true\n    while alive AND a<0 AND stack.top>0:\n      if top < |a|: pop\n      elif top == |a|: pop; alive=false\n      else: alive=false\n    if alive: push a",
-      time_complexity: { "Largest Rectangle": "O(n)", "Trapping Rain Water": "O(n)", "Asteroid Collision": "O(n)", "Sort Stack": "O(n²)", "Space (all above)": "O(n)" },
-      applications: "Histogram analysis, terrain water trapping simulation, asteroid/particle collision physics, stock market analysis, architectural planning (skyline problems), compiler expression trees.",
-      interview_notes: "Largest Rectangle and Trapping Rain Water are top-5 Google/Amazon questions. Always handle the sentinel/boundary case (append 0 to heights for histogram). For Asteroid Collision, handle equal-size case carefully — both must die. These problems test ability to visualize stack state during iteration.",
-      java: `import java.util.*;
-
-public class AdvancedStack {
-    
-    // LARGEST RECTANGLE IN HISTOGRAM - O(n)
-    public static int largestRectangleArea(int[] heights) {
-        Deque<Integer> stack = new ArrayDeque<>();
-        int maxArea = 0;
-        int n = heights.length;
-        
-        for (int i = 0; i <= n; i++) {
-            int curr = (i == n) ? 0 : heights[i];
-            while (!stack.isEmpty() && heights[stack.peek()] > curr) {
-                int h = heights[stack.pop()];
-                int w = stack.isEmpty() ? i : i - stack.peek() - 1;
-                maxArea = Math.max(maxArea, h * w);
-            }
-            stack.push(i);
-        }
-        return maxArea;
-    }
-    
-    // TRAPPING RAIN WATER - Stack approach O(n)
-    public static int trap(int[] height) {
-        Deque<Integer> stack = new ArrayDeque<>();
-        int water = 0;
-        for (int i = 0; i < height.length; i++) {
-            while (!stack.isEmpty() && height[i] > height[stack.peek()]) {
-                int bottom = stack.pop();
-                if (stack.isEmpty()) break;
-                int left = stack.peek();
-                int h = Math.min(height[left], height[i]) - height[bottom];
-                water += h * (i - left - 1);
-            }
-            stack.push(i);
-        }
-        return water;
-    }
-    
-    // ASTEROID COLLISION
-    public static int[] asteroidCollision(int[] asteroids) {
-        Deque<Integer> stack = new ArrayDeque<>();
-        for (int a : asteroids) {
-            boolean alive = true;
-            while (alive && a < 0 && !stack.isEmpty() && stack.peek() > 0) {
-                if (stack.peek() < -a) stack.pop();
-                else if (stack.peek() == -a) { stack.pop(); alive = false; }
-                else alive = false;
-            }
-            if (alive) stack.push(a);
-        }
-        int[] res = new int[stack.size()];
-        for (int i = res.length - 1; i >= 0; i--) res[i] = stack.pop();
-        return res;
-    }
-    
-    public static void main(String[] args) {
-        System.out.println("Histogram: " + largestRectangleArea(new int[]{2,1,5,6,2,3})); // 10
-        System.out.println("Rain Water: " + trap(new int[]{0,1,0,2,1,0,1,3,2,1,2,1})); // 6
-        System.out.println("Asteroids: " + Arrays.toString(asteroidCollision(new int[]{5,10,-5}))); // [5,10]
-    }
-}`
-    }
-  },
-  "Queue": {
-    "Beginner": {
-      definition: "A Queue is a linear data structure following First In, First Out (FIFO). Elements are added at the REAR (enqueue) and removed from the FRONT (dequeue). Like a line at a ticket counter — first person in line is first served.",
-      working: "Enqueue adds element at rear. Dequeue removes element from front. Front/Peek returns front without removing. A Circular Queue reuses freed slots using modular arithmetic: rear = (rear + 1) % capacity, solving the space wastage of linear queues.",
-      algorithm: "ENQUEUE(queue, x):\n  if isFull() → Overflow\n  rear = (rear + 1) % capacity\n  queue[rear] = x\n  size++\n\nDEQUEUE(queue):\n  if isEmpty() → Underflow\n  x = queue[front]\n  front = (front + 1) % capacity\n  size--\n  return x",
-      time_complexity: { "Enqueue": "O(1)", "Dequeue": "O(1)", "Peek/Front": "O(1)", "isEmpty": "O(1)", "isFull": "O(1)", "Space": "O(n)" },
-      applications: "CPU process scheduling (Round Robin), printer job queue, breadth-first search (BFS), keyboard input buffer, network packet buffering, customer service systems, asynchronous data transfer.",
-      interview_notes: "In Java, prefer ArrayDeque over LinkedList for queue (better cache performance, no node overhead). LinkedList.add() is enqueue, remove() is dequeue. ArrayDeque.offer() / poll() are the idiomatic queue methods. Know the difference: Queue interface uses offer/poll/peek; Deque adds push/pop/peek at both ends.",
-      java: `import java.util.*;
-
-public class QueueDemo {
-    public static void main(String[] args) {
-        // Standard Queue using ArrayDeque
-        Queue<Integer> queue = new ArrayDeque<>();
-        
-        queue.offer(10); // enqueue
-        queue.offer(20);
-        queue.offer(30);
-        System.out.println("Queue: " + queue); // [10, 20, 30]
-        
-        System.out.println("Peek: " + queue.peek()); // 10 (front)
-        System.out.println("Poll: " + queue.poll()); // 10 (dequeue)
-        System.out.println("After poll: " + queue); // [20, 30]
-        System.out.println("isEmpty: " + queue.isEmpty()); // false
-    }
-}
-
-// CIRCULAR QUEUE implementation
-class CircularQueue {
-    int[] arr;
-    int front = 0, rear = -1, size = 0, cap;
-    
-    CircularQueue(int k) { arr = new int[k]; cap = k; }
-    
-    boolean enQueue(int val) {
-        if (isFull()) return false;
-        rear = (rear + 1) % cap;
-        arr[rear] = val;
-        size++;
-        return true;
-    }
-    boolean deQueue() {
-        if (isEmpty()) return false;
-        front = (front + 1) % cap;
-        size--;
-        return true;
-    }
-    int front() { return isEmpty() ? -1 : arr[front]; }
-    int rear()  { return isEmpty() ? -1 : arr[rear];  }
-    boolean isEmpty() { return size == 0; }
-    boolean isFull()  { return size == cap; }
-}`
-    },
-    "Intermediate": {
-      definition: "Intermediate queue applications include BFS for shortest path finding, multi-source BFS for simultaneous expansion from multiple starting points, and level-order binary tree traversal. These patterns are essential for graph and tree problems.",
-      working: "BFS uses a queue to explore nodes level by level. Enqueue start node, then repeatedly dequeue a node, process it, and enqueue its unvisited neighbors. The level separation trick: record queue size at start of each level, process exactly that many nodes for one level.",
-      algorithm: "BFS(graph, start):\n  queue.offer(start)\n  visited.add(start)\n  while queue not empty:\n    node = queue.poll()\n    process(node)\n    for each neighbor of node:\n      if not visited:\n        visited.add(neighbor)\n        queue.offer(neighbor)\n\nLEVEL ORDER:\n  queue.offer(root)\n  while queue not empty:\n    size = queue.size()  // current level count\n    for i = 0 to size-1:\n      node = queue.poll()\n      enqueue node's children",
-      time_complexity: { "BFS": "O(V+E)", "Level Order": "O(n)", "Multi-Source BFS": "O(V+E)", "Rotting Oranges": "O(m×n)", "Space (BFS)": "O(V)" },
-      applications: "Shortest path in unweighted graphs, social network friend suggestions (degrees of separation), web crawlers, GPS navigation, level-order tree traversal, Rotting Oranges / 01 Matrix / Walls and Gates.",
-      interview_notes: "Multi-source BFS is the key insight for Rotting Oranges — start with ALL rotten cells in the queue simultaneously. For level-order traversal, always capture queue.size() BEFORE the inner loop. BFS guarantees shortest path in unweighted graphs; this is why it's preferred over DFS for shortest path.",
-      java: `import java.util.*;
-
-public class IntermediateQueue {
-    
-    // LEVEL ORDER TRAVERSAL
-    public static List<List<Integer>> levelOrder(int[] tree) {
-        // Simulated with array; in real use: TreeNode root
-        List<List<Integer>> result = new ArrayList<>();
-        Queue<Integer> queue = new LinkedList<>();
-        queue.offer(0); // root index
-        int n = tree.length;
-        
-        while (!queue.isEmpty()) {
-            int size = queue.size(); // CRITICAL: capture level size
-            List<Integer> level = new ArrayList<>();
-            for (int i = 0; i < size; i++) {
-                int idx = queue.poll();
-                if (idx < n) {
-                    level.add(tree[idx]);
-                    if (2*idx+1 < n) queue.offer(2*idx+1); // left
-                    if (2*idx+2 < n) queue.offer(2*idx+2); // right
-                }
-            }
-            result.add(level);
-        }
-        return result;
-    }
-    
-    // ROTTING ORANGES - Multi-source BFS
-    public static int orangesRotting(int[][] grid) {
-        int rows = grid.length, cols = grid[0].length;
-        int fresh = 0, mins = 0;
-        Queue<int[]> queue = new LinkedList<>();
-        
-        // Add ALL rotten oranges as sources
-        for (int r = 0; r < rows; r++)
-            for (int c = 0; c < cols; c++) {
-                if (grid[r][c] == 2) queue.offer(new int[]{r, c});
-                if (grid[r][c] == 1) fresh++;
-            }
-        
-        int[][] dirs = {{0,1},{0,-1},{1,0},{-1,0}};
-        while (!queue.isEmpty() && fresh > 0) {
-            mins++;
-            int size = queue.size();
-            for (int i = 0; i < size; i++) {
-                int[] curr = queue.poll();
-                for (int[] d : dirs) {
-                    int nr = curr[0]+d[0], nc = curr[1]+d[1];
-                    if (nr>=0 && nr<rows && nc>=0 && nc<cols && grid[nr][nc]==1) {
-                        grid[nr][nc] = 2;
-                        fresh--;
-                        queue.offer(new int[]{nr, nc});
-                    }
-                }
-            }
-        }
-        return fresh == 0 ? mins : -1;
-    }
-    
-    public static void main(String[] args) {
-        int[][] grid = {{2,1,1},{1,1,0},{0,1,1}};
-        System.out.println("Rotting Oranges: " + orangesRotting(grid)); // 4
-    }
-}`
-    },
-    "Advanced": {
-      definition: "Advanced queue patterns include monotonic deque for sliding window maximum (O(n)), Dijkstra's algorithm with priority queue, Kahn's topological sort, and 0-1 BFS. These are staple hard interview problems at FAANG companies.",
-      working: "Sliding Window Max: maintain a deque of indices in decreasing value order. Remove indices outside the window from front, remove smaller elements from back (they can never be max). Front is always the current window maximum. Priority Queue (min-heap) in Dijkstra always processes the closest unvisited node.",
-      algorithm: "SLIDING WINDOW MAX:\n  for i = 0 to n-1:\n    remove indices < i-k+1 from deque front\n    remove indices with value < nums[i] from deque back\n    deque.addLast(i)\n    if i >= k-1: result[i-k+1] = nums[deque.peekFirst()]\n\nDIJKSTRA:\n  pq.offer((0, src))\n  while pq not empty:\n    (dist, node) = pq.poll()\n    for each (neighbor, weight) of node:\n      if dist+weight < dist[neighbor]:\n        dist[neighbor] = dist+weight\n        pq.offer((dist+weight, neighbor))",
-      time_complexity: { "Sliding Window Max": "O(n)", "Dijkstra (binary heap)": "O((V+E)logV)", "Kahn's Topological Sort": "O(V+E)", "0-1 BFS": "O(V+E)", "Find Median Stream": "O(n log n)" },
-      applications: "Sliding window maximum in data streams, shortest path in weighted graphs (GPS, networks), task dependency ordering (build systems), median finding in data streams, course scheduling.",
-      interview_notes: "Sliding Window Maximum is a classic deque (not plain queue) problem — know that ArrayDeque supports O(1) addFirst/addLast/pollFirst/pollLast. Dijkstra requires non-negative weights; for negative weights use Bellman-Ford. Kahn's algorithm detects cycles: if result.size() < numNodes, a cycle exists.",
-      java: `import java.util.*;
-
-public class AdvancedQueue {
-    
-    // SLIDING WINDOW MAXIMUM - Monotonic Deque O(n)
-    public static int[] maxSlidingWindow(int[] nums, int k) {
-        int n = nums.length;
-        int[] result = new int[n - k + 1];
-        Deque<Integer> deque = new ArrayDeque<>(); // stores indices
-        
-        for (int i = 0; i < n; i++) {
-            // Remove out-of-window indices from front
-            while (!deque.isEmpty() && deque.peekFirst() < i - k + 1)
-                deque.pollFirst();
-            // Remove smaller elements from back
-            while (!deque.isEmpty() && nums[deque.peekLast()] < nums[i])
-                deque.pollLast();
-            deque.offerLast(i);
-            if (i >= k - 1) result[i - k + 1] = nums[deque.peekFirst()];
-        }
-        return result;
-    }
-    
-    // KAHN'S TOPOLOGICAL SORT
-    public static int[] topologicalSort(int n, int[][] prereqs) {
-        List<List<Integer>> adj = new ArrayList<>();
-        int[] inDegree = new int[n];
-        for (int i = 0; i < n; i++) adj.add(new ArrayList<>());
-        for (int[] p : prereqs) { adj.get(p[1]).add(p[0]); inDegree[p[0]]++; }
-        
-        Queue<Integer> queue = new LinkedList<>();
-        for (int i = 0; i < n; i++) if (inDegree[i] == 0) queue.offer(i);
-        
-        int[] result = new int[n]; int idx = 0;
-        while (!queue.isEmpty()) {
-            int node = queue.poll();
-            result[idx++] = node;
-            for (int next : adj.get(node))
-                if (--inDegree[next] == 0) queue.offer(next);
-        }
-        return idx == n ? result : new int[]{}; // empty = cycle detected
-    }
-    
-    // DIJKSTRA'S SHORTEST PATH
-    public static int[] dijkstra(int n, List<int[]>[] graph, int src) {
-        int[] dist = new int[n];
-        Arrays.fill(dist, Integer.MAX_VALUE);
-        dist[src] = 0;
-        PriorityQueue<int[]> pq = new PriorityQueue<>(Comparator.comparingInt(a -> a[0]));
-        pq.offer(new int[]{0, src});
-        while (!pq.isEmpty()) {
-            int[] curr = pq.poll();
-            int d = curr[0], u = curr[1];
-            if (d > dist[u]) continue;
-            for (int[] edge : graph[u]) {
-                int v = edge[0], w = edge[1];
-                if (dist[u] + w < dist[v]) {
-                    dist[v] = dist[u] + w;
-                    pq.offer(new int[]{dist[v], v});
-                }
-            }
-        }
-        return dist;
-    }
-    
-    public static void main(String[] args) {
-        int[] res = maxSlidingWindow(new int[]{1,3,-1,-3,5,3,6,7}, 3);
-        System.out.println("Sliding Max: " + Arrays.toString(res)); // [3,3,5,5,6,7]
-        
-        int[] order = topologicalSort(4, new int[][]{{1,0},{2,0},{3,1},{3,2}});
-        System.out.println("Topo Sort: " + Arrays.toString(order));
-    }
-}`
-    }
-  },
-  "Linear Search": {
-    "Beginner": {
-      definition: "Linear Search (Sequential Search) scans each element of a collection one by one from the beginning until the target is found or all elements are exhausted. It's the simplest search algorithm and works on both sorted and unsorted data.",
-      working: "Start from index 0. Compare each element with the target. If a match is found, return the index. If the end is reached without a match, return -1. No preprocessing or sorting required. The Sentinel optimization places the target at the last index to remove the boundary check from each iteration.",
-      algorithm: "LINEAR_SEARCH(arr, target):\n  for i = 0 to n-1:\n    if arr[i] == target:\n      return i\n  return -1\n\nSENTINEL_SEARCH(arr, target):\n  last = arr[n-1]\n  arr[n-1] = target  // place sentinel\n  i = 0\n  while arr[i] != target:\n    i++\n  arr[n-1] = last   // restore\n  if i < n-1 OR arr[n-1] == target: return i\n  return -1",
-      time_complexity: { "Best Case": "O(1)", "Average Case": "O(n)", "Worst Case": "O(n)", "Space": "O(1)", "All Occurrences": "O(n)" },
-      applications: "Searching unsorted arrays, finding elements in linked lists (no random access), small datasets where overhead of sorting isn't worth it, searching by non-comparable keys, finding first/last/all occurrences.",
-      interview_notes: "Linear search is O(n) always for space. Mention Sentinel optimization reduces comparisons by half (removes boundary check). For linked lists, linear search is the ONLY option (no binary search possible). When asked to optimize, pivot to HashMap (O(1) lookup) or sort+binary search.",
-      java: `public class LinearSearchDemo {
-    
-    // Basic linear search
-    public static int linearSearch(int[] arr, int target) {
-        for (int i = 0; i < arr.length; i++) {
-            if (arr[i] == target) return i;
-        }
-        return -1;
-    }
-    
-    // Find ALL occurrences
-    public static List<Integer> findAll(int[] arr, int target) {
-        List<Integer> indices = new ArrayList<>();
-        for (int i = 0; i < arr.length; i++) {
-            if (arr[i] == target) indices.add(i);
-        }
-        return indices;
-    }
-    
-    // Find maximum in unsorted array
-    public static int findMax(int[] arr) {
-        int max = arr[0];
-        for (int i = 1; i < arr.length; i++) {
-            if (arr[i] > max) max = arr[i];
-        }
-        return max;
-    }
-    
-    // Two Sum - HashMap optimization O(n)
-    public static int[] twoSum(int[] nums, int target) {
-        Map<Integer, Integer> map = new HashMap<>();
-        for (int i = 0; i < nums.length; i++) {
-            int complement = target - nums[i];
-            if (map.containsKey(complement))
-                return new int[]{map.get(complement), i};
-            map.put(nums[i], i);
-        }
-        return new int[]{};
-    }
-    
-    public static void main(String[] args) {
-        int[] arr = {4, 8, 2, 9, 5, 1, 7, 3};
-        System.out.println("Search 9: index " + linearSearch(arr, 9)); // 3
-        System.out.println("Max: " + findMax(arr)); // 9
-        System.out.println("TwoSum [2,7,11,15] target=9: " +
-            Arrays.toString(twoSum(new int[]{2,7,11,15}, 9))); // [0,1]
-    }
-}`
-    },
-    "Intermediate": {
-      definition: "Intermediate linear search patterns transform simple O(n) scans into powerful algorithms: Kadane's for max subarray, Boyer-Moore for majority elements, two-pointer technique for pair-sum problems, and sliding window for subarray conditions.",
-      working: "Kadane's: at each index, decide whether to extend the current subarray or start fresh — max(arr[i], currSum+arr[i]). Boyer-Moore: cancel out non-majority elements using a count variable; the surviving candidate is the majority element. Two pointers: one at each end, move based on comparison with target.",
-      algorithm: "KADANE'S:\n  currSum = maxSum = arr[0]\n  for i = 1 to n-1:\n    currSum = max(arr[i], currSum + arr[i])\n    maxSum = max(maxSum, currSum)\n  return maxSum\n\nBOYER-MOORE:\n  candidate = arr[0], count = 1\n  for i = 1 to n-1:\n    if count == 0: candidate = arr[i]; count = 1\n    elif arr[i] == candidate: count++\n    else: count--\n  return candidate",
-      time_complexity: { "Kadane's": "O(n) time, O(1) space", "Boyer-Moore": "O(n) time, O(1) space", "Two Pointer": "O(n) time, O(1) space", "Stock Buy/Sell": "O(n) time, O(1) space" },
-      applications: "Maximum profit stock trading, finding majority vote in elections, container with most water, subarray problems with sum conditions, Dutch National Flag (3-way partition), minimum window substring.",
-      interview_notes: "Kadane's is THE classic dynamic programming + linear scan pattern. For Boyer-Moore, the problem GUARANTEES a majority element exists (appears > n/2 times) — without this guarantee, you need a verification pass. Two-pointer only works on sorted arrays for pair-sum; use HashMap for unsorted.",
-      java: `import java.util.*;
-
-public class IntermediateLinearSearch {
-    
-    // KADANE'S ALGORITHM - Maximum Subarray
-    public static int maxSubArray(int[] nums) {
-        int maxSum = nums[0], currSum = nums[0];
-        for (int i = 1; i < nums.length; i++) {
-            currSum = Math.max(nums[i], currSum + nums[i]);
-            maxSum = Math.max(maxSum, currSum);
-        }
-        return maxSum;
-    }
-    
-    // BOYER-MOORE MAJORITY VOTE
-    public static int majorityElement(int[] nums) {
-        int candidate = nums[0], count = 1;
-        for (int i = 1; i < nums.length; i++) {
-            if (count == 0) { candidate = nums[i]; count = 1; }
-            else if (nums[i] == candidate) count++;
-            else count--;
-        }
-        return candidate;
-    }
-    
-    // BEST TIME TO BUY AND SELL STOCK
-    public static int maxProfit(int[] prices) {
-        int minPrice = prices[0], maxProfit = 0;
-        for (int price : prices) {
-            minPrice = Math.min(minPrice, price);
-            maxProfit = Math.max(maxProfit, price - minPrice);
-        }
-        return maxProfit;
-    }
-    
-    // CONTAINER WITH MOST WATER - Two Pointer
-    public static int maxArea(int[] height) {
-        int left = 0, right = height.length - 1, max = 0;
-        while (left < right) {
-            max = Math.max(max, Math.min(height[left], height[right]) * (right - left));
-            if (height[left] < height[right]) left++;
-            else right--;
-        }
-        return max;
-    }
-    
-    public static void main(String[] args) {
-        System.out.println("Max Subarray: " + maxSubArray(new int[]{-2,1,-3,4,-1,2,1,-5,4})); // 6
-        System.out.println("Majority: " + majorityElement(new int[]{2,2,1,1,1,2,2})); // 2
-        System.out.println("Max Profit: " + maxProfit(new int[]{7,1,5,3,6,4})); // 5
-        System.out.println("Max Water: " + maxArea(new int[]{1,8,6,2,5,4,8,3,7})); // 49
-    }
-}`
-    },
-    "Advanced": {
-      definition: "Advanced linear scan techniques include Dutch National Flag (3-way partition), trapping rain water with two pointers, QuickSelect for O(n) kth element, XOR tricks for single number, and finding first missing positive in O(n) time O(1) space.",
-      working: "Dutch National Flag: maintain 3 pointers (low, mid, high). mid scans left to right. Swap 0s to left zone, 2s to right zone, leave 1s in middle. QuickSelect: partition like QuickSort but only recurse on the side containing the kth element — O(n) average.",
-      algorithm: "DUTCH NATIONAL FLAG:\n  low=0, mid=0, high=n-1\n  while mid <= high:\n    if arr[mid]==0: swap(low,mid); low++; mid++\n    elif arr[mid]==1: mid++\n    else: swap(mid,high); high--\n\nQUICKSELECT (kth smallest):\n  pivot = arr[high]\n  partition around pivot → pivotIdx\n  if pivotIdx==k: return arr[pivotIdx]\n  elif pivotIdx<k: recurse right\n  else: recurse left",
-      time_complexity: { "Dutch National Flag": "O(n) time, O(1) space", "Trapping Rain Water (2ptr)": "O(n) time, O(1) space", "QuickSelect avg": "O(n) time, O(1) space", "XOR Single Number": "O(n) time, O(1) space", "First Missing Positive": "O(n) time, O(1) space" },
-      applications: "RGB image partitioning, terrain flood simulation, streaming median finding, finding unique elements in datasets, missing element detection in ID systems.",
-      interview_notes: "Dutch National Flag is the 3-way partition foundation of 3-way QuickSort. For Trapping Rain Water, the two-pointer solution is better than stack (O(1) space vs O(n)). XOR trick for Single Number only works when all other elements appear exactly twice. First Missing Positive uses the array itself as a hash map.",
-      java: `import java.util.*;
-
-public class AdvancedLinearSearch {
-    
-    // DUTCH NATIONAL FLAG - Sort 0s, 1s, 2s in one pass
-    public static void sortColors(int[] nums) {
-        int lo = 0, mid = 0, hi = nums.length - 1;
-        while (mid <= hi) {
-            if (nums[mid] == 0) { swap(nums, lo++, mid++); }
-            else if (nums[mid] == 1) { mid++; }
-            else { swap(nums, mid, hi--); }
-        }
-    }
-    
-    // TRAPPING RAIN WATER - Two Pointer O(1) space
-    public static int trap(int[] height) {
-        int left = 0, right = height.length - 1;
-        int leftMax = 0, rightMax = 0, water = 0;
-        while (left < right) {
-            if (height[left] < height[right]) {
-                if (height[left] >= leftMax) leftMax = height[left];
-                else water += leftMax - height[left];
-                left++;
-            } else {
-                if (height[right] >= rightMax) rightMax = height[right];
-                else water += rightMax - height[right];
-                right--;
-            }
-        }
-        return water;
-    }
-    
-    // XOR TRICK - Single Number
-    public static int singleNumber(int[] nums) {
-        int result = 0;
-        for (int n : nums) result ^= n; // duplicates cancel out
-        return result;
-    }
-    
-    // FIRST MISSING POSITIVE - O(n) time O(1) space
-    public static int firstMissingPositive(int[] nums) {
-        int n = nums.length;
-        // Place each number in its correct position
-        for (int i = 0; i < n; i++) {
-            while (nums[i] > 0 && nums[i] <= n && nums[nums[i]-1] != nums[i]) {
-                int tmp = nums[nums[i]-1]; nums[nums[i]-1] = nums[i]; nums[i] = tmp;
-            }
-        }
-        for (int i = 0; i < n; i++) {
-            if (nums[i] != i + 1) return i + 1;
-        }
-        return n + 1;
-    }
-    
-    private static void swap(int[] a, int i, int j) {
-        int t = a[i]; a[i] = a[j]; a[j] = t;
-    }
-    
-    public static void main(String[] args) {
-        int[] colors = {2,0,2,1,1,0};
-        sortColors(colors);
-        System.out.println("Dutch Flag: " + Arrays.toString(colors)); // [0,0,1,1,2,2]
-        System.out.println("Rain Water: " + trap(new int[]{0,1,0,2,1,0,1,3,2,1,2,1})); // 6
-        System.out.println("Single Number: " + singleNumber(new int[]{4,1,2,1,2})); // 4
-        System.out.println("First Missing: " + firstMissingPositive(new int[]{3,4,-1,1})); // 2
-    }
-}`
-    }
-  },
-  "Bubble Sort": {
-    "Beginner": {
-      definition: "Bubble Sort is a simple comparison-based sorting algorithm that repeatedly steps through the array, compares adjacent elements, and swaps them if they're in the wrong order. After each pass, the largest unsorted element 'bubbles up' to its correct position at the end.",
-      working: "Outer loop runs n-1 times. Inner loop compares arr[j] and arr[j+1] for j from 0 to n-2-i (shrinks each pass since last i elements are sorted). Swap if arr[j] > arr[j+1]. Optimization: track a 'swapped' flag — if no swaps occur in a pass, the array is already sorted and we break early.",
-      algorithm: "BUBBLE_SORT(arr):\n  for i = 0 to n-2:\n    swapped = false\n    for j = 0 to n-2-i:\n      if arr[j] > arr[j+1]:\n        swap(arr[j], arr[j+1])\n        swapped = true\n    if NOT swapped: break  // already sorted\n  return arr",
-      time_complexity: { "Best (sorted, optimized)": "O(n)", "Average": "O(n²)", "Worst (reverse sorted)": "O(n²)", "Space": "O(1)", "Swaps (worst)": "O(n²)" },
-      applications: "Educational purposes, detecting if array is nearly sorted (optimized version), sorting very small arrays (2-5 elements) where overhead doesn't matter, understanding inversion count concept.",
-      interview_notes: "Always mention the 'swapped' optimization for O(n) best case. Bubble Sort is STABLE (equal elements never swapped). After k passes, the k largest elements are in their final positions — this is a common interview question. In production, always use Arrays.sort() (TimSort) which is O(n log n).",
-      java: `import java.util.Arrays;
-
-public class BubbleSortDemo {
-    
-    // Optimized Bubble Sort with early termination
-    public static void bubbleSort(int[] arr) {
-        int n = arr.length;
-        for (int i = 0; i < n - 1; i++) {
-            boolean swapped = false;
-            for (int j = 0; j < n - 1 - i; j++) {
-                if (arr[j] > arr[j + 1]) {
-                    // Swap
-                    int tmp = arr[j];
-                    arr[j] = arr[j + 1];
-                    arr[j + 1] = tmp;
-                    swapped = true;
-                }
-            }
-            if (!swapped) break; // Array already sorted!
-        }
-    }
-    
-    // Sort strings alphabetically
-    public static void sortStrings(String[] arr) {
-        int n = arr.length;
-        for (int i = 0; i < n - 1; i++) {
-            for (int j = 0; j < n - 1 - i; j++) {
-                if (arr[j].compareTo(arr[j + 1]) > 0) {
-                    String tmp = arr[j];
-                    arr[j] = arr[j + 1];
-                    arr[j + 1] = tmp;
-                }
-            }
-        }
-    }
-    
-    // Check if already sorted
-    public static boolean isSorted(int[] arr) {
-        for (int i = 0; i < arr.length - 1; i++)
-            if (arr[i] > arr[i + 1]) return false;
-        return true;
-    }
-    
-    public static void main(String[] args) {
-        int[] arr = {5, 3, 8, 4, 2};
-        bubbleSort(arr);
-        System.out.println("Sorted: " + Arrays.toString(arr)); // [2,3,4,5,8]
-        
-        int[] sorted = {1, 2, 3, 4, 5};
-        System.out.println("Is sorted: " + isSorted(sorted)); // true
-        
-        String[] words = {"banana", "apple", "cherry"};
-        sortStrings(words);
-        System.out.println("Words: " + Arrays.toString(words)); // [apple, banana, cherry]
-    }
-}`
-    },
-    "Intermediate": {
-      definition: "At intermediate level, we analyze Bubble Sort's relationship to inversion count, compare it with Insertion Sort and Selection Sort, and understand why Merge Sort's divide-and-conquer approach achieves O(n log n) by eliminating multiple inversions per comparison.",
-      working: "Inversion: a pair (i,j) where i<j but arr[i]>arr[j]. Each Bubble Sort swap removes exactly one inversion. Total swaps = total inversions (max n(n-1)/2). Insertion Sort is faster in practice: fewer writes, adaptive (O(n) on nearly sorted), cache-friendly. Merge Sort eliminates many inversions per merge step.",
-      algorithm: "COUNT INVERSIONS (Merge Sort):\n  mergeSort(arr, l, r):\n    if l >= r: return 0\n    mid = (l+r)/2\n    inv = mergeSort(arr,l,mid) + mergeSort(arr,mid+1,r)\n    inv += merge(arr,l,mid,r)  // count during merge\n    return inv\n  merge: when right[] element taken before left[] elements,\n         inv += (mid - i + 1)  // all remaining left elements",
-      time_complexity: { "Bubble Sort": "O(n²) avg/worst", "Insertion Sort": "O(n) best, O(n²) worst", "Selection Sort": "O(n²) always", "Merge Sort": "O(n log n)", "Count Inversions": "O(n log n)" },
-      applications: "Inversion counting for measuring sortedness, understanding sort stability, choosing sort algorithm by data characteristics (nearly sorted → Insertion, large random → Merge/Quick), measuring array disorder.",
-      interview_notes: "Inversion count via modified Merge Sort is a must-know. Key insight: when taking right[] element before remaining left[] elements in merge, ALL remaining left elements form inversions with it. Insertion Sort beats Bubble Sort in practice because it does O(n) WRITES vs O(n²) swaps. Selection Sort does O(n) swaps but O(n²) comparisons.",
-      java: `import java.util.*;
-
-public class IntermediateBubbleSort {
-    
-    // COUNT INVERSIONS using Merge Sort - O(n log n)
-    public static long countInversions(int[] arr) {
-        return mergeCount(arr, 0, arr.length - 1);
-    }
-    
-    private static long mergeCount(int[] arr, int l, int r) {
-        if (l >= r) return 0;
-        int mid = (l + r) / 2;
-        long inv = mergeCount(arr, l, mid) + mergeCount(arr, mid + 1, r);
-        return inv + merge(arr, l, mid, r);
-    }
-    
-    private static long merge(int[] arr, int l, int mid, int r) {
-        int[] tmp = new int[r - l + 1];
-        int i = l, j = mid + 1, k = 0;
-        long inv = 0;
-        while (i <= mid && j <= r) {
-            if (arr[i] <= arr[j]) {
-                tmp[k++] = arr[i++];
-            } else {
-                inv += (mid - i + 1); // KEY: all remaining left elements are inversions
-                tmp[k++] = arr[j++];
-            }
-        }
-        while (i <= mid) tmp[k++] = arr[i++];
-        while (j <= r) tmp[k++] = arr[j++];
-        System.arraycopy(tmp, 0, arr, l, tmp.length);
-        return inv;
-    }
-    
-    // INSERTION SORT - faster than Bubble in practice
-    public static void insertionSort(int[] arr) {
-        for (int i = 1; i < arr.length; i++) {
-            int key = arr[i], j = i - 1;
-            while (j >= 0 && arr[j] > key) {
-                arr[j + 1] = arr[j]; // shift right
-                j--;
-            }
-            arr[j + 1] = key; // insert in correct position
-        }
-    }
-    
-    public static void main(String[] args) {
-        System.out.println("Inversions in [2,4,1,3,5]: " +
-            countInversions(new int[]{2,4,1,3,5})); // 3
-        
-        int[] arr = {5, 2, 8, 1, 9};
-        insertionSort(arr);
-        System.out.println("Insertion Sort: " + Arrays.toString(arr)); // [1,2,5,8,9]
-    }
-}`
-    },
-    "Advanced": {
-      definition: "Advanced sorting covers QuickSort with Lomuto/Hoare partitioning for O(n log n) average, QuickSelect for O(n) kth-largest element, K-sorted array optimization using min-heap, and understanding the Ω(n log n) lower bound for comparison-based sorting.",
-      working: "QuickSort: choose pivot, partition so all smaller elements are left and larger are right, recurse on both halves. O(n log n) average, O(n²) worst (sorted input). QuickSelect: like QuickSort but only recurse on ONE side containing the kth element — O(n) average. K-sorted: since each element is at most k positions away, a min-heap of size k+1 suffices.",
-      algorithm: "QUICKSORT (Lomuto):\n  partition(arr, low, high):\n    pivot = arr[high]; i = low-1\n    for j=low to high-1:\n      if arr[j] <= pivot: i++; swap(i,j)\n    swap(i+1, high)\n    return i+1\n  quickSort(arr, low, high):\n    if low < high:\n      pi = partition(arr, low, high)\n      quickSort(arr, low, pi-1)\n      quickSort(arr, pi+1, high)\n\nK-SORTED (min-heap):\n  add first k+1 elements to heap\n  for i = k+1 to n-1:\n    result.add(heap.poll())\n    heap.add(arr[i])\n  drain heap to result",
-      time_complexity: { "QuickSort average": "O(n log n)", "QuickSort worst": "O(n²)", "QuickSelect average": "O(n)", "K-sorted array": "O(n log k)", "Comparison sort lower bound": "Ω(n log n)" },
-      applications: "General purpose sorting (QuickSort is cache-friendly), streaming kth-largest element, nearly-sorted data optimization, database index sorting, in-place sorting with minimal memory.",
-      interview_notes: "QuickSort worst case is O(n²) on sorted/reverse-sorted input — use random pivot or median-of-three to avoid it. QuickSelect is the interviewer's test of whether you know the O(n) average solution vs O(n log n) sort+index. K-sorted heap solution is O(n log k) — much better than full sort O(n log n) when k is small.",
-      java: `import java.util.*;
-
-public class AdvancedBubbleSort {
-    
-    // QUICK SORT - Lomuto Partition O(n log n) avg
-    public static void quickSort(int[] arr, int low, int high) {
-        if (low < high) {
-            int pi = partition(arr, low, high);
-            quickSort(arr, low, pi - 1);
-            quickSort(arr, pi + 1, high);
-        }
-    }
-    
-    private static int partition(int[] arr, int low, int high) {
-        int pivot = arr[high], i = low - 1;
-        for (int j = low; j < high; j++) {
-            if (arr[j] <= pivot) {
-                i++;
-                int tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
-            }
-        }
-        int tmp = arr[i+1]; arr[i+1] = arr[high]; arr[high] = tmp;
-        return i + 1;
-    }
-    
-    // QUICK SELECT - kth Largest O(n) average
-    public static int findKthLargest(int[] nums, int k) {
-        return quickSelect(nums, 0, nums.length - 1, nums.length - k);
-    }
-    
-    private static int quickSelect(int[] arr, int lo, int hi, int target) {
-        int pivot = arr[hi], i = lo - 1;
-        for (int j = lo; j < hi; j++) {
-            if (arr[j] <= pivot) { i++; int t=arr[i];arr[i]=arr[j];arr[j]=t; }
-        }
-        i++; int t=arr[i];arr[i]=arr[hi];arr[hi]=t;
-        if (i == target) return arr[i];
-        return i < target ? quickSelect(arr, i+1, hi, target)
-                          : quickSelect(arr, lo, i-1, target);
-    }
-    
-    // SORT K-SORTED ARRAY - Min Heap O(n log k)
-    public static int[] sortKSorted(int[] arr, int k) {
-        PriorityQueue<Integer> pq = new PriorityQueue<>();
-        int[] result = new int[arr.length];
-        int ri = 0;
-        for (int i = 0; i < arr.length; i++) {
-            pq.offer(arr[i]);
-            if (pq.size() > k) result[ri++] = pq.poll();
-        }
-        while (!pq.isEmpty()) result[ri++] = pq.poll();
-        return result;
-    }
-    
-    public static void main(String[] args) {
-        int[] arr = {5, 3, 8, 4, 2, 7, 1};
-        quickSort(arr, 0, arr.length - 1);
-        System.out.println("QuickSort: " + Arrays.toString(arr));
-        
-        System.out.println("3rd Largest: " + findKthLargest(new int[]{3,2,1,5,6,4}, 2)); // 5
-        
-        int[] ksorted = {6,5,3,2,8,10,9};
-        System.out.println("K-Sorted: " + Arrays.toString(sortKSorted(ksorted, 3)));
-    }
-}`
+      applications: "Undo/Redo in text editors, browser back/forward history, function call stack in operating systems, expression evaluation (postfix/prefix), balanced parentheses checking in compilers, backtracking algorithms.",
+      interview_notes: "Always clarify if the stack should handle overflow. Prefer ArrayDeque over java.util.Stack in Java. Common patterns: monotonic stack for NGE problems, two-stack trick for queue simulation.",
+      java: `import java.util.ArrayDeque;\nimport java.util.Deque;\n\npublic class StackDemo {\n    public static void main(String[] args) {\n        Deque<Integer> stack = new ArrayDeque<>();\n        stack.push(10);\n        stack.push(20);\n        stack.push(30);\n        System.out.println("Peek: " + stack.peek());\n        System.out.println("Pop: " + stack.pop());\n    }\n}`
     }
   }
 };
@@ -2246,21 +1382,38 @@ function getLocalData(mod, level) {
 }
 
 /* ============================================================
-   ROOT APP — with Login Gate
+   ROOT APP — Real Supabase Auth Gate
 ============================================================ */
 export default function App() {
   useGlobalStyle(GLOBAL_CSS);
-  const [progress, saveProgress] = useProgress();
   const [screen, setScreen] = useState("home");
   const [module, setModule] = useState(null);
   const [subScreen, setSubScreen] = useState(null);
   const [level, setLevel] = useState("Beginner");
   const [data, setData] = useState(null);
 
-  // Auth state — restore from localStorage on mount
+  // Real auth state — restore from sessionStorage on mount
   const [user, setUser] = useState(() => {
-    try { return JSON.parse(localStorage.getItem("fita_session") || "null"); } catch { return null; }
+    try {
+      const saved = sessionStorage.getItem(SESSION_KEY);
+      return saved ? JSON.parse(saved) : null;
+    } catch { return null; }
   });
+
+  const [progress, saveProgress] = useProgress(user?.user?.id || user?.username);
+
+  // Verify stored session is still valid on mount
+  useEffect(() => {
+    if (!user?.access_token) return;
+    supabase.getUser(user.access_token).then(userData => {
+      if (!userData) {
+        sessionStorage.removeItem(SESSION_KEY);
+        setUser(null);
+      }
+    }).catch(() => {
+      // Network error — keep session, don't log out
+    });
+  }, []);
 
   useEffect(() => {
     if (!module) return;
@@ -2268,10 +1421,7 @@ export default function App() {
     const encodedModule = encodeURIComponent(module);
     const encodedLevel = encodeURIComponent(level);
     fetch(`https://backend-vix7.onrender.com/module/${encodedModule}/${encodedLevel}`)
-      .then(r => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.json();
-      })
+      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
       .then(setData)
       .catch(err => {
         console.error("Backend fetch failed, using local data:", err);
@@ -2281,20 +1431,22 @@ export default function App() {
 
   const selectModule = (mod) => { setModule(mod); setSubScreen(null); setScreen("module"); };
 
-  const handleLogin = (loggedInUser) => {
-    setUser(loggedInUser);
+  const handleLogin = (session) => {
+    setUser(session);
     setScreen("home");
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("fita_session");
+  const handleLogout = async () => {
+    if (user?.access_token) {
+      try { await supabase.signOut(user.access_token); } catch { }
+    }
+    sessionStorage.removeItem(SESSION_KEY);
     setUser(null);
     setScreen("home");
     setModule(null);
     setSubScreen(null);
   };
 
-  // Show login if not authenticated
   if (!user) {
     return (
       <div style={{ background: "var(--bg)", minHeight: "100vh", color: "var(--text)" }}>
