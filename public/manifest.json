@@ -2,16 +2,33 @@
     "short_name": "CodeLoom",
     "name": "CodeLoom - DSA Learning Platform",
     "description": "Learn Data Structures & Algorithms with Interactive Visualizations. Powered by FITA Academy.",
+    "id": "/",
+    "start_url": "/?source=pwa",
+    "background_color": "#f5f5f7",
+    "display": "standalone",
+    "theme_color": "#0071e3",
+    "orientation": "portrait",
     "icons": [
         {
             "src": "/logo.png",
             "type": "image/png",
-            "sizes": "512x512"
+            "sizes": "512x512",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/logo.png",
+            "type": "image/png",
+            "sizes": "192x192",
+            "purpose": "any"
         }
     ],
-    "start_url": "/",
-    "background_color": "#ffffff",
-    "display": "standalone",
-    "theme_color": "#0071e3",
-    "orientation": "portrait"
+    "screenshots": [
+        {
+            "src": "/logo.png",
+            "type": "image/png",
+            "sizes": "512x512",
+            "form_factor": "wide",
+            "label": "CodeLoom Home"
+        }
+    ]
 }

@@ -1497,9 +1497,30 @@ export default function App() {
   const [level, setLevel] = useState("Beginner");
   const [data, setData] = useState(null);
 
-  // Real auth state — restore from sessionStorage on mount
+  // Real auth state — restore from sessionStorage or URL hash (from email confirmation) on mount
   const [user, setUser] = useState(() => {
     try {
+      // 1. Check if returning from an email confirmation link (hash contains access_token)
+      const hash = window.location.hash.substring(1);
+      if (hash && hash.includes("access_token")) {
+        const params = new URLSearchParams(hash);
+        const access_token = params.get("access_token");
+        const refresh_token = params.get("refresh_token");
+        if (access_token) {
+          const session = {
+            access_token,
+            refresh_token,
+            user: { id: "user" }, // We will fetch real user details in useEffect
+            name: "Student",
+            username: "student",
+          };
+          sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+          window.history.replaceState(null, "", window.location.pathname + window.location.search);
+          return session;
+        }
+      }
+
+      // 2. Otherwise use existing session storage
       const saved = sessionStorage.getItem(SESSION_KEY);
       return saved ? JSON.parse(saved) : null;
     } catch { return null; }
@@ -1507,18 +1528,28 @@ export default function App() {
 
   const [progress, saveProgress] = useProgress(user?.user?.id || user?.username);
 
-  // Verify stored session is still valid on mount
+  // Verify stored session is still valid on mount, and grab user data if we just logged in via email link
   useEffect(() => {
     if (!user?.access_token) return;
     supabase.getUser(user.access_token).then(userData => {
       if (!userData) {
         sessionStorage.removeItem(SESSION_KEY);
         setUser(null);
+      } else if (user.name === "Student" && userData.user_metadata?.display_name) {
+        // Update temporary stub from email link with real user data
+        const updatedSession = {
+          ...user,
+          user: userData,
+          name: userData.user_metadata.display_name,
+          username: userData.email?.split("@")[0] || "student"
+        };
+        sessionStorage.setItem(SESSION_KEY, JSON.stringify(updatedSession));
+        setUser(updatedSession);
       }
     }).catch(() => {
       // Network error — keep session, don't log out
     });
-  }, []);
+  }, [user?.access_token]);
 
   useEffect(() => {
     if (!module) return;
