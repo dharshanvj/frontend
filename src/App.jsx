@@ -1137,13 +1137,16 @@ const InterviewTab = () => {
   const [selMod, setSelMod] = useState("Stack");
   const [numQuestions, setNumQuestions] = useState(10);
   const [timePerQ, setTimePerQ] = useState(60);
+  const [includeCoding, setIncludeCoding] = useState(true);
   const [currentQ, setCurrentQ] = useState(0);
-  const [revealed, setRevealed] = useState(false);
+  const [userResponse, setUserResponse] = useState("");
   const [answers, setAnswers] = useState([]);
   const [timeLeft, setTimeLeft] = useState(0);
   const [totalTime, setTotalTime] = useState(0);
   const [timeTaken, setTimeTaken] = useState(0);
   const [examQuestions, setExamQuestions] = useState([]);
+  const [codingQuestion, setCodingQuestion] = useState(null);
+  const [isCodingPhase, setIsCodingPhase] = useState(false);
   const color = MOD_COLORS[selMod];
 
   const formatTime = (secs) => {
@@ -1175,23 +1178,57 @@ const InterviewTab = () => {
     const shuffled = [...allQ].sort(() => Math.random() - 0.5);
     const selected = shuffled.slice(0, Math.min(numQuestions, allQ.length));
     setExamQuestions(selected);
+
+    if (includeCoding) {
+      const levels = ["Beginner", "Intermediate", "Advanced"];
+      const allChallenges = [];
+      levels.forEach(l => {
+        if (CODING_CHALLENGES[selMod]?.[l]) allChallenges.push(...CODING_CHALLENGES[selMod][l]);
+      });
+      if (allChallenges.length > 0) setCodingQuestion(allChallenges[Math.floor(Math.random() * allChallenges.length)]);
+      else setCodingQuestion(null);
+    } else setCodingQuestion(null);
+
     setAnswers(new Array(selected.length).fill(null));
     setCurrentQ(0);
-    setRevealed(false);
-    const total = timePerQ * selected.length;
+    setUserResponse("");
+    setIsCodingPhase(false);
+    const total = timePerQ * selected.length + (includeCoding ? 300 : 0);
     setTimeLeft(total);
     setTotalTime(total);
     startTimeRef.current = Date.now();
     setExamState("exam");
   };
 
-  const answerQuestion = (correct) => {
+  const checkAnswer = (userInput, correctSolution) => {
+    if (!userInput || userInput.trim().length < 3) return false;
+    const input = userInput.toLowerCase();
+    const solution = correctSolution.toLowerCase();
+    // Simple keyword extraction: words > 3 chars
+    const keywords = solution.match(/\b[a-z]{4,}\b/g) || [];
+    const uniqueKeywords = [...new Set(keywords)];
+    if (uniqueKeywords.length === 0) return input.length > 5;
+
+    let matches = 0;
+    uniqueKeywords.forEach(kw => { if (input.includes(kw)) matches++; });
+    const matchPct = (matches / uniqueKeywords.length);
+    return matchPct >= 0.4; // 40% keyword match considered passing
+  };
+
+  const submitCurrentAnswer = () => {
+    const q = examQuestions[currentQ];
+    const isCorrect = checkAnswer(userResponse, q.a);
     const newAnswers = [...answers];
-    newAnswers[currentQ] = correct ? "correct" : "wrong";
+    newAnswers[currentQ] = { user: userResponse, correct: isCorrect, keywords: q.a };
     setAnswers(newAnswers);
-    if (currentQ + 1 >= examQuestions.length) { setTimeout(() => finishExam(), 400); return; }
-    setCurrentQ(q => q + 1);
-    setRevealed(false);
+
+    if (currentQ + 1 < examQuestions.length) {
+      setCurrentQ(q => q + 1);
+      setUserResponse("");
+    } else {
+      if (codingQuestion) setIsCodingPhase(true);
+      else finishExam();
+    }
   };
 
   const skipQuestion = () => {
@@ -1274,14 +1311,14 @@ const InterviewTab = () => {
             </div>
           </div>
 
-          {/* Questions + Time inline */}
+          {/* Questions + Time Selection */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 24 }}>
             <div>
               <div style={{ fontSize: 12, fontWeight: 700, color: "#86868b", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 10 }}>2 — Questions</div>
               <div style={{ display: "flex", gap: 6 }}>
                 {[5, 10, 15, 20].map(n => (
                   <button key={n} onClick={() => setNumQuestions(n)}
-                    style={{ flex: 1, padding: "10px 4px", fontSize: 14, fontWeight: 700, borderRadius: 12, border: `1.5px solid ${numQuestions === n ? color : "var(--border)"}`, cursor: "pointer", background: numQuestions === n ? color : "#f5f5f7", color: numQuestions === n ? "white" : "#424245", transition: "all 0.2s" }}>{n}
+                    style={{ flex: 1, padding: "10px 4px", fontSize: 14, fontWeight: 700, borderRadius: 12, border: `1.5px solid ${numQuestions === n ? color : "var(--border)"}`, cursor: "pointer", background: numQuestions === n ? color : "white", color: numQuestions === n ? "white" : "#424245", transition: "all 0.2s" }}>{n}
                   </button>
                 ))}
               </div>
@@ -1291,26 +1328,41 @@ const InterviewTab = () => {
               <div style={{ display: "flex", gap: 6 }}>
                 {[30, 60, 90, 120].map(t => (
                   <button key={t} onClick={() => setTimePerQ(t)}
-                    style={{ flex: 1, padding: "10px 4px", fontSize: 13, fontWeight: 700, borderRadius: 12, border: `1.5px solid ${timePerQ === t ? color : "var(--border)"}`, cursor: "pointer", background: timePerQ === t ? color : "#f5f5f7", color: timePerQ === t ? "white" : "#424245", transition: "all 0.2s" }}>{t}s
+                    style={{ flex: 1, padding: "10px 4px", fontSize: 13, fontWeight: 700, borderRadius: 12, border: `1.5px solid ${timePerQ === t ? color : "var(--border)"}`, cursor: "pointer", background: timePerQ === t ? color : "white", color: timePerQ === t ? "white" : "#424245", transition: "all 0.2s" }}>{t}s
                   </button>
                 ))}
               </div>
             </div>
           </div>
 
+          {/* Coding Challenge Toggle */}
+          <div style={{ marginBottom: 24, padding: "12px 16px", background: "#f5f5f7", borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "space-between", border: "1px solid rgba(0,0,0,0.04)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 18 }}>💻</span>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "#1d1d1f" }}>Include Coding Challenge</div>
+                <div style={{ fontSize: 11, color: "#86868b" }}>Finish with a random coding task</div>
+              </div>
+            </div>
+            <button onClick={() => setIncludeCoding(!includeCoding)}
+              style={{ padding: "6px 14px", fontSize: 11, fontWeight: 700, borderRadius: 10, border: "none", cursor: "pointer", background: includeCoding ? color : "#e5e5ea", color: includeCoding ? "white" : "#86868b", transition: "all 0.2s" }}>
+              {includeCoding ? "ON" : "OFF"}
+            </button>
+          </div>
+
           {/* Summary + CTA inline */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16, background: `${color}0a`, borderRadius: 16, padding: "16px 20px" }}>
             <div style={{ display: "flex", gap: 28, flexWrap: "wrap" }}>
-              {[["📋", actualQ + " questions"], ["⏱", formatTime(timePerQ * actualQ) + " total"], ["🎯", selMod]].map(([icon, val]) => (
+              {[["📋", actualQ + " Qs"], ["⏱", formatTime(timePerQ * actualQ + (includeCoding ? 300 : 0))], ["🎯", selMod]].map(([icon, val]) => (
                 <div key={val} style={{ display: "flex", alignItems: "center", gap: 6 }}>
                   <span style={{ fontSize: 14 }}>{icon}</span>
                   <span style={{ fontSize: 14, fontWeight: 600, color: "#1d1d1f" }}>{val}</span>
                 </div>
               ))}
             </div>
-            <motion.button whileHover={{ scale: 1.04, boxShadow: `0 8px 28px ${color}44` }} whileTap={{ scale: 0.97 }} onClick={startExam}
-              style={{ padding: "13px 36px", fontSize: 15, fontWeight: 700, background: color, color: "white", borderRadius: 50, border: "none", cursor: "pointer", boxShadow: `0 4px 16px ${color}44`, letterSpacing: -0.3, whiteSpace: "nowrap" }}>
-              🚀 Start Exam →
+            <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} onClick={startExam}
+              style={{ padding: "13px 36px", fontSize: 15, fontWeight: 700, background: color, color: "white", borderRadius: 50, border: "none", cursor: "pointer", boxShadow: `0 4px 16px ${color}44`, letterSpacing: -0.3 }}>
+              🚀 Start Exam
             </motion.button>
           </div>
         </div>
@@ -1320,85 +1372,74 @@ const InterviewTab = () => {
 
   /* ── EXAM SCREEN ── */
   if (examState === "exam") {
+    if (isCodingPhase && codingQuestion) {
+      return (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+          <div style={{ background: "white", borderRadius: 24, border: "1.5px solid var(--border)", padding: 28, boxShadow: "var(--shadow-lg)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+              <div>
+                <span style={{ fontSize: 12, fontWeight: 700, color, background: `${color}12`, padding: "4px 12px", borderRadius: 20, marginRight: 10 }}>FINAL PHASE</span>
+                <span style={{ fontSize: 16, fontWeight: 700 }}>Coding Challenge</span>
+              </div>
+              <div style={{ fontSize: 18, fontWeight: 800, color: timeLeft < 60 ? "#ff3b30" : color, fontFamily: "var(--font-mono)" }}>⏳ {formatTime(timeLeft)}</div>
+            </div>
+            <div style={{ background: "#f5f5f7", borderRadius: 16, padding: 24, marginBottom: 24 }}>
+              <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 10 }}>{codingQuestion.title}</div>
+              <p style={{ fontSize: 14, color: "#424245", lineHeight: 1.6 }}>{codingQuestion.desc}</p>
+            </div>
+            <p style={{ fontSize: 13, color: "#86868b", marginBottom: 20, fontStyle: "italic" }}>Tip: For this mock exam, focus on the logic. Submit when ready.</p>
+            <div style={{ display: "flex", gap: 12 }}>
+              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={finishExam}
+                style={{ flex: 1, padding: "16px", fontSize: 16, fontWeight: 700, background: color, color: "white", borderRadius: 14, border: "none", cursor: "pointer", boxShadow: `0 8px 20px ${color}33` }}>
+                🚀 Submit Final Exam
+              </motion.button>
+            </div>
+          </div>
+        </motion.div>
+      );
+    }
+
     const question = examQuestions[currentQ];
     const diffData = { Easy: { color: "#34c759", bg: "#e8f9ee" }, Medium: { color: "#ff9500", bg: "#fff4e6" }, Hard: { color: "#ff3b30", bg: "#fff1f0" } }[question?.difficulty] || { color: "#86868b", bg: "#f5f5f7" };
     const timerPct = totalTime > 0 ? (timeLeft / totalTime) * 100 : 0;
-    const timerColor = timerPct > 50 ? "#34c759" : timerPct > 20 ? "#ff9500" : "#ff3b30";
+    const timerColor = timerPct > 51 ? "#34c759" : timerPct > 21 ? "#ff9500" : "#ff3b30";
+
     return (
       <div>
-        {/* Header */}
-        <div style={{ background: "white", borderRadius: 18, padding: "14px 22px", marginBottom: 16, boxShadow: "var(--shadow)", border: "1.5px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
+        <div style={{ background: "white", borderRadius: 18, padding: "14px 22px", marginBottom: 16, boxShadow: "var(--shadow)", border: "1.5px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span style={{ fontSize: 12, fontWeight: 700, color, background: `${color}12`, padding: "4px 12px", borderRadius: 20 }}>{selMod}</span>
-            <span style={{ fontSize: 14, fontWeight: 600, color: "#1d1d1f" }}>Q {currentQ + 1} / {examQuestions.length}</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color, background: `${color}12`, padding: "4px 12px", borderRadius: 20 }}>THEORY PHASE</span>
+            <span style={{ fontSize: 14, fontWeight: 600 }}>Q {currentQ + 1} / {examQuestions.length}</span>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ width: 90, height: 6, background: "#f5f5f7", borderRadius: 10, overflow: "hidden" }}>
-              <div style={{ height: "100%", width: `${timerPct}%`, background: timerColor, borderRadius: 10, transition: "width 1s linear, background 0.5s" }} />
-            </div>
-            <span style={{ fontSize: 22, fontWeight: 800, color: timerColor, fontFamily: "var(--font-mono)", minWidth: 56 }}>{formatTime(timeLeft)}</span>
+          <span style={{ fontSize: 20, fontWeight: 800, color: timerColor, fontFamily: "var(--font-mono)" }}>{formatTime(timeLeft)}</span>
+        </div>
+
+        <motion.div key={currentQ} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
+          style={{ background: "white", borderRadius: 24, padding: 32, boxShadow: "var(--shadow-lg)", border: "1.5px solid var(--border)", marginBottom: 20 }}>
+          <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: diffData.color, background: diffData.bg, padding: "3px 10px", borderRadius: 20 }}>{question?.difficulty}</span>
           </div>
-        </div>
+          <p style={{ fontSize: 19, fontWeight: 700, color: "#1d1d1f", marginBottom: 24, lineHeight: 1.5 }}>{question?.q}</p>
 
-        {/* Progress dots */}
-        <div style={{ display: "flex", gap: 5, marginBottom: 20, flexWrap: "wrap" }}>
-          {examQuestions.map((_, i) => (
-            <div key={i} style={{ width: 10, height: 10, borderRadius: "50%", background: i === currentQ ? color : i < currentQ ? (answers[i] === "correct" ? "#34c759" : answers[i] === "wrong" ? "#ff3b30" : "#ff9500") : "#e5e5ea", transition: "background 0.3s", boxShadow: i === currentQ ? `0 0 0 3px ${color}33` : "none" }} />
-          ))}
-        </div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#86868b", marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>Your Answer (One line explanation)</div>
+          <textarea value={userResponse} onChange={e => setUserResponse(e.target.value)}
+            placeholder="Type your answer here... inclusion of important terms earns marks."
+            style={{ width: "100%", height: 100, padding: 16, borderRadius: 16, border: "1.5px solid var(--border)", background: "#f5f5f7", outline: "none", fontSize: 15, fontFamily: "inherit", resize: "none", marginBottom: 24 }} />
 
-        {/* Question card */}
-        <AnimatePresence mode="wait">
-          <motion.div key={currentQ} initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }} transition={{ duration: 0.22 }}
-            style={{ background: "white", borderRadius: 20, overflow: "hidden", boxShadow: "var(--shadow-lg)", border: "1.5px solid var(--border)", marginBottom: 16 }}>
-            <div style={{ height: 4, background: `linear-gradient(90deg, ${color}, ${color}77)` }} />
-            <div style={{ padding: "28px 32px" }}>
-              <div style={{ display: "flex", gap: 8, marginBottom: 18, flexWrap: "wrap" }}>
-                <span style={{ fontSize: 11, fontWeight: 600, color: diffData.color, background: diffData.bg, padding: "3px 10px", borderRadius: 20 }}>{question?.difficulty}</span>
-                <span style={{ fontSize: 11, fontWeight: 500, color: "#86868b", background: "#f5f5f7", padding: "3px 10px", borderRadius: 20 }}>{question?.company}</span>
-              </div>
-              <p style={{ fontSize: 18, fontWeight: 600, lineHeight: 1.65, color: "#1d1d1f", marginBottom: 28 }}>{question?.q}</p>
-
-              {!revealed ? (
-                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={() => setRevealed(true)}
-                  style={{ padding: "13px 32px", fontSize: 14, fontWeight: 700, background: color, color: "white", borderRadius: 14, border: "none", cursor: "pointer", boxShadow: `0 4px 16px ${color}44` }}>
-                  💡 Reveal Answer
-                </motion.button>
-              ) : (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                  <div style={{ background: "#f5f5f7", borderRadius: 16, padding: "20px 24px", marginBottom: 20, borderLeft: `4px solid ${color}` }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.5, color, textTransform: "uppercase", marginBottom: 10 }}>Answer</div>
-                    <p style={{ fontSize: 14, lineHeight: 1.8, color: "#1d1d1f" }}>{question?.a}</p>
-                  </div>
-                  <p style={{ fontSize: 12, color: "#86868b", marginBottom: 12, fontWeight: 500 }}>Were you able to answer this correctly?</p>
-                  <div style={{ display: "flex", gap: 12 }}>
-                    <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => answerQuestion(true)}
-                      style={{ flex: 1, padding: "14px", fontSize: 15, fontWeight: 700, background: "#34c759", color: "white", borderRadius: 14, border: "none", cursor: "pointer", boxShadow: "0 4px 12px rgba(52,199,89,0.35)" }}>
-                      ✓ Yes, I knew it! +1
-                    </motion.button>
-                    <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => answerQuestion(false)}
-                      style={{ flex: 1, padding: "14px", fontSize: 15, fontWeight: 700, background: "#ff3b30", color: "white", borderRadius: 14, border: "none", cursor: "pointer", boxShadow: "0 4px 12px rgba(255,59,48,0.3)" }}>
-                      ✗ No, I didn't
-                    </motion.button>
-                  </div>
-                </motion.div>
-              )}
-            </div>
-          </motion.div>
-        </AnimatePresence>
-
-        <div style={{ display: "flex", gap: 10 }}>
-          <button onClick={skipQuestion} style={{ padding: "10px 22px", fontSize: 13, fontWeight: 600, background: "white", color: "#86868b", border: "1.5px solid var(--border)", borderRadius: 12, cursor: "pointer" }}>Skip →</button>
-          <button onClick={finishExam} style={{ padding: "10px 22px", fontSize: 13, fontWeight: 600, background: "#fff1f0", color: "#ff3b30", border: "1.5px solid rgba(255,59,48,0.2)", borderRadius: 12, cursor: "pointer" }}>⏹ End Exam</button>
-        </div>
+          <div style={{ display: "flex", gap: 12 }}>
+            <motion.button disabled={!userResponse.trim()} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={submitCurrentAnswer}
+              style={{ flex: 1, padding: "14px", fontSize: 15, fontWeight: 700, background: userResponse.trim() ? color : "#e5e5ea", color: "white", borderRadius: 14, border: "none", cursor: userResponse.trim() ? "pointer" : "default" }}>
+              Submit Answer & Next →
+            </motion.button>
+            <button onClick={skipQuestion} style={{ padding: "14px 20px", fontSize: 14, fontWeight: 600, color: "#86868b", background: "white", border: "1.5px solid var(--border)", borderRadius: 14, cursor: "pointer" }}>Skip</button>
+          </div>
+        </motion.div>
       </div>
     );
   }
 
   /* ── RESULTS SCREEN ── */
-  const correct = answers.filter(a => a === "correct").length;
-  const wrong = answers.filter(a => a === "wrong").length;
-  const skipped = answers.filter(a => a === "skipped" || a === null).length;
+  const correct = answers.filter(a => a?.correct).length;
   const total = examQuestions.length;
   const score = total > 0 ? Math.round((correct / total) * 100) : 0;
   const gradeInfo = getGrade(score);
@@ -1413,17 +1454,9 @@ const InterviewTab = () => {
             style={{ width: 120, height: 120, borderRadius: "50%", background: `${gradeInfo.color}15`, border: `4px solid ${gradeInfo.color}`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
             <div style={{ fontSize: 38, fontWeight: 900, color: gradeInfo.color, lineHeight: 1 }}>{gradeInfo.grade}</div>
           </motion.div>
-          <div style={{ fontSize: 52, fontWeight: 900, color: "#1d1d1f", letterSpacing: -3, marginBottom: 4 }}>{score}%</div>
+          <div style={{ fontSize: 48, fontWeight: 900, color: "#1d1d1f", letterSpacing: -2, marginBottom: 4 }}>{score}%</div>
           <div style={{ fontSize: 18, fontWeight: 700, color: gradeInfo.color, marginBottom: 6 }}>{gradeInfo.label}</div>
-          <div style={{ fontSize: 14, color: "#86868b" }}>{correct} out of {total} questions correct · {formatTime(timeTaken)} taken</div>
-        </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", borderTop: "1px solid var(--border)" }}>
-          {[["✓ Correct", correct, "#34c759"], ["✗ Wrong", wrong, "#ff3b30"], ["⟳ Skipped", skipped, "#ff9500"]].map(([label, val, c]) => (
-            <div key={label} style={{ padding: "20px", textAlign: "center", borderRight: "1px solid var(--border)" }}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: c }}>{val}</div>
-              <div style={{ fontSize: 11, color: "#86868b", fontWeight: 600, marginTop: 3 }}>{label}</div>
-            </div>
-          ))}
+          <div style={{ fontSize: 13, color: "#86868b", fontWeight: 500 }}>Theory: {correct}/{total} Correct · Time: {formatTime(timeTaken)}</div>
         </div>
       </div>
 
@@ -1441,25 +1474,27 @@ const InterviewTab = () => {
 
       {/* Answer review */}
       <div style={{ fontSize: 14, fontWeight: 700, color: "#1d1d1f", marginBottom: 14, letterSpacing: -0.3 }}>📋 Answer Review</div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         {examQuestions.map((q, i) => {
           const ans = answers[i];
-          const bc = ans === "correct" ? "rgba(52,199,89,0.3)" : ans === "wrong" ? "rgba(255,59,48,0.3)" : "rgba(255,149,0,0.25)";
-          const bg = ans === "correct" ? "#f0fdf4" : ans === "wrong" ? "#fff1f0" : "#fffbf0";
-          const badge = ans === "correct" ? { icon: "✓", label: "Correct", c: "#34c759" } : ans === "wrong" ? { icon: "✗", label: "Wrong", c: "#ff3b30" } : { icon: "→", label: "Skipped", c: "#ff9500" };
-          const diffData = { Easy: { color: "#34c759", bg: "#e8f9ee" }, Medium: { color: "#ff9500", bg: "#fff4e6" }, Hard: { color: "#ff3b30", bg: "#fff1f0" } }[q.difficulty] || { color: "#86868b", bg: "#f5f5f7" };
+          const isCorrect = ans?.correct;
+          const bg = isCorrect ? "#f0fdf4" : "#fff1f0";
+          const c = isCorrect ? "#34c759" : "#ff3b30";
           return (
-            <div key={i} style={{ background: bg, border: `1.5px solid ${bc}`, borderRadius: 16, padding: "18px 22px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 8 }}>
-                <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: "#86868b" }}>Q{i + 1}</span>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: diffData.color, background: diffData.bg, padding: "2px 8px", borderRadius: 12 }}>{q.difficulty}</span>
-                  <span style={{ fontSize: 11, color: "#86868b", background: "#f5f5f7", padding: "2px 8px", borderRadius: 12 }}>{q.company}</span>
-                </div>
-                <span style={{ fontSize: 11, fontWeight: 700, color: badge.c, background: `${badge.c}15`, padding: "3px 10px", borderRadius: 20, whiteSpace: "nowrap" }}>{badge.icon} {badge.label}</span>
+            <div key={i} style={{ background: "white", borderRadius: 16, border: "1.5px solid var(--border)", overflow: "hidden" }}>
+              <div style={{ padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border)" }}>
+                <div style={{ fontWeight: 700, fontSize: 14, color: "#1d1d1f" }}>Question {i + 1}</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: c, background: `${c}12`, padding: "4px 10px", borderRadius: 20 }}>{isCorrect ? "MATCHED" : "MISMATCHED"}</div>
               </div>
-              <p style={{ fontSize: 14, fontWeight: 600, color: "#1d1d1f", marginBottom: 8, lineHeight: 1.5 }}>{q.q}</p>
-              <p style={{ fontSize: 13, color: "#424245", lineHeight: 1.7, background: "rgba(255,255,255,0.75)", borderRadius: 10, padding: "10px 14px" }}>{q.a}</p>
+              <div style={{ padding: "16px 20px" }}>
+                <p style={{ fontSize: 14, fontWeight: 600, color: "#1d1d1f", marginBottom: 12 }}>{q.q}</p>
+                <div style={{ fontSize: 12, background: "#f5f5f7", padding: 12, borderRadius: 10, color: "#424245" }}>
+                  <span style={{ fontWeight: 700, color: "#86868b" }}>YOUR ANSWER:</span> {ans?.user || "(No answer)"}
+                </div>
+                <div style={{ fontSize: 12, background: `${color}08`, padding: 12, borderRadius: 10, color: "#1d1d1f", marginTop: 8 }}>
+                  <span style={{ fontWeight: 700, color }}>EXPECTED TERMS:</span> {q.a}
+                </div>
+              </div>
             </div>
           );
         })}
