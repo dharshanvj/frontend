@@ -1147,6 +1147,7 @@ const InterviewTab = () => {
   const [timeTaken, setTimeTaken] = useState(0);
   const [examQuestions, setExamQuestions] = useState([]);
   const [codingQuestion, setCodingQuestion] = useState(null);
+  const [codingResponse, setCodingResponse] = useState("");
   const [isCodingPhase, setIsCodingPhase] = useState(false);
   const color = MOD_COLORS[selMod];
 
@@ -1193,6 +1194,7 @@ const InterviewTab = () => {
     setAnswers(new Array(selected.length).fill(null));
     setCurrentQ(0);
     setUserResponse("");
+    setCodingResponse("");
     setIsCodingPhase(false);
     const total = timePerQ * selected.length + (includeCoding ? 300 : 0);
     setTimeLeft(total);
@@ -1234,11 +1236,15 @@ const InterviewTab = () => {
 
   const skipQuestion = () => {
     const newAnswers = [...answers];
-    newAnswers[currentQ] = "skipped";
+    newAnswers[currentQ] = { user: "(Skipped)", correct: false, skipped: true };
     setAnswers(newAnswers);
-    if (currentQ + 1 >= examQuestions.length) { finishExam(); return; }
+    if (currentQ + 1 >= examQuestions.length) {
+      if (codingQuestion) setIsCodingPhase(true);
+      else finishExam();
+      return;
+    }
     setCurrentQ(q => q + 1);
-    setRevealed(false);
+    setUserResponse("");
   };
 
   const getGrade = (pct) => {
@@ -1374,26 +1380,33 @@ const InterviewTab = () => {
   if (examState === "exam") {
     if (isCodingPhase && codingQuestion) {
       return (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          <div style={{ background: "white", borderRadius: 24, border: "1.5px solid var(--border)", padding: 28, boxShadow: "var(--shadow-lg)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-              <div>
-                <span style={{ fontSize: 12, fontWeight: 700, color, background: `${color}12`, padding: "4px 12px", borderRadius: 20, marginRight: 10 }}>FINAL PHASE</span>
-                <span style={{ fontSize: 16, fontWeight: 700 }}>Coding Challenge</span>
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
+          <div style={{ background: "white", borderRadius: 24, border: `2px solid ${color}`, padding: 32, boxShadow: "var(--shadow-lg)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ width: 12, height: 12, borderRadius: "50%", background: color, animation: "pulse 1.5s infinite" }} />
+                <span style={{ fontSize: 13, fontWeight: 800, color, textTransform: "uppercase", letterSpacing: 1 }}>Final Phase — Coding</span>
               </div>
-              <div style={{ fontSize: 18, fontWeight: 800, color: timeLeft < 60 ? "#ff3b30" : color, fontFamily: "var(--font-mono)" }}>⏳ {formatTime(timeLeft)}</div>
+              <div style={{ fontSize: 20, fontWeight: 900, color: timeLeft < 60 ? "#ff3b30" : color }}>{formatTime(timeLeft)}</div>
             </div>
-            <div style={{ background: "#f5f5f7", borderRadius: 16, padding: 24, marginBottom: 24 }}>
-              <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 10 }}>{codingQuestion.title}</div>
-              <p style={{ fontSize: 14, color: "#424245", lineHeight: 1.6 }}>{codingQuestion.desc}</p>
+
+            <div style={{ background: "#f5f5f7", borderRadius: 20, padding: 24, marginBottom: 28, border: "1.5px solid rgba(0,0,0,0.04)" }}>
+              <h3 style={{ fontSize: 20, fontWeight: 800, color: "#1d1d1f", marginBottom: 12 }}>{codingQuestion.title}</h3>
+              <p style={{ fontSize: 15, color: "#424245", lineHeight: 1.6, marginBottom: 16 }}>{codingQuestion.desc}</p>
+              <div style={{ display: "flex", gap: 8 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, background: "white", color: "#86868b", padding: "4px 10px", borderRadius: 12 }}>{codingQuestion.company}</span>
+              </div>
             </div>
-            <p style={{ fontSize: 13, color: "#86868b", marginBottom: 20, fontStyle: "italic" }}>Tip: For this mock exam, focus on the logic. Submit when ready.</p>
-            <div style={{ display: "flex", gap: 12 }}>
-              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={finishExam}
-                style={{ flex: 1, padding: "16px", fontSize: 16, fontWeight: 700, background: color, color: "white", borderRadius: 14, border: "none", cursor: "pointer", boxShadow: `0 8px 20px ${color}33` }}>
-                🚀 Submit Final Exam
-              </motion.button>
-            </div>
+
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#86868b", marginBottom: 10, textTransform: "uppercase" }}>Implementation Logic:</div>
+            <textarea value={codingResponse} onChange={e => setCodingResponse(e.target.value)}
+              placeholder="Explain your approach or write starter logic here..."
+              style={{ width: "100%", height: 200, padding: 20, borderRadius: 16, border: "1.5px solid var(--border)", background: "#1e1e1e", color: "#d4d4d4", outline: "none", fontSize: 14, fontFamily: "var(--font-mono)", resize: "none", marginBottom: 28 }} />
+
+            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={finishExam}
+              style={{ width: "100%", padding: "18px", fontSize: 16, fontWeight: 800, background: color, color: "white", borderRadius: 16, border: "none", cursor: "pointer", boxShadow: `0 8px 24px ${color}44` }}>
+              💾 Complete & Submit Final Results
+            </motion.button>
           </div>
         </motion.div>
       );
@@ -1498,6 +1511,22 @@ const InterviewTab = () => {
             </div>
           );
         })}
+
+        {codingQuestion && (
+          <div style={{ background: "white", borderRadius: 16, border: `2px solid ${color}`, overflow: "hidden", marginTop: 10 }}>
+            <div style={{ padding: "16px 20px", background: `${color}08`, display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: `2.5px solid ${color}` }}>
+              <div style={{ fontWeight: 800, fontSize: 14, color }}>🏁 FINAL CODING PHASE</div>
+            </div>
+            <div style={{ padding: "20px" }}>
+              <h4 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>{codingQuestion.title}</h4>
+              <p style={{ fontSize: 13, color: "#86868b", marginBottom: 16 }}>{codingQuestion.desc}</p>
+              <div style={{ fontSize: 12, background: "#1e1e1e", padding: 16, borderRadius: 12, color: "#d4d4d4", fontFamily: "var(--font-mono)", whiteSpace: "pre-wrap" }}>
+                <span style={{ color: "#86868b", fontWeight: 700, display: "block", marginBottom: 8, fontFamily: "inherit" }}>YOUR LOGIC:</span>
+                {codingResponse || "(No implementation logic provided)"}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </motion.div>
   );
