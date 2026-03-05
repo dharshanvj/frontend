@@ -44,6 +44,10 @@ const supabase = {
     if (!res.ok) return null;
     return res.json();
   },
+  signInWithGoogle() {
+    const redirectTo = encodeURIComponent(window.location.origin + window.location.pathname);
+    window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${redirectTo}`;
+  },
 };
 
 const SESSION_KEY = "fita_supabase_session";
@@ -354,6 +358,31 @@ const LoginScreen = ({ onLogin }) => {
               ) : (
                 mode === "login" ? "Sign In →" : "Create Account →"
               )}
+            </motion.button>
+
+            {/* Divider */}
+            <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "20px 0 0" }}>
+              <div style={{ flex: 1, height: 1, background: "rgba(0,0,0,0.08)" }} />
+              <span style={{ fontSize: 12, color: "#a1a1a6", fontWeight: 500 }}>or continue with</span>
+              <div style={{ flex: 1, height: 1, background: "rgba(0,0,0,0.08)" }} />
+            </div>
+
+            {/* Google OAuth Button */}
+            <motion.button
+              whileHover={{ scale: 1.02, boxShadow: "0 4px 20px rgba(0,0,0,0.12)" }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => configured && supabase.signInWithGoogle()}
+              disabled={!configured}
+              style={{ width: "100%", marginTop: 12, padding: "13px 16px", fontSize: 14, fontWeight: 600, background: "white", color: "#1d1d1f", borderRadius: 14, border: "1.5px solid rgba(0,0,0,0.12)", cursor: configured ? "pointer" : "not-allowed", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, boxShadow: "0 2px 8px rgba(0,0,0,0.06)", transition: "all 0.2s" }}
+            >
+              {/* Google G logo SVG */}
+              <svg width="18" height="18" viewBox="0 0 48 48">
+                <path fill="#EA4335" d="M24 9.5c3.14 0 5.95 1.08 8.17 2.85l6.1-6.1C34.28 3.08 29.43 1 24 1 14.82 1 7.07 6.64 3.85 14.58l7.1 5.52C12.7 13.64 17.9 9.5 24 9.5z" />
+                <path fill="#4285F4" d="M46.5 24.5c0-1.57-.14-3.08-.4-4.54H24v8.59h12.68c-.55 2.94-2.2 5.44-4.68 7.13l7.19 5.59C43.1 37.49 46.5 31.45 46.5 24.5z" />
+                <path fill="#FBBC05" d="M10.95 28.1A14.56 14.56 0 0 1 9.5 24c0-1.42.24-2.8.65-4.1l-7.1-5.52A23.93 23.93 0 0 0 0 24c0 3.87.92 7.53 2.55 10.78l8.4-6.68z" />
+                <path fill="#34A853" d="M24 47c5.43 0 9.99-1.8 13.32-4.89l-7.19-5.59c-1.8 1.21-4.1 1.93-6.13 1.93-6.1 0-11.3-4.14-13.05-9.7l-8.4 6.68C7.07 41.36 14.82 47 24 47z" />
+              </svg>
+              Continue with Google
             </motion.button>
 
             {/* Security note */}
