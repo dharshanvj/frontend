@@ -1486,9 +1486,7 @@ function getLocalData(mod, level) {
   return LOCAL_MODULE_DATA?.[mod]?.[level] || null;
 }
 
-/* ============================================================
-   ROOT APP — Real Supabase Auth Gate
-============================================================ */
+
 export default function App() {
   useGlobalStyle(GLOBAL_CSS);
   const [screen, setScreen] = useState("home");
@@ -1500,6 +1498,8 @@ export default function App() {
   // Real auth state — restore from sessionStorage or URL hash (from email confirmation) on mount
   const [user, setUser] = useState(() => {
     try {
+      if (typeof window === "undefined") return null;
+
       // 1. Check if returning from an email confirmation link (hash contains access_token)
       const hash = window.location.hash.substring(1);
       if (hash && hash.includes("access_token")) {
@@ -1515,7 +1515,10 @@ export default function App() {
             username: "student",
           };
           sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
-          window.history.replaceState(null, "", window.location.pathname + window.location.search);
+
+          if (typeof window.history !== "undefined") {
+            window.history.replaceState(null, "", window.location.pathname + window.location.search);
+          }
           return session;
         }
       }
