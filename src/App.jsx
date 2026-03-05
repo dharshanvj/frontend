@@ -810,16 +810,51 @@ const LEVELS = ["Beginner", "Intermediate", "Advanced"];
 const useProgress = (userId) => {
   const storageKey = `dsaProgress_v2_${userId || "guest"}`;
   const [progress, setProgress] = useState(() => {
-    try { return JSON.parse(sessionStorage.getItem(storageKey) || '{}'); } catch { return {}; }
+    try { return JSON.parse(localStorage.getItem(storageKey) || '{}'); } catch { return {}; }
   });
   const save = useCallback((key, val) => {
     setProgress(p => {
       const n = { ...p, [key]: val };
-      try { sessionStorage.setItem(storageKey, JSON.stringify(n)); } catch { }
+      try { localStorage.setItem(storageKey, JSON.stringify(n)); } catch { }
       return n;
     });
   }, [storageKey]);
   return [progress, save];
+};
+
+/* ============================================================
+   ANALYTICS ENGINE
+============================================================ */
+const useAnalytics = (userId) => {
+  const key = `dsa_analytics_v1_${userId || "guest"}`;
+  const [data, setData] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(key) || { sessions: [], lastActive: null, streak: 0 }); }
+    catch { return { sessions: [], lastActive: null, streak: 0 }; }
+  });
+
+  const logSession = ({ type, topic, score, difficulty, time, id }) => {
+    setData(prev => {
+      const now = new Date();
+      const newSession = { date: now.toISOString(), type, topic, score, difficulty, time, id };
+      const sessions = [...prev.sessions, newSession];
+
+      // Streak logic
+      let streak = prev.streak || 0;
+      const last = prev.lastActive ? new Date(prev.lastActive) : null;
+      if (!last) streak = 1;
+      else {
+        const diff = Math.floor((now - last) / (1000 * 60 * 60 * 24));
+        if (diff === 1) streak += 1;
+        else if (diff > 1) streak = 1;
+      }
+
+      const next = { ...prev, sessions, lastActive: now.toISOString(), streak };
+      localStorage.setItem(key, JSON.stringify(next));
+      return next;
+    });
+  };
+
+  return { analytics: data, logSession };
 };
 
 /* ============================================================
@@ -1020,10 +1055,19 @@ export const HomeScreen = ({ onEnter, user, onLogout }) => {
    DSA SCREEN
 ============================================================ */
 const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress }) => {
+  const { analytics, logSession } = useAnalytics();
   const [activeTab, setActiveTab] = useState("learn");
+  const [showReport, setShowReport] = useState(false);
   const tabs = [["learn", "📚 Learn"], ["interview", "🎤 Interview"], ["code", "💻 Code"]];
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg)" }}>
+      {/* Analytics Trigger */}
+      <motion.button onClick={() => setShowReport(true)}
+        initial={{ scale: 0 }} animate={{ scale: 1 }} whileHover={{ scale: 1.1, rotate: 5, boxShadow: "0 14px 40px rgba(0,113,227,0.5)" }} whileTap={{ scale: 0.9 }}
+        style={{ position: "fixed", bottom: 32, right: 32, width: 68, height: 68, borderRadius: "50%", background: "#0071e3", color: "white", fontSize: 28, boxShadow: "0 12px 32px rgba(0,113,227,0.4)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", border: "4px solid white" }}>
+        📊
+      </motion.button>
+      {showReport && <PerformanceReport analytics={analytics} onClose={() => setShowReport(false)} />}
       <div style={{ position: "sticky", top: 0, zIndex: 50, backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", background: "rgba(245,245,247,0.85)", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
         <div style={{ maxWidth: 960, margin: "0 auto", padding: "0 32px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
@@ -1065,7 +1109,7 @@ const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress }) => {
           )}
           {activeTab === "code" && (
             <motion.div key="code" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-              <CodeArenaTab />
+              <CodeArenaTab logSession={logSession} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -1149,6 +1193,7 @@ const InterviewTab = () => {
   const [codingQuestion, setCodingQuestion] = useState(null);
   const [codingResponse, setCodingResponse] = useState("");
   const [isCodingPhase, setIsCodingPhase] = useState(false);
+  const { analytics, logSession } = useAnalytics();
   const color = MOD_COLORS[selMod];
 
   const formatTime = (secs) => {
@@ -1218,11 +1263,25 @@ const InterviewTab = () => {
     return matchPct >= 0.4; // 40% keyword match considered passing
   };
 
+  const handleFinish = useCallback((finalAnswers = answers) => {
+    const correctCount = finalAnswers.filter(a => a?.correct).length;
+    const finalScore = Math.round((correctCount / examQuestions.length) * 100);
+    logSession({
+      type: "interview",
+      topic: selMod,
+      score: finalScore,
+      difficulty: "Mixed",
+      time: Math.round((Date.now() - startTimeRef.current) / 1000)
+    });
+    finishExam();
+  }, [answers, examQuestions, selMod, logSession, finishExam]);
+
   const submitCurrentAnswer = () => {
     const q = examQuestions[currentQ];
     const isCorrect = checkAnswer(userResponse, q.a);
     const newAnswers = [...answers];
-    newAnswers[currentQ] = { user: userResponse, correct: isCorrect, keywords: q.a };
+    const ansObj = { user: userResponse, correct: isCorrect, keywords: q.a };
+    newAnswers[currentQ] = ansObj;
     setAnswers(newAnswers);
 
     if (currentQ + 1 < examQuestions.length) {
@@ -1230,7 +1289,7 @@ const InterviewTab = () => {
       setUserResponse("");
     } else {
       if (codingQuestion) setIsCodingPhase(true);
-      else finishExam();
+      else handleFinish(newAnswers);
     }
   };
 
@@ -1240,7 +1299,7 @@ const InterviewTab = () => {
     setAnswers(newAnswers);
     if (currentQ + 1 >= examQuestions.length) {
       if (codingQuestion) setIsCodingPhase(true);
-      else finishExam();
+      else handleFinish(newAnswers);
       return;
     }
     setCurrentQ(q => q + 1);
@@ -1409,7 +1468,7 @@ const InterviewTab = () => {
               placeholder="Explain your approach or write starter logic here..."
               style={{ width: "100%", height: 200, padding: 20, borderRadius: 16, border: "1.5px solid var(--border)", background: "#1e1e1e", color: "#d4d4d4", outline: "none", fontSize: 14, fontFamily: "var(--font-mono)", resize: "none", marginBottom: 28 }} />
 
-            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={finishExam}
+            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => handleFinish()}
               style={{ width: "100%", padding: "18px", fontSize: 16, fontWeight: 800, background: color, color: "white", borderRadius: 16, border: "none", cursor: "pointer", boxShadow: `0 8px 24px ${color}44` }}>
               💾 Complete & Submit Final Results
             </motion.button>
@@ -1538,13 +1597,103 @@ const InterviewTab = () => {
   );
 };
 
-const CodeArenaTab = () => {
+/* ============================================================
+   PERFORMANCE BOT / REPORT COMPONENT
+============================================================ */
+const PerformanceReport = ({ analytics, onClose }) => {
+  const { sessions, streak } = analytics;
+  const now = new Date();
+  const thirtyDaysAgo = new Date(now - 30 * 24 * 60 * 60 * 1000);
+
+  const last30Days = new Set(sessions.filter(s => new Date(s.date) > thirtyDaysAgo).map(s => s.date.split("T")[0])).size;
+  const consistency = Math.round((last30Days / 30) * 100);
+
+  const thisMonth = sessions.filter(s => new Date(s.date).getMonth() === now.getMonth());
+  const lastMonth = sessions.filter(s => new Date(s.date).getMonth() === (now.getMonth() === 0 ? 11 : now.getMonth() - 1));
+  const avgThis = thisMonth.length ? thisMonth.reduce((acc, s) => acc + (s.score || 0), 0) / thisMonth.length : 0;
+  const avgLast = lastMonth.length ? lastMonth.reduce((acc, s) => acc + (s.score || 0), 0) / lastMonth.length : 0;
+  const improvement = Math.round(avgThis - avgLast);
+
+  const difficultyMap = sessions.reduce((acc, s) => { acc[s.difficulty] = (acc[s.difficulty] || 0) + 1; return acc; }, {});
+  const topicStats = sessions.reduce((acc, s) => {
+    if (!acc[s.topic]) acc[s.topic] = { total: 0, count: 0 };
+    acc[s.topic].total += (s.score || 0);
+    acc[s.topic].count += 1;
+    return acc;
+  }, {});
+
+  const topicEntries = Object.entries(topicStats);
+  const strongestTopic = topicEntries.length ? topicEntries.reduce((best, curr) => {
+    const avg = curr[1].total / curr[1].count;
+    return avg > best.avg ? { name: curr[0], avg } : best;
+  }, { name: "N/A", avg: 0 }) : { name: "N/A", avg: 0 };
+
+  const weakTopic = topicEntries.length ? topicEntries.reduce((worst, curr) => {
+    const avg = curr[1].total / curr[1].count;
+    return avg < worst.avg ? { name: curr[0], avg } : worst;
+  }, { name: "N/A", avg: 101 }) : { name: topicEntries.length ? topicEntries[0][0] : "N/A", avg: 0 };
+
+  const Card = ({ title, value, sub, icon, color }) => (
+    <div style={{ background: "white", borderRadius: 20, padding: 20, border: "1.5px solid var(--border)", boxShadow: "var(--shadow-sm)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+        <span style={{ fontSize: 20 }}>{icon}</span>
+        <span style={{ fontSize: 13, fontWeight: 700, color: "#86868b", textTransform: "uppercase" }}>{title}</span>
+      </div>
+      <div style={{ fontSize: 28, fontWeight: 800, color: color || "#1d1d1f" }}>{value}</div>
+      <div style={{ fontSize: 12, color: "#86868b", marginTop: 4 }}>{sub}</div>
+    </div>
+  );
+
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 3000, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.5)", backdropFilter: "blur(12px)" }}>
+      <motion.div initial={{ opacity: 0, scale: 0.9, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+        style={{ width: "95%", maxWidth: 880, maxHeight: "90vh", background: "#f5f5f7", borderRadius: 32, overflow: "hidden", position: "relative", boxShadow: "0 40px 120px rgba(0,0,0,0.4)" }}>
+        <div style={{ padding: "32px 40px", background: "white", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <h2 style={{ fontSize: 28, fontWeight: 800, letterSpacing: -1 }}>Efficiency & Performance Report</h2>
+            <p style={{ color: "#86868b", fontSize: 14 }}>Real-time analysis of your DSA journey</p>
+          </div>
+          <button onClick={onClose} style={{ width: 44, height: 44, borderRadius: "50%", background: "#f5f5f7", fontSize: 22, color: "#424245", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", transition: "all 0.2s" }}>×</button>
+        </div>
+        <div style={{ padding: 40, overflowY: "auto", maxHeight: "calc(90vh - 110px)" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 20 }}>
+            <Card title="Consistency Score" value={`${consistency}%`} sub={`Practiced ${last30Days} days this month`} icon="📅" color="#0071e3" />
+            <Card title="Improvement Tracker" value={`${improvement >= 0 ? "+" : ""}${improvement}%`} sub={`Vs previous month accuracy`} icon="📈" color={improvement >= 0 ? "#34c759" : "#ff3b30"} />
+            <Card title="Solving Streak" value={`${streak} Days`} sub="Keep the momentum going!" icon="🔥" color="#ff9500" />
+            <Card title="Avg Accuracy" value={`${sessions.length ? Math.round(sessions.reduce((a, b) => a + (b.score || 0), 0) / sessions.length) : 0}%`} sub="Overall performance" icon="🎯" color="#af52de" />
+            <Card title="Strongest Topic" value={strongestTopic.name} sub={`${Math.round(strongestTopic.avg)}% average score`} icon="🏆" color="#34c759" />
+            <Card title="Improvement Area" value={weakTopic.name} sub="Needs more practice" icon="⚠️" color="#ff3b30" />
+          </div>
+          <div style={{ marginTop: 32, background: "white", borderRadius: 24, padding: 32, border: "1.5px solid var(--border)" }}>
+            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 20 }}>📊 Difficulty Learning Curve</div>
+            <div style={{ display: "flex", alignItems: "flex-end", gap: 12, height: 180, padding: "20px 0" }}>
+              {["Beginner", "Intermediate", "Advanced"].map(lvl => {
+                const count = difficultyMap[lvl] || 0;
+                const max = Math.max(...Object.values(difficultyMap), 1);
+                const h = (count / max) * 140;
+                return (
+                  <div key={lvl} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: lvl === "Beginner" ? "#34c759" : lvl === "Intermediate" ? "#ff9500" : "#ff3b30" }}>{count}</div>
+                    <motion.div initial={{ height: 0 }} animate={{ height: h + 10 }} style={{ width: "100%", maxWidth: 64, background: `linear-gradient(180deg, ${lvl === "Beginner" ? "#34c759" : lvl === "Intermediate" ? "#ff9500" : "#ff3b30"}, ${lvl === "Beginner" ? "#34c75988" : lvl === "Intermediate" ? "#ff950088" : "#ff3b3088"})`, borderRadius: "12px 12px 4px 4px" }} />
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "#1d1d1f" }}>{lvl}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+const CodeArenaTab = ({ logSession }) => {
   const [progress, saveProgress] = useProgress();
   const [selMod, setSelMod] = useState("Stack");
   const [selLevel, setSelLevel] = useState("Beginner");
   const [selChallenge, setSelChallenge] = useState(null);
   const challenges = CODING_CHALLENGES[selMod]?.[selLevel] || [];
-  if (selChallenge) return <CodeEditor challenge={selChallenge} progress={progress} saveProgress={saveProgress} module={selMod} onBack={() => setSelChallenge(null)} />;
+  if (selChallenge) return <CodeEditor challenge={selChallenge} progress={progress} saveProgress={saveProgress} module={selMod} onBack={() => setSelChallenge(null)} logSession={logSession} />;
   const color = MOD_COLORS[selMod];
   return (
     <div>
@@ -1587,7 +1736,7 @@ const CodeArenaTab = () => {
   );
 };
 
-const CodeEditor = ({ challenge, progress, saveProgress, module: mod, onBack }) => {
+const CodeEditor = ({ challenge, progress, saveProgress, module: mod, onBack, logSession }) => {
   const [code, setCode] = useState(challenge.starter);
   const [analysis, setAnalysis] = useState(null);
   const [tab, setTab] = useState("editor");
@@ -1634,7 +1783,10 @@ const CodeEditor = ({ challenge, progress, saveProgress, module: mod, onBack }) 
               ↺ Reset
             </motion.button>
             {!isSolved && (
-              <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => saveProgress(key, "solved")}
+              <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => {
+                saveProgress(key, "solved");
+                logSession({ type: "code", topic: mod, score: 100, difficulty: challenge.level, id: challenge.id });
+              }}
                 style={{ padding: "10px 22px", fontSize: 13, fontWeight: 600, background: "#34c75918", color: "#34c759", border: "1.5px solid #34c75944", borderRadius: 12, cursor: "pointer" }}>
                 ✓ Mark as Solved
               </motion.button>
