@@ -490,6 +490,76 @@ const INTERVIEW_DATA = {
     { q: "What is the maximum number of swaps Bubble Sort can make?", a: "Maximum swaps = maximum inversions = n(n-1)/2. This occurs when the array is reverse-sorted. For n=5: [5,4,3,2,1] needs 10 swaps. Formula: n*(n-1)/2. This is also the sum of arithmetic series 0+1+2+...+(n-1).", company: "Amazon", difficulty: "Medium" },
     { q: "When would you actually choose Bubble Sort in real code?", a: "Almost never for production. Legitimate uses: educational demonstration, detecting if an array is sorted (optimized version, O(n)), sorting arrays of exactly 2-3 elements where overhead doesn't matter, or code golf. For any n>100, use better algorithms.", company: "Microsoft", difficulty: "Easy" },
   ],
+  "Arrays": [
+    { q: "What is an Array and how is it stored in memory?", a: "An array is a collection of elements of same type stored in contiguous memory locations. It allows random access to elements using an index. The memory address of arr[i] is calculated as: BaseAddress + (index * SizeOfElement).", company: "Infosys", difficulty: "Easy" },
+    { q: "What is the time complexity of accessing, searching, inserting, and deleting in an array?", a: "Access: O(1). Search: O(n) for unsorted, O(log n) for sorted. Insertion: O(n) (shifting required). Deletion: O(n) (shifting required).", company: "TCS", difficulty: "Easy" },
+    { q: "What is the difference between static and dynamic arrays?", a: "Static arrays have a fixed size determined at compile time. Dynamic arrays (like ArrayList in Java or vector in C++) can grow in size; when they fill up, a new larger array is allocated and elements are copied. Growing takes O(n) but is amortized O(1).", company: "Amazon", difficulty: "Medium" },
+    { q: "How do you find the second largest element in an array in one pass?", a: "Initialize 'first' and 'second' to smallest possible value. Iterate through array: if current > first, update second = first and first = current. Else if current > second, update second = current. O(n) time, O(1) space.", company: "Microsoft", difficulty: "Easy" },
+    { q: "Explain the concept of 'prefix sum' array.", a: "A prefix sum array P of array A is where P[i] = A[0] + A[1] + ... + A[i]. It allows O(1) range sum queries: Sum(i, j) = P[j] - P[i-1]. Preprocessing takes O(n).", company: "Google", difficulty: "Medium" },
+  ],
+  "Strings": [
+    { q: "What is the difference between String, StringBuilder, and StringBuffer in Java?", a: "String is immutable. StringBuilder is mutable but not thread-safe (faster). StringBuffer is mutable and thread-safe (synchronized, slower).", company: "Infosys", difficulty: "Easy" },
+    { q: "How do you check if two strings are anagrams?", a: "Option 1: Sort both strings and compare (O(n log n)). Option 2: Use a frequency array of size 256 (or 26) to count characters (O(n)).", company: "Amazon", difficulty: "Medium" },
+    { q: "What is string interning?", a: "String interning is a method of storing only one copy of each distinct string value, which must be immutable. All interned strings are stored in a pool managed by the JVM.", company: "Microsoft", difficulty: "Medium" },
+  ],
+  "Linked Lists": [
+    { q: "What is a Linked List and how does it differ from an Array?", a: "Linked List is a linear data structure where elements are not stored in contiguous memory. Each element (node) contains a data part and a pointer to the next node. Unlike arrays, linked lists have dynamic size and O(1) insertion/deletion at a known position.", company: "TCS", difficulty: "Easy" },
+    { q: "How do you detect a cycle in a linked list?", a: "Use Floyd’s Cycle-Finding Algorithm (Two Pointers: Slow and Fast). If they meet, there is a cycle.", company: "Google", difficulty: "Medium" },
+    { q: "How do you reverse a linked list?", a: "Use three pointers: prev (null), curr (head), and next. Iterate: next = curr.next; curr.next = prev; prev = curr; curr = next. Finally, head = prev.", company: "Amazon", difficulty: "Medium" },
+  ],
+  "Recursion": [
+    { q: "What is Recursion?", a: "Recursion is a process in which a function calls itself directly or indirectly. It requires a Base Case to stop and a Recursive Step to move towards the base case.", company: "TCS", difficulty: "Easy" },
+    { q: "What is tail recursion?", a: "Tail recursion is a special case where the recursive call is the last action in the function. Some compilers can optimize this to prevent stack overflow (tail call optimization).", company: "Google", difficulty: "Medium" },
+  ],
+  "Backtracking": [
+    { q: "What is Backtracking?", a: "Backtracking is an algorithmic technique that considers all possible solutions and discards those that do not satisfy the constraints. It often uses recursion to explore the search space.", company: "Amazon", difficulty: "Medium" },
+    { q: "How is backtracking different from brute force?", a: "While both explore many options, backtracking 'prunes' branches that are guaranteed not to lead to a solution, saving time.", company: "Microsoft", difficulty: "Medium" },
+  ],
+  "Trees": [
+    { q: "What is a Tree data structure?", a: "A tree is a non-linear data structure that represents a hierarchical relationship between nodes. It consists of a root node and children nodes, with no cycles.", company: "Infosys", difficulty: "Easy" },
+    { q: "Explain Tree Traversal techniques.", a: "In-order (Left, Root, Right), Pre-order (Root, Left, Right), and Post-order (Left, Right, Root). Also Level-order (BFS).", company: "Meta", difficulty: "Medium" },
+  ],
+  "Binary Search Trees": [
+    { q: "What is a Binary Search Tree (BST)?", a: "A BST is a binary tree where the left child's value < parent's value, and the right child's value > parent's value. This property must hold for all subtrees.", company: "TCS", difficulty: "Easy" },
+    { q: "What is the time complexity of searching in a BST?", a: "Best/Average: O(log n). Worst (skewed tree): O(n). To avoid worst case, use self-balancing BSTs (AVL, Red-Black Trees).", company: "Infosys", difficulty: "Easy" },
+  ],
+  "Heap / Priority Queue": [
+    { q: "What is a Heap?", a: "A Heap is a complete binary tree that satisfies the heap property: in a Max-Heap, parent node is >= children; in a Min-Heap, parent node is <= children.", company: "Amazon", difficulty: "Medium" },
+    { q: "How is a heap represented in an array?", a: "For a node at index i: Left child: 2i + 1, Right child: 2i + 2, Parent: floor((i-1)/2).", company: "Microsoft", difficulty: "Medium" },
+  ],
+  "Hashing": [
+    { q: "What is Hashing?", a: "Hashing is a process of mapping data of arbitrary size to fixed-size values (hash codes) using a hash function. It allows constant time O(1) average lookup.", company: "Google", difficulty: "Easy" },
+    { q: "Explain Collision Handling in HashTables.", a: "Collisions occur when two keys hash to the same index. Techniques include Chaining (linked lists at indices) and Open Addressing (Linear Probing, Quadratic Probing, Double Hashing).", company: "Amazon", difficulty: "Medium" },
+  ],
+  "Graphs": [
+    { q: "What is a Graph?", a: "A Graph is a set of vertices (nodes) and edges that connect them. It can be Directed or Undirected, Weighted or Unweighted.", company: "TCS", difficulty: "Easy" },
+    { q: "What is the difference between BFS and DFS traversal?", a: "BFS uses a Queue and explores level-by-level (finds shortest path in unweighted graphs). DFS uses a Stack/Recursion and goes as deep as possible.", company: "Google", difficulty: "Medium" },
+  ],
+  "Greedy Algorithms": [
+    { q: "What is a Greedy Algorithm?", a: "An algorithm that makes the locally optimal choice at each step with the hope of finding a global optimum. Examples: Dijkstra's, Prim's, Fractional Knapsack.", company: "Microsoft", difficulty: "Medium" },
+  ],
+  "Dynamic Programming": [
+    { q: "What is Dynamic Programming (DP)?", a: "An optimization technique that solves complex problems by breaking them into overlapping subproblems and storing their results (Memoization or Tabulation).", company: "Meta", difficulty: "Medium" },
+    { q: "Explain Memoization vs Tabulation.", a: "Memoization is Top-Down (recursive + hash/cache). Tabulation is Bottom-Up (iterative + table).", company: "Amazon", difficulty: "Medium" },
+  ],
+  "Bit Manipulation": [
+    { q: "What is Bit Manipulation?", a: "The act of algorithmically manipulating bits or other pieces of data shorter than a word. Common operations: AND (&), OR (|), XOR (^), NOT (~), Left Shift (<<), Right Shift (>>).", company: "Microsoft", difficulty: "Easy" },
+    { q: "How do you check if a number is a power of 2?", a: "If (n > 0 && (n & (n - 1)) == 0), then n is a power of 2.", company: "Google", difficulty: "Easy" },
+  ],
+  "Tries": [
+    { q: "What is a Trie (Prefix Tree)?", a: "A retrieval tree data structure used for efficient prefix-based searching of strings. Each node represents a character of a string.", company: "Amazon", difficulty: "Medium" },
+  ],
+  "Segment Trees": [
+    { q: "What is a Segment Tree?", a: "A tree data structure used for storing information about intervals or segments. It allows querying and updating in O(log n) time.", company: "Google", difficulty: "Hard" },
+  ],
+  "Disjoint Set (Union Find)": [
+    { q: "What is Union-Find?", a: "A data structure that tracks a set of elements partitioned into several disjoint subsets. Primary operations: Find (find root of set) and Union (merge two sets).", company: "Meta", difficulty: "Medium" },
+    { q: "Explain Path Compression and Union by Rank.", a: "Path Compression flattens the tree during Find. Union by Rank always attaches the smaller tree under the taller tree. Together, they make operations nearly O(1).", company: "Google", difficulty: "Medium" },
+  ],
+  "Advanced Graph Algorithms": [
+    { q: "Explain Dijkstra's Algorithm.", a: "Finds the shortest path from a source to all other nodes in a weighted graph (no negative weights). USes a PriorityQueue. O((V+E) log V).", company: "Amazon", difficulty: "Hard" },
+    { q: "What is Bellman-Ford used for?", a: "Shortest paths for graphs with negative weights. Also detects negative cycles. Time O(VE).", company: "Microsoft", difficulty: "Hard" },
+  ],
 };
 
 /* ============================================================
@@ -564,6 +634,141 @@ const CODING_CHALLENGES = {
       { id: "ba3", title: "Find Kth Largest Element", company: "Meta", desc: "Find the kth largest element using QuickSelect for O(n) average time.", starter: `public int findKthLargest(int[] nums, int k) { }`, solution: `public int findKthLargest(int[]nums,int k){return quickSelect(nums,0,nums.length-1,nums.length-k);}\nprivate int quickSelect(int[]arr,int lo,int hi,int target){int pivot=arr[hi],i=lo-1;for(int j=lo;j<hi;j++)if(arr[j]<=pivot){i++;int t=arr[i];arr[i]=arr[j];arr[j]=t;}i++;int t=arr[i];arr[i]=arr[hi];arr[hi]=t;if(i==target)return arr[i];return i<target?quickSelect(arr,i+1,hi,target):quickSelect(arr,lo,i-1,target);}`, testCases: `[3,2,1,5,6,4],k=2 → 5` },
     ],
   },
+  "Arrays": {
+    "Beginner": [
+      { id: "ar1", title: "Find Maximum Element", company: "TCS", desc: "Scan the array and return the largest value.", starter: `public int findMax(int[] arr) { }`, solution: `public int findMax(int[] arr) {\n    int max = arr[0];\n    for(int i=1; i<arr.length; i++) if(arr[i] > max) max = arr[i];\n    return max;\n}`, testCases: `[1, 5, 3, 9, 2] → 9` },
+      { id: "ar2", title: "Reverse an Array", company: "Infosys", desc: "Reverse the elements in-place.", starter: `public void reverse(int[] arr) { }`, solution: `public void reverse(int[] arr) {\n    int i=0, j=arr.length-1;\n    while(i < j) {\n        int temp = arr[i]; arr[i] = arr[j]; arr[j] = temp;\n        i++; j--;\n    }\n}`, testCases: `[1, 2, 3, 4] → [4, 3, 2, 1]` },
+    ],
+    "Intermediate": [
+      { id: "ari1", title: "Find Missing Number", company: "Amazon", desc: "Given an array of size n containing numbers from 1 to n+1 with one missing, find it.", starter: `public int findMissing(int[] arr, int n) { }`, solution: `public int findMissing(int[] arr, int n) {\n    int total = (n + 1) * (n + 2) / 2;\n    for(int x : arr) total -= x;\n    return total;\n}`, testCases: `[1, 2, 4, 5], n=4 → 3` },
+      { id: "ari2", title: "Rotate Array", company: "Microsoft", desc: "Rotate array k steps to the right.", starter: `public void rotate(int[] arr, int k) { }`, solution: `public void rotate(int[] arr, int k) {\n    k %= arr.length;\n    reverse(arr, 0, arr.length - 1);\n    reverse(arr, 0, k - 1);\n    reverse(arr, k, arr.length - 1);\n}\nprivate void reverse(int[] a, int i, int j) {\n    while(i < j) {\n        int t = a[i]; a[i++] = a[j]; a[j--] = t;\n    }\n}`, testCases: `[1,2,3,4,5], k=2 → [4,5,1,2,3]` },
+    ],
+    "Advanced": [
+      { id: "ara1", title: "Spiral Matrix", company: "Google", desc: "Print a 2D matrix in spiral order.", starter: `public List<Integer> spiralOrder(int[][] matrix) { }`, solution: `public List<Integer> spiralOrder(int[][] matrix) {\n    List<Integer> res = new ArrayList<>();\n    int r1=0, r2=matrix.length-1, c1=0, c2=matrix[0].length-1;\n    while(r1 <= r2 && c1 <= c2) {\n        for(int c=c1; c<=c2; c++) res.add(matrix[r1][c]);\n        for(int r=r1+1; r<=r2; r++) res.add(matrix[r][c2]);\n        if(r1 < r2 && c1 < c2) {\n            for(int c=c2-1; c>c1; c--) res.add(matrix[r2][c]);\n            for(int r=r2; r>r1; r--) res.add(matrix[r][c1]);\n        }\n        r1++; r2--; c1++; c2--;\n    }\n    return res;\n}`, testCases: `[[1,2,3],[4,5,6],[7,8,9]] → [1,2,3,6,9,8,7,4,5]` }
+    ]
+  },
+  "Strings": {
+    "Beginner": [
+      { id: "st1", title: "Reverse a String", company: "TCS", desc: "Reverse the given string.", starter: `public String reverse(String s) { }`, solution: `public String reverse(String s) {\n    return new StringBuilder(s).reverse().toString();\n}`, testCases: `"hello" → "olleh"` },
+      { id: "st2", title: "Palindrome Check", company: "Wipro", desc: "Check if string is palindrome.", starter: `public boolean isPalindrome(String s) { }`, solution: `public boolean isPalindrome(String s) {\n    int i=0, j=s.length()-1;\n    while(i < j) if(s.charAt(i++) != s.charAt(j--)) return false;\n    return true;\n}`, testCases: `"racecar" → true` },
+    ],
+    "Intermediate": [
+      { id: "sti1", title: "Longest Substring Without Repeating Characters", company: "Amazon", desc: "Find the length of the longest substring with all unique characters.", starter: `public int lengthOfLongestSubstring(String s) { }`, solution: `public int lengthOfLongestSubstring(String s) {\n    int[] map = new int[128];\n    int start=0, end=0, res=0;\n    while(end < s.length()) {\n        char c = s.charAt(end);\n        start = Math.max(start, map[c]);\n        res = Math.max(res, end - start + 1);\n        map[c] = end + 1;\n        end++;\n    }\n    return res;\n}`, testCases: `"abcabcbb" → 3` },
+    ],
+    "Advanced": [
+      { id: "sta1", title: "Edit Distance", company: "Microsoft", desc: "Find minimum operations to convert str1 to str2.", starter: `public int minDistance(String s1, String s2) { }`, solution: `// DP solution here`, testCases: `"horse", "ros" → 3` }
+    ]
+  },
+  "Linked Lists": {
+    "Beginner": [
+      { id: "ll1", title: "Insert at Head", company: "Infosys", desc: "Insert a new node at the beginning of the list.", starter: `public ListNode insertAtHead(ListNode head, int val) { }`, solution: `public ListNode insertAtHead(ListNode head, int val) {\n    ListNode newNode = new ListNode(val);\n    newNode.next = head;\n    return newNode;\n}`, testCases: `[1,2], val=0 → [0,1,2]` },
+    ],
+    "Intermediate": [
+      { id: "lli1", title: "Middle of the Linked List", company: "Google", desc: "Return the middle node of the list.", starter: `public ListNode middleNode(ListNode head) { }`, solution: `public ListNode middleNode(ListNode head) {\n    ListNode slow = head, fast = head;\n    while(fast != null && fast.next != null) {\n        slow = slow.next; fast = fast.next.next;\n    }\n    return slow;\n}`, testCases: `[1,2,3,4,5] → 3` },
+    ],
+    "Advanced": [
+      { id: "lla1", title: "Merge K Sorted Lists", company: "Meta", desc: "Merge k sorted linked lists using a PriorityQueue.", starter: `public ListNode mergeKLists(ListNode[] lists) { }`, solution: `// K-merge logic here`, testCases: `[[1,4,5],[1,3,4],[2,6]] → [1,1,2,3,4,4,5,6]` }
+    ]
+  },
+  "Recursion": {
+    "Beginner": [
+      { id: "re1", title: "Factorial", company: "TCS", desc: "Find factorial of n recursively.", starter: `public int fact(int n) { }`, solution: `public int fact(int n) {\n    if(n <= 1) return 1;\n    return n * fact(n-1);\n}`, testCases: `5 → 120` },
+      { id: "re2", title: "Fibonacci Number", company: "Wipro", desc: "Find nth Fibonacci number.", starter: `public int fib(int n) { }`, solution: `public int fib(int n) {\n    if(n <= 1) return n;\n    return fib(n-1) + fib(n-2);\n}`, testCases: `6 → 8` },
+    ],
+    "Intermediate": [],
+    "Advanced": []
+  },
+  "Backtracking": {
+    "Beginner": [],
+    "Intermediate": [
+      { id: "bt1", title: "N-Queens Problem", company: "Amazon", desc: "Find one valid placement of N queens on an NxN board.", starter: `// N-Queens logic here`, solution: `// Logic here`, testCases: `4 → [[".Q..","...Q","Q...","..Q."],["..Q.","Q...","...Q",".Q.."]]` },
+    ],
+    "Advanced": []
+  },
+  "Trees": {
+    "Beginner": [
+      { id: "tr1", title: "Max Depth of Tree", company: "Google", desc: "Find the maximum depth of a binary tree.", starter: `public int maxDepth(TreeNode root) { }`, solution: `public int maxDepth(TreeNode root) {\n    if(root == null) return 0;\n    return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));\n}`, testCases: `[3,9,20,null,null,15,7] → 3` },
+    ],
+    "Intermediate": [],
+    "Advanced": []
+  },
+  "Binary Search Trees": {
+    "Beginner": [
+      { id: "bst1", title: "Search in BST", company: "Infosys", desc: "Check if a value exists in a BST.", starter: `public boolean search(TreeNode root, int val) { }`, solution: `public boolean search(TreeNode root, int val) {\n    if(root == null) return false;\n    if(root.val == val) return true;\n    return val < root.val ? search(root.left, val) : search(root.right, val);\n}`, testCases: `tree:[4,2,7,1,3], val=2 → true` },
+    ],
+    "Intermediate": [],
+    "Advanced": []
+  },
+  "Heap / Priority Queue": {
+    "Beginner": [
+      { id: "hp1", title: "Kth Largest in Stream", company: "Amazon", desc: "Design a class to find the kth largest element in a stream.", starter: `// Class definition here`, solution: `// PriorityQueue(k) logic`, testCases: `add: 4, 5, 8, 2 -> 4th largest: 2` },
+    ],
+    "Intermediate": [],
+    "Advanced": []
+  },
+  "Hashing": {
+    "Beginner": [
+      { id: "hs1", title: "Two Sum", company: "Google", desc: "Find two numbers that add up up to a target using Hashing.", starter: `public int[] twoSum(int[] nums, int target) { }`, solution: `public int[] twoSum(int[] nums, int target) {\n    Map<Integer, Integer> map = new HashMap<>();\n    for(int i=0; i<nums.length; i++) {\n        int comp = target - nums[i];\n        if(map.containsKey(comp)) return new int[]{map.get(comp), i};\n        map.put(nums[i], i);\n    }\n    return new int[0];\n}`, testCases: `[2,7,11,15], target=9 → [0,1]` },
+    ],
+    "Intermediate": [],
+    "Advanced": []
+  },
+  "Graphs": {
+    "Beginner": [
+      { id: "gr1", title: "BFS Implementation", company: "Amazon", desc: "Traverse a graph using Breadth First Search.", starter: `public void bfs(int start, List<List<Integer>> adj) { }`, solution: `// BFS queue logic`, testCases: `0 -> [[1,2],[0,2,3],[0,1],[1]] -> [0,1,2,3]` },
+    ],
+    "Intermediate": [],
+    "Advanced": []
+  },
+  "Greedy Algorithms": {
+    "Beginner": [
+      { id: "ga1", title: "Fractional Knapsack", company: "Infosys", desc: "Maximize value in fractional knapsack.", starter: `public double getMaxValue(Item[] items, int cap) { }`, solution: `// Greedy by density logic`, testCases: `val:[60,100,120], wt:[10,20,30], cap:50 → 240.0` },
+    ],
+    "Intermediate": [],
+    "Advanced": []
+  },
+  "Dynamic Programming": {
+    "Beginner": [
+      { id: "dp1", title: "Coin Change", company: "Google", desc: "Find min coins to make a sum.", starter: `public int coinChange(int[] coins, int amount) { }`, solution: `// DP coins logic`, testCases: `coins:[1,2,5], amt:11 → 3` },
+    ],
+    "Intermediate": [],
+    "Advanced": []
+  },
+  "Bit Manipulation": {
+    "Beginner": [
+      { id: "bm1", title: "Count Set Bits", company: "Infosys", desc: "Count the number of 1s in a binary representation.", starter: `public int countSetBits(int n) { }`, solution: `// Bit counting logic`, testCases: `7 → 3` },
+    ],
+    "Intermediate": [],
+    "Advanced": []
+  },
+  "Tries": {
+    "Beginner": [
+      { id: "ti1", title: "Insert and Search Trie", company: "Amazon", desc: "Implement insert, search, and startsWith in a Trie.", starter: `// Trie class here`, solution: `// Trie logic`, testCases: `insert 'apple', search 'apple' → true` },
+    ],
+    "Intermediate": [],
+    "Advanced": []
+  },
+  "Segment Trees": {
+    "Beginner": [],
+    "Intermediate": [],
+    "Advanced": [
+      { id: "st1", title: "Range Sum Query", company: "Google", desc: "Implement a segment tree for range sum queries and point updates.", starter: `// Segment Tree logic`, solution: `// Tree logic`, testCases: `range(1,3) → sum` },
+    ]
+  },
+  "Disjoint Set (Union Find)": {
+    "Beginner": [],
+    "Intermediate": [
+      { id: "uf1", title: "Number of Connected Components", company: "Meta", desc: "Find the number of connected components in an undirected graph.", starter: `public int countComponents(int n, int[][] edges) { }`, solution: `// DSU logic`, testCases: `5, [[0,1],[1,2],[3,4]] → 2` },
+    ],
+    "Advanced": []
+  },
+  "Advanced Graph Algorithms": {
+    "Beginner": [],
+    "Intermediate": [],
+    "Advanced": [
+      { id: "ag1", title: "Dijkstra Implementation", company: "Google", desc: "Find shortest path from source to all nodes.", starter: `public int[] dijkstra(int n, int[][] edges, int start) { }`, solution: `// Dijkstra logic`, testCases: `n=3, [[0,1,1],[1,2,1],[0,2,3]], start=0 → [0,1,2]` },
+    ]
+  },
 };
 
 /* ============================================================
@@ -593,9 +798,10 @@ function analyzeCode(code) {
 /* ============================================================
    CONSTANTS
 ============================================================ */
-const MOD_COLORS = { "Stack": "#0071e3", "Queue": "#34c759", "Linear Search": "#ff9500", "Bubble Sort": "#af52de" };
-const MOD_ICONS = { "Stack": "📚", "Queue": "🔄", "Linear Search": "🔍", "Bubble Sort": "🫧" };
-const MODULES = ["Stack", "Queue", "Linear Search", "Bubble Sort"];
+const MOD_COLORS = { "Stack": "#0071e3", "Queue": "#34c759", "Linear Search": "#ff9500", "Bubble Sort": "#af52de", "Arrays": "#007aff", "Strings": "#5856d6", "Linked Lists": "#ff2d55", "Recursion": "#ff6723", "Backtracking": "#a2845e", "Trees": "#28a745", "Binary Search Trees": "#00c7be", "Heap / Priority Queue": "#ff375f", "Hashing": "#5ac8fa", "Graphs": "#bf5af2", "Greedy Algorithms": "#e6a800", "Dynamic Programming": "#ff453a", "Bit Manipulation": "#30d158", "Tries": "#0a84ff", "Segment Trees": "#5e5ce6", "Disjoint Set (Union Find)": "#ff9f0a", "Advanced Graph Algorithms": "#eb4d3d" };
+const MOD_ICONS = { "Stack": "📚", "Queue": "🔄", "Linear Search": "🔍", "Bubble Sort": "🫧", "Arrays": "📦", "Strings": "🔤", "Linked Lists": "🔗", "Recursion": "🔁", "Backtracking": "↩️", "Trees": "🌳", "Binary Search Trees": "🌲", "Heap / Priority Queue": "⛰️", "Hashing": "🔐", "Graphs": "🕸️", "Greedy Algorithms": "💰", "Dynamic Programming": "🧩", "Bit Manipulation": "⚡", "Tries": "🔠", "Segment Trees": "📊", "Disjoint Set (Union Find)": "🔀", "Advanced Graph Algorithms": "🗺️" };
+const MOD_DESCS = { "Stack": "Last In, First Out", "Queue": "First In, First Out", "Linear Search": "Sequential scan", "Bubble Sort": "Comparison-based sort", "Arrays": "Contiguous memory storage", "Strings": "Character sequence operations", "Linked Lists": "Node-pointer chains", "Recursion": "Self-referencing functions", "Backtracking": "Explore & prune solutions", "Trees": "Hierarchical data structures", "Binary Search Trees": "Ordered binary trees", "Heap / Priority Queue": "Priority-based extraction", "Hashing": "Key-value fast lookup", "Graphs": "Nodes and edges", "Greedy Algorithms": "Locally optimal choices", "Dynamic Programming": "Overlapping subproblems", "Bit Manipulation": "Binary-level operations", "Tries": "Prefix tree structures", "Segment Trees": "Range query structures", "Disjoint Set (Union Find)": "Connected components", "Advanced Graph Algorithms": "Shortest paths & flows" };
+const MODULES = ["Stack", "Queue", "Linear Search", "Bubble Sort", "Arrays", "Strings", "Linked Lists", "Recursion", "Backtracking", "Trees", "Binary Search Trees", "Heap / Priority Queue", "Hashing", "Graphs", "Greedy Algorithms", "Dynamic Programming", "Bit Manipulation", "Tries", "Segment Trees", "Disjoint Set (Union Find)", "Advanced Graph Algorithms"];
 const LEVELS = ["Beginner", "Intermediate", "Advanced"];
 
 /* ============================================================
@@ -782,13 +988,19 @@ export const HomeScreen = ({ onEnter, user, onLogout }) => {
               </motion.button>
               <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
                 style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 60, flexWrap: "wrap" }}>
-                {MODULES.map((m, i) => (
+                {MODULES.slice(0, 8).map((m, i) => (
                   <motion.div key={m} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.45 + i * 0.07 }}
                     style={{ background: "white", border: "1.5px solid var(--border)", borderRadius: 16, padding: "14px 20px", display: "flex", alignItems: "center", gap: 10, boxShadow: "var(--shadow-sm)" }}>
                     <span style={{ fontSize: 18 }}>{MOD_ICONS[m]}</span>
-                    <div><div style={{ fontSize: 13, fontWeight: 600, color: "#1d1d1f" }}>{m}</div><div style={{ fontSize: 11, color: "#86868b" }}>20 Q&A • 9 Problems</div></div>
+                    <div><div style={{ fontSize: 13, fontWeight: 600, color: "#1d1d1f" }}>{m}</div><div style={{ fontSize: 11, color: "#86868b" }}>{(INTERVIEW_DATA[m] || []).length} Q&A • {Object.values(CODING_CHALLENGES[m] || {}).flat().length} Problems</div></div>
                   </motion.div>
                 ))}
+                <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.45 + 8 * 0.07 }}
+                  style={{ background: "#0071e3", borderRadius: 16, padding: "14px 20px", display: "flex", alignItems: "center", gap: 8, boxShadow: "var(--shadow-blue)", cursor: "pointer" }}
+                  onClick={onEnter}>
+                  <span style={{ fontSize: 22, fontWeight: 700, color: "white" }}>+{MODULES.length - 8}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.8)" }}>more<br />modules</span>
+                </motion.div>
               </motion.div>
             </motion.div>
           )}
@@ -876,9 +1088,12 @@ const LearnTab = ({ level, setLevel, onSelectModule, progress }) => (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(320px,1fr))", gap: 16 }}>
       {MODULES.map((mod, i) => {
         const color = MOD_COLORS[mod];
+        const qaTotal = (INTERVIEW_DATA[mod] || []).length;
+        const codeTotal = Object.values(CODING_CHALLENGES[mod] || {}).flat().length;
         const done = Object.keys(progress).filter(k => k.startsWith(`interview_${mod}`)).length;
         const codeDone = Object.keys(progress).filter(k => k.startsWith(`code_${mod}`)).length;
-        const totalPct = Math.round(((done + codeDone) / 29) * 100);
+        const totalItems = qaTotal + codeTotal;
+        const totalPct = totalItems > 0 ? Math.round(((done + codeDone) / totalItems) * 100) : 0;
         return (
           <motion.button key={mod} initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07, ease: [0.22, 1, 0.36, 1] }}
             whileHover={{ scale: 1.02, y: -3, boxShadow: `0 16px 48px ${color}22` }} whileTap={{ scale: 0.98 }}
@@ -892,12 +1107,12 @@ const LearnTab = ({ level, setLevel, onSelectModule, progress }) => (
               </div>
               <div>
                 <div style={{ fontSize: 18, fontWeight: 700, color: "#1d1d1f", marginBottom: 2 }}>{mod}</div>
-                <div style={{ fontSize: 12, color: "#86868b" }}>{["Last In, First Out", "First In, First Out", "Sequential scan", "Comparison-based sort"][i]}</div>
+                <div style={{ fontSize: 12, color: "#86868b" }}>{MOD_DESCS[mod] || mod}</div>
               </div>
             </div>
             <div style={{ display: "flex", gap: 8, marginBottom: 14, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 11, fontWeight: 600, color, background: `${color}12`, padding: "3px 10px", borderRadius: 20 }}>🎤 {done}/20 Q&A</span>
-              <span style={{ fontSize: 11, fontWeight: 600, color: "#34c759", background: "#e8f9ee", padding: "3px 10px", borderRadius: 20 }}>💻 {codeDone}/9 Solved</span>
+              <span style={{ fontSize: 11, fontWeight: 600, color, background: `${color}12`, padding: "3px 10px", borderRadius: 20 }}>🎤 {done}/{qaTotal} Q&A</span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: "#34c759", background: "#e8f9ee", padding: "3px 10px", borderRadius: 20 }}>💻 {codeDone}/{codeTotal} Solved</span>
               {totalPct === 100 && <span style={{ fontSize: 11, fontWeight: 600, color: "#ff9500", background: "#fff4e6", padding: "3px 10px", borderRadius: 20 }}>🏆 Complete</span>}
             </div>
             <div style={{ height: 5, background: "#f5f5f7", borderRadius: 4, overflow: "hidden", marginBottom: 12 }}>
@@ -1570,14 +1785,25 @@ const ProgramPanel = ({ data, module: mod, color }) => {
 /* ============================================================
    VISUALIZERS
 ============================================================ */
-const VisualPanel = ({ module: mod, color }) => (
-  <div style={{ background: "white", border: "1.5px solid var(--border)", borderRadius: 20, padding: 36, boxShadow: "var(--shadow)" }}>
-    {mod === "Stack" && <StackVisual color={color} />}
-    {mod === "Queue" && <QueueVisual color={color} />}
-    {mod === "Linear Search" && <LinearSearchVisual color={color} />}
-    {mod === "Bubble Sort" && <BubbleSortVisual color={color} />}
-  </div>
-);
+const VisualPanel = ({ module: mod, color }) => {
+  const hasViz = ["Stack", "Queue", "Linear Search", "Bubble Sort"].includes(mod);
+  return (
+    <div style={{ background: "white", border: "1.5px solid var(--border)", borderRadius: 20, padding: 36, boxShadow: "var(--shadow)", minHeight: 400, display: "flex", flexDirection: "column", justifyContent: hasViz ? "flex-start" : "center", alignItems: hasViz ? "stretch" : "center", textAlign: "center" }}>
+      {mod === "Stack" && <StackVisual color={color} />}
+      {mod === "Queue" && <QueueVisual color={color} />}
+      {mod === "Linear Search" && <LinearSearchVisual color={color} />}
+      {mod === "Bubble Sort" && <BubbleSortVisual color={color} />}
+      {!hasViz && (
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
+          <div style={{ fontSize: 64, marginBottom: 20 }}>🎬</div>
+          <h3 style={{ fontSize: 24, fontWeight: 700, color: "#1d1d1f", marginBottom: 8 }}>{mod} Visualizer</h3>
+          <p style={{ color: "#86868b", fontSize: 16, maxWidth: 400 }}>We're currently building a high-fidelity interactive simulator for this module. Stay tuned for the upcoming update!</p>
+          <div style={{ marginTop: 24, display: "inline-block", padding: "8px 20px", background: `${color}12`, color, borderRadius: 20, fontSize: 13, fontWeight: 600 }}>Feature Coming Soon</div>
+        </motion.div>
+      )}
+    </div>
+  );
+};
 
 const VizBtn = ({ onClick, children, color }) => (
   <motion.button whileHover={{ scale: 1.04, y: -1 }} whileTap={{ scale: 0.96 }} onClick={onClick}
@@ -1861,6 +2087,247 @@ const LOCAL_MODULE_DATA = {
       applications: "General purpose sorting, streaming kth-largest, nearly-sorted optimization, database index sorting, in-place sorting.",
       interview_notes: "QuickSort worst O(n²) on sorted input — use random pivot or median-of-three. QuickSelect is O(n) average. K-sorted heap is O(n log k) — much better than O(n log n) when k is small.",
       java: `import java.util.*;\n\npublic class AdvancedBubbleSort {\n    public static void quickSort(int[] arr, int lo, int hi) {\n        if (lo<hi) { int pi=partition(arr,lo,hi); quickSort(arr,lo,pi-1); quickSort(arr,pi+1,hi); }\n    }\n    private static int partition(int[] arr, int lo, int hi) {\n        int pivot=arr[hi],i=lo-1;\n        for(int j=lo;j<hi;j++) if(arr[j]<=pivot){i++;int t=arr[i];arr[i]=arr[j];arr[j]=t;}\n        int t=arr[i+1];arr[i+1]=arr[hi];arr[hi]=t; return i+1;\n    }\n    public static int findKthLargest(int[] nums, int k) {\n        return qs(nums,0,nums.length-1,nums.length-k);\n    }\n    private static int qs(int[] a,int lo,int hi,int tgt) {\n        int i=partition(a,lo,hi);\n        if(i==tgt) return a[i];\n        return i<tgt?qs(a,i+1,hi,tgt):qs(a,lo,i-1,tgt);\n    }\n    public static void main(String[] args) {\n        int[] arr={5,3,8,4,2,7,1}; quickSort(arr,0,arr.length-1);\n        System.out.println(Arrays.toString(arr));\n        System.out.println(findKthLargest(new int[]{3,2,1,5,6,4},2)); // 5\n    }\n}`
+    }
+  },
+  "Arrays": {
+    "Beginner": {
+      definition: "An Array is a collection of items stored at contiguous memory locations. It is the most fundamental data structure.",
+      working: "Elements are accessed using an index starting from 0. The memory address is calculated based on base address and offset.",
+      algorithm: "ACCESS: address = base + index * size\nSEARCH: iterate from 0 to n-1",
+      time_complexity: { "Access": "O(1)", "Search": "O(n)", "Insertion": "O(n)", "Deletion": "O(n)" },
+      applications: "Storing lists of items, base for other structures like Stacks and Heaps.",
+      interview_notes: "Arrays are fixed size. Dynamic arrays grow exponentially.",
+      java: `public class ArrayDemo {\n    public static void main(String[] args) {\n        int[] arr = {1, 2, 3};\n        System.out.println(arr[1]); // 2\n    }\n}`
+    },
+    "Intermediate": {
+      definition: "Intermediate array concepts include 2D arrays, matrix operations, and prefix sums.",
+      working: "2D arrays are arrays of arrays. Prefix sums precompute range totals.",
+      algorithm: "RANGE_SUM(i, j) = P[j] - P[i-1]",
+      time_complexity: { "Sum Query": "O(1)", "Precomputation": "O(n)" },
+      applications: "Image processing, financial data range queries.",
+      interview_notes: "Always check for array out of bounds.",
+      java: `int[] p = new int[n];\np[0] = a[0];\nfor(int i=1; i<n; i++) p[i] = p[i-1] + a[i];`
+    },
+    "Advanced": {
+      definition: "Advanced array problems involve multi-dimensional DP, sliding windows, and complex traversals.",
+      working: "Solving problems like Trapping Rain Water or Maximum Sliding Window.",
+      algorithm: "SLIDING_WINDOW_MAX using Deque",
+      time_complexity: { "Sliding Window": "O(n)" },
+      applications: "Stream processing, game engines.",
+      interview_notes: "Use two pointers or sliding windows to reduce O(n²) to O(n).",
+      java: `// Complex array logic here`
+    }
+  },
+  "Strings": {
+    "Beginner": {
+      definition: "A String is a sequence of characters. In many languages like Java, Strings are immutable.",
+      working: "Strings are often stored in a special pool to save memory.",
+      algorithm: "CONCATENATION: s1 + s2\nLENGTH: s.length()",
+      time_complexity: { "Access": "O(1)", "Comparison": "O(n)", "Search": "O(n)" },
+      applications: "Text processing, input validation, web development.",
+      interview_notes: "Always mention String pool and immutability.",
+      java: `String s = "Hello";\ns = s + " World"; // Creates new object`
+    },
+    "Intermediate": {
+      definition: "Intermediate topics include pattern matching, rolling hashes, and sliding windows on strings.",
+      working: "KMP algorithm for pattern matching avoids redundant comparisons.",
+      algorithm: "KMP: build LPS array, then scan",
+      time_complexity: { "Pattern Match": "O(N+M)" },
+      applications: "Search engines, bioinformatics.",
+      interview_notes: "Sliding window is the go-to pattern for substring problems.",
+      java: `StringBuilder sb = new StringBuilder();`
+    },
+    "Advanced": {
+      definition: "Advanced topics include Tries, Suffix Trees, and Dynamic Programming on strings.",
+      working: "DP is used for Longest Common Subsequence or Edit Distance.",
+      algorithm: "LCS DP Table: if(s1[i]==s2[j]) T[i][j] = 1 + T[i-1][j-1]",
+      time_complexity: { "LCS": "O(nm)" },
+      applications: "Differencing tools (git diff), spell checkers.",
+      interview_notes: "Suffix structures are powerful for sub-problem matching.",
+      java: `// Advanced DP logic`
+    }
+  },
+  "Linked Lists": {
+    "Beginner": {
+      definition: "A Linked List is a dynamic data structure where nodes are connected via pointers.",
+      working: "Each node has 'data' and 'next'. Deletion/Insertion doesn't require shifting elements.",
+      algorithm: "TRAVERSE: while(curr != null) curr = curr.next",
+      time_complexity: { "Access": "O(n)", "Search": "O(n)", "Insert": "O(1)", "Delete": "O(1)" },
+      applications: "Implementing Stacks and Queues, undo functionality.",
+      interview_notes: "Always handle the case where head is null.",
+      java: `class Node {\n    int val; Node next;\n}`
+    },
+    "Intermediate": {
+      definition: "Intermediate concepts include Doubly Linked Lists, Circular Lists, and Tortoise & Hare algorithms.",
+      working: "Fast and slow pointers help in detecting cycles and finding the middle element.",
+      algorithm: "FAST_SLOW: fast = fast.next.next; slow = slow.next;",
+      time_complexity: { "Cycle Detection": "O(n)" },
+      applications: "Music playlists, browser cache (LRU).",
+      interview_notes: "Practice reversing a list locally as it's the most common question.",
+      java: `// DLL logic: node.prev = prevNode;`
+    },
+    "Advanced": {
+      definition: "Advanced topics include Flattening lists, Cloning lists with random pointers, and merging K lists.",
+      working: "Using Heaps to merge or keeping track of visited nodes using a Map for cloning.",
+      algorithm: "K-MERGE: PriorityQueue stores head of K lists.",
+      time_complexity: { "K-Merge": "O(N log K)" },
+      applications: "Memory management, complex navigation systems.",
+      interview_notes: "Corner cases: single node list, even/odd length lists.",
+      java: `// Advanced list manipulation`
+    }
+  },
+  "Recursion": {
+    "Beginner": {
+      definition: "Recursion is a technique where a function calls itself to solve smaller sub-problems.",
+      working: "Each call adds a frame to the Stack. The stack is popped when a base case is reached.",
+      algorithm: "solve(n) { if(base) return; solve(n-1); }",
+      time_complexity: { "Fact": "O(n)", "Fib": "O(2^n)" },
+      applications: "Mathematical computations, Tree traversals.",
+      interview_notes: "Always define the base case first to avoid stack overflow.",
+      java: `int f(int n) { return n<=1 ? 1 : n*f(n-1); }`
+    }
+  },
+  "Backtracking": {
+    "Beginner": {
+      definition: "Backtracking builds candidates incrementally and abandons them if they can't lead to a valid solution.",
+      working: "It uses recursion and state management (choose, explore, un-choose).",
+      algorithm: "void solve() { if(found) return; for(choice) { make(choice); solve(); undo(choice); } }",
+      time_complexity: { "N-Queens": "O(N!)" },
+      applications: "Solving Sudoku, N-Queens, generating permutations.",
+      interview_notes: "Crucial step is 'undoing' the choice (backtrack).",
+      java: `// backtrace logic`
+    }
+  },
+  "Trees": {
+    "Beginner": {
+      definition: "A Tree is a non-linear data structure with a root and child nodes.",
+      working: "Nodes are linked via pointers. A Binary Tree has at most 2 children.",
+      algorithm: "DFS: recursive calls on left and right.",
+      time_complexity: { "Traverse": "O(n)", "Search": "O(h)" },
+      applications: "File systems, decision trees, DOM tree.",
+      interview_notes: "Height vs Depth: height is from leaf, depth is from root.",
+      java: `class Node { int v; Node l, r; }`
+    }
+  },
+  "Binary Search Trees": {
+    "Beginner": {
+      definition: "A BST is an ordered tree where left < parent < right.",
+      working: "Searching is similar to Binary Search on an array.",
+      algorithm: "In-order traversal of a BST gives elements in sorted order.",
+      time_complexity: { "Search": "O(log n)", "Insert": "O(log n)" },
+      applications: "Implementing Maps/Sets, databases.",
+      interview_notes: "Skewed BST is basically a Linked List.",
+      java: `void insert(int v) { // logic }`
+    }
+  },
+  "Heap / Priority Queue": {
+    "Beginner": {
+      definition: "A Heap is a complete tree with max/min child property.",
+      working: "Usually implemented using an array for space efficiency.",
+      algorithm: "HEAPIFY: move element up/down to restore property.",
+      time_complexity: { "Push": "O(log n)", "Pop": "O(log n)", "Peek": "O(1)" },
+      applications: "Dijkstra's Algo, Priority Scheduling, Heapsort.",
+      interview_notes: "PriorityQueue in Java is a Min-Heap by default.",
+      java: `PriorityQueue<Integer> pq = new PriorityQueue<>();`
+    }
+  },
+  "Hashing": {
+    "Beginner": {
+      definition: "Hashing provides fast lookups using hash functions.",
+      working: "A key is hashed to an index map[hash(key)] = value.",
+      algorithm: "h(k) = k % table_size (simple modulo).",
+      time_complexity: { "Search": "O(1) avg", "Insert": "O(1) avg" },
+      applications: "Database indexing, Caching, Sets.",
+      interview_notes: "O(n) worst case if many collisions occur.",
+      java: `HashMap<String, Integer> map = new HashMap<>();`
+    }
+  },
+  "Graphs": {
+    "Beginner": {
+      definition: "A Graph consists of vertices and edges.",
+      working: "Represented using Adjacency Matrix or Adjacency List.",
+      algorithm: "BFS: visit layer by layer using a Queue.",
+      time_complexity: { "BFS": "O(V+E)", "DFS": "O(V+E)" },
+      applications: "Social networks, Google Maps, Network routing.",
+      interview_notes: "Adjacency list is preferred for sparse graphs.",
+      java: `List<Integer>[] adj = new ArrayList[v];`
+    }
+  },
+  "Greedy Algorithms": {
+    "Beginner": {
+      definition: "Greedy algorithms pick the best local option.",
+      working: "Requires greedy choice property and optimal substructure.",
+      algorithm: "Sort by a criteria (like profit/weight ratio).",
+      time_complexity: { "Sort": "O(n log n)", "Scan": "O(n)" },
+      applications: "Huffman coding, Prim's algorithm.",
+      interview_notes: "Doesn't always yield global optimum.",
+      java: `Arrays.sort(items, (a, b) -> Double.compare(b.ratio, a.ratio));`
+    }
+  },
+  "Dynamic Programming": {
+    "Beginner": {
+      definition: "DP solves overlapping subproblems.",
+      working: "Avoids redundant work by storing sub-results.",
+      algorithm: "Define state, state transition, and base case.",
+      time_complexity: { "Knapsack": "O(nW)", "Fib": "O(n)" },
+      applications: "Optimization problems, sequence alignment.",
+      interview_notes: "Look for 'Minimum/Maximum' or 'Total ways' keywords.",
+      java: `int[] dp = new int[target + 1];`
+    }
+  },
+  "Bit Manipulation": {
+    "Beginner": {
+      definition: "Working with data at the bit level.",
+      working: "Bitwise operators like &, |, ^ are much faster than arithmetic.",
+      algorithm: "Bit Masking: use 1 << i to isolate the i-th bit.",
+      time_complexity: { "XOR": "O(1)", "Shift": "O(1)" },
+      applications: "Compression, Cryptography, Low-level optimization.",
+      interview_notes: "XOR of same numbers is 0. XOR with 0 is the number itself.",
+      java: `int x = a ^ b;`
+    }
+  },
+  "Tries": {
+    "Beginner": {
+      definition: "A Trie stores a re-accessible set of strings.",
+      working: "Common prefixes are shared among nodes, saving space.",
+      algorithm: "INSERT: traverse/create nodes for each character.",
+      time_complexity: { "Search": "O(L)", "Insert": "O(L)" },
+      applications: "Autocomplete, Spell checker, IP routing.",
+      interview_notes: "L is the length of the string, making it faster than hashing for prefix search.",
+      java: `class TrieNode { TrieNode[] children = new TrieNode[26]; boolean isEnd; }`
+    }
+  },
+  "Segment Trees": {
+    "Beginner": {
+      definition: "A Segment Tree facilitates range queries.",
+      working: "It's a full binary tree where each node represents an interval sum/min/max.",
+      algorithm: "QUERY: O(log n) by traversing tree levels.",
+      time_complexity: { "Query": "O(log n)", "Update": "O(log n)" },
+      applications: "Competitive programming, computational geometry.",
+      interview_notes: "Requires 4n space for n elements.",
+      java: `void build(int node, int start, int end) { // logic }`
+    }
+  },
+  "Disjoint Set (Union Find)": {
+    "Beginner": {
+      definition: "DSU manages elements into non-overlapping sets.",
+      working: "Each set is a tree identifying its parent. Root is the set representative.",
+      algorithm: "FIND(i) with Path Compression: parent[i] = find(parent[i]).",
+      time_complexity: { "Union": "O(α(n))", "Find": "O(α(n))" },
+      applications: "Kruskal's MST, detecting cycles in undirected graphs.",
+      interview_notes: "α(n) is the Inverse Ackermann function (extremely slow growth).",
+      java: `int find(int i) { if(p[i]==i) return i; return p[i]=find(p[i]); }`
+    }
+  },
+  "Advanced Graph Algorithms": {
+    "Beginner": {
+      definition: "Advanced algorithms for complex graph metrics.",
+      working: "Techniques like Greedy (Dijkstra) or Dynamic Programming (Floyd-Warshall).",
+      algorithm: "DIJKSTRA: pick min dist node and relax its edges.",
+      time_complexity: { "Dijkstra": "O(E log V)", "Kruskal": "O(E log E)" },
+      applications: "GPS Navigation, Network Reliability, Logistics.",
+      interview_notes: "Know when to use BFS (unweighted) vs Dijkstra (weighted).",
+      java: `// Advanced Graph logic`
     }
   }
 };
