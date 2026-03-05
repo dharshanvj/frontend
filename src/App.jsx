@@ -52,9 +52,6 @@ const supabase = {
 
 const SESSION_KEY = "fita_supabase_session";
 
-/* ============================================================
-   GLOBAL STYLES — Apple Design Language
-============================================================ */
 const GLOBAL_CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&family=DM+Mono:wght@400;500&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -877,84 +874,290 @@ const LearnTab = ({ level, setLevel, onSelectModule, progress }) => (
 );
 
 const InterviewTab = () => {
-  const [progress, saveProgress] = useProgress();
+  const timerRef = useRef(null);
+  const startTimeRef = useRef(null);
+  const [examState, setExamState] = useState("setup");
   const [selMod, setSelMod] = useState("Stack");
-  const [filter, setFilter] = useState("All");
-  const [revealed, setReveal] = useState({});
-  const questions = INTERVIEW_DATA[selMod] || [];
-  const filtered = filter === "All" ? questions : questions.filter(q => q.difficulty === filter);
-  const toggleReveal = (id) => setReveal(p => ({ ...p, [id]: !p[id] }));
-  const markAnswer = (id, correct) => saveProgress(`interview_${selMod}_${id}`, correct ? "correct" : "wrong");
-  return (
-    <div>
-      <div style={{ marginBottom: 28 }}>
-        <h2 style={{ fontSize: 32, fontWeight: 700, letterSpacing: -1, color: "#1d1d1f", marginBottom: 6 }}>Mock Interview</h2>
-        <p style={{ color: "#86868b", fontSize: 15 }}>20 MNC-sourced questions per module with real company tags</p>
-      </div>
-      <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
-        {MODULES.map(m => { const c = MOD_COLORS[m]; return <PillBtn key={m} active={selMod === m} onClick={() => { setSelMod(m); setReveal({}); }} color={c}>{MOD_ICONS[m]} {m}</PillBtn>; })}
-      </div>
-      <ProgressCard module={selMod} progress={progress} total={20} type="interview" />
-      <div style={{ display: "flex", gap: 8, marginBottom: 24, flexWrap: "wrap" }}>
-        {["All", "Easy", "Medium", "Hard"].map(f => (
-          <button key={f} onClick={() => setFilter(f)} style={{ padding: "6px 16px", fontSize: 12, fontWeight: 600, borderRadius: 20, border: "1.5px solid", borderColor: filter === f ? "transparent" : "var(--border)", cursor: "pointer", transition: "all 0.2s", background: filter === f ? ({ All: "#1d1d1f", Easy: "#34c759", Medium: "#ff9500", Hard: "#ff3b30" }[f]) : "white", color: filter === f ? "white" : "#424245" }}>
-            {f}
-          </button>
-        ))}
-      </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        {filtered.map((item, idx) => {
-          const qid = `q${questions.indexOf(item)}`;
-          const key = `interview_${selMod}_${qid}`;
-          const status = progress[key];
-          const isRevealed = revealed[qid];
-          const diffData = { Easy: { color: "#34c759", bg: "#e8f9ee" }, Medium: { color: "#ff9500", bg: "#fff4e6" }, Hard: { color: "#ff3b30", bg: "#fff1f0" } }[item.difficulty];
-          return (
-            <motion.div key={qid} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.02, ease: [0.22, 1, 0.36, 1] }}
-              style={{ background: "white", border: "1.5px solid", borderColor: status === "correct" ? "rgba(52,199,89,0.3)" : status === "wrong" ? "rgba(255,59,48,0.3)" : "var(--border)", borderRadius: 18, overflow: "hidden", boxShadow: "var(--shadow-sm)" }}>
-              <div style={{ padding: "20px 24px", cursor: "pointer" }} onClick={() => toggleReveal(qid)}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16 }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap", alignItems: "center" }}>
-                      <span style={{ fontSize: 11, fontWeight: 600, color: diffData.color, background: diffData.bg, padding: "3px 10px", borderRadius: 20 }}>{item.difficulty}</span>
-                      <span style={{ fontSize: 11, fontWeight: 500, color: "#86868b", background: "#f5f5f7", padding: "3px 10px", borderRadius: 20 }}>{item.company}</span>
-                      {status === "correct" && <span style={{ fontSize: 11, color: "#34c759", fontWeight: 600 }}>✓ Got it</span>}
-                      {status === "wrong" && <span style={{ fontSize: 11, color: "#ff3b30", fontWeight: 600 }}>Review needed</span>}
-                    </div>
-                    <p style={{ fontSize: 15, fontWeight: 500, lineHeight: 1.6, color: "#1d1d1f" }}>{item.q}</p>
-                  </div>
-                  <motion.span animate={{ rotate: isRevealed ? 180 : 0 }} transition={{ duration: 0.2 }} style={{ fontSize: 16, color: "#86868b", flexShrink: 0, marginTop: 2 }}>↓</motion.span>
-                </div>
+  const [numQuestions, setNumQuestions] = useState(10);
+  const [timePerQ, setTimePerQ] = useState(60);
+  const [currentQ, setCurrentQ] = useState(0);
+  const [revealed, setRevealed] = useState(false);
+  const [answers, setAnswers] = useState([]);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [totalTime, setTotalTime] = useState(0);
+  const [timeTaken, setTimeTaken] = useState(0);
+  const [examQuestions, setExamQuestions] = useState([]);
+  const color = MOD_COLORS[selMod];
+
+  const formatTime = (secs) => {
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${m}:${s.toString().padStart(2, "0")}`;
+  };
+
+  const finishExam = useCallback(() => {
+    clearInterval(timerRef.current);
+    const taken = Math.round((Date.now() - startTimeRef.current) / 1000);
+    setTimeTaken(taken);
+    setExamState("results");
+  }, []);
+
+  useEffect(() => {
+    if (examState !== "exam") return;
+    timerRef.current = setInterval(() => {
+      setTimeLeft(t => {
+        if (t <= 1) { clearInterval(timerRef.current); finishExam(); return 0; }
+        return t - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timerRef.current);
+  }, [examState, finishExam]);
+
+  const startExam = () => {
+    const allQ = INTERVIEW_DATA[selMod] || [];
+    const shuffled = [...allQ].sort(() => Math.random() - 0.5);
+    const selected = shuffled.slice(0, Math.min(numQuestions, allQ.length));
+    setExamQuestions(selected);
+    setAnswers(new Array(selected.length).fill(null));
+    setCurrentQ(0);
+    setRevealed(false);
+    const total = timePerQ * selected.length;
+    setTimeLeft(total);
+    setTotalTime(total);
+    startTimeRef.current = Date.now();
+    setExamState("exam");
+  };
+
+  const answerQuestion = (correct) => {
+    const newAnswers = [...answers];
+    newAnswers[currentQ] = correct ? "correct" : "wrong";
+    setAnswers(newAnswers);
+    if (currentQ + 1 >= examQuestions.length) { setTimeout(() => finishExam(), 400); return; }
+    setCurrentQ(q => q + 1);
+    setRevealed(false);
+  };
+
+  const skipQuestion = () => {
+    const newAnswers = [...answers];
+    newAnswers[currentQ] = "skipped";
+    setAnswers(newAnswers);
+    if (currentQ + 1 >= examQuestions.length) { finishExam(); return; }
+    setCurrentQ(q => q + 1);
+    setRevealed(false);
+  };
+
+  const getGrade = (pct) => {
+    if (pct >= 90) return { grade: "A+", label: "Excellent! 🏆", color: "#34c759" };
+    if (pct >= 80) return { grade: "A", label: "Great Job! 🎉", color: "#30d158" };
+    if (pct >= 70) return { grade: "B", label: "Good Work 👍", color: "#5ac8fa" };
+    if (pct >= 60) return { grade: "C", label: "Average 📚", color: "#ff9500" };
+    if (pct >= 50) return { grade: "D", label: "Needs Work 💪", color: "#ff6b35" };
+    return { grade: "F", label: "Keep Practicing 🔄", color: "#ff3b30" };
+  };
+
+  /* ── SETUP SCREEN ── */
+  if (examState === "setup") {
+    const actualQ = Math.min(numQuestions, INTERVIEW_DATA[selMod]?.length || 0);
+    return (
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+        <div style={{ marginBottom: 28 }}>
+          <h2 style={{ fontSize: 32, fontWeight: 700, letterSpacing: -1, color: "#1d1d1f", marginBottom: 6 }}>🎤 Mock Interview Exam</h2>
+          <p style={{ color: "#86868b", fontSize: 15 }}>Timed exam • Self-assess your answers • Get graded at the end</p>
+        </div>
+
+        {/* Topic */}
+        <div style={{ background: "white", borderRadius: 20, padding: 28, boxShadow: "var(--shadow)", marginBottom: 16, border: "1.5px solid var(--border)" }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#86868b", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 16 }}>📚 Choose Topic</div>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            {MODULES.map(m => {
+              const c = MOD_COLORS[m]; const sel = selMod === m;
+              return <button key={m} onClick={() => setSelMod(m)} style={{ padding: "12px 22px", fontSize: 14, fontWeight: 600, borderRadius: 14, border: `1.5px solid ${sel ? c : "var(--border)"}`, cursor: "pointer", background: sel ? c : "white", color: sel ? "white" : "#424245", transition: "all 0.2s", boxShadow: sel ? `0 4px 12px ${c}44` : "var(--shadow-sm)" }}>{MOD_ICONS[m]} {m}</button>;
+            })}
+          </div>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+          {/* Num questions */}
+          <div style={{ background: "white", borderRadius: 20, padding: 28, boxShadow: "var(--shadow)", border: "1.5px solid var(--border)" }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "#86868b", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 16 }}>🔢 Questions</div>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {[5, 10, 15, 20].map(n => <button key={n} onClick={() => setNumQuestions(n)} style={{ padding: "10px 18px", fontSize: 14, fontWeight: 600, borderRadius: 12, border: `1.5px solid ${numQuestions === n ? color : "var(--border)"}`, cursor: "pointer", background: numQuestions === n ? color : "white", color: numQuestions === n ? "white" : "#424245", transition: "all 0.2s" }}>{n}</button>)}
+            </div>
+          </div>
+          {/* Time per Q */}
+          <div style={{ background: "white", borderRadius: 20, padding: 28, boxShadow: "var(--shadow)", border: "1.5px solid var(--border)" }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "#86868b", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 16 }}>⏱ Time / Question</div>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {[30, 60, 90, 120].map(t => <button key={t} onClick={() => setTimePerQ(t)} style={{ padding: "10px 18px", fontSize: 14, fontWeight: 600, borderRadius: 12, border: `1.5px solid ${timePerQ === t ? color : "var(--border)"}`, cursor: "pointer", background: timePerQ === t ? color : "white", color: timePerQ === t ? "white" : "#424245", transition: "all 0.2s" }}>{t}s</button>)}
+            </div>
+          </div>
+        </div>
+
+        {/* Summary */}
+        <div style={{ background: `${color}0f`, border: `1.5px solid ${color}25`, borderRadius: 18, padding: "20px 28px", marginBottom: 28, display: "flex", gap: 32, flexWrap: "wrap" }}>
+          {[["📋", "Questions", actualQ], ["⏱", "Total Time", formatTime(timePerQ * actualQ)], ["🎯", "Topic", selMod], ["🏅", "Scoring", "+1 correct"]].map(([icon, label, val]) => (
+            <div key={label}>
+              <div style={{ fontSize: 11, color: "#86868b", fontWeight: 600, marginBottom: 2 }}>{icon} {label}</div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: "#1d1d1f" }}>{val}</div>
+            </div>
+          ))}
+        </div>
+
+        <motion.button whileHover={{ scale: 1.03, boxShadow: `0 8px 28px ${color}44` }} whileTap={{ scale: 0.97 }} onClick={startExam}
+          style={{ padding: "16px 52px", fontSize: 17, fontWeight: 700, background: color, color: "white", borderRadius: 50, border: "none", cursor: "pointer", boxShadow: `0 4px 16px ${color}44`, letterSpacing: -0.3 }}>
+          🚀 Start Exam →
+        </motion.button>
+      </motion.div>
+    );
+  }
+
+  /* ── EXAM SCREEN ── */
+  if (examState === "exam") {
+    const question = examQuestions[currentQ];
+    const diffData = { Easy: { color: "#34c759", bg: "#e8f9ee" }, Medium: { color: "#ff9500", bg: "#fff4e6" }, Hard: { color: "#ff3b30", bg: "#fff1f0" } }[question?.difficulty] || { color: "#86868b", bg: "#f5f5f7" };
+    const timerPct = totalTime > 0 ? (timeLeft / totalTime) * 100 : 0;
+    const timerColor = timerPct > 50 ? "#34c759" : timerPct > 20 ? "#ff9500" : "#ff3b30";
+    return (
+      <div>
+        {/* Header */}
+        <div style={{ background: "white", borderRadius: 18, padding: "14px 22px", marginBottom: 16, boxShadow: "var(--shadow)", border: "1.5px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color, background: `${color}12`, padding: "4px 12px", borderRadius: 20 }}>{selMod}</span>
+            <span style={{ fontSize: 14, fontWeight: 600, color: "#1d1d1f" }}>Q {currentQ + 1} / {examQuestions.length}</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ width: 90, height: 6, background: "#f5f5f7", borderRadius: 10, overflow: "hidden" }}>
+              <div style={{ height: "100%", width: `${timerPct}%`, background: timerColor, borderRadius: 10, transition: "width 1s linear, background 0.5s" }} />
+            </div>
+            <span style={{ fontSize: 22, fontWeight: 800, color: timerColor, fontFamily: "var(--font-mono)", minWidth: 56 }}>{formatTime(timeLeft)}</span>
+          </div>
+        </div>
+
+        {/* Progress dots */}
+        <div style={{ display: "flex", gap: 5, marginBottom: 20, flexWrap: "wrap" }}>
+          {examQuestions.map((_, i) => (
+            <div key={i} style={{ width: 10, height: 10, borderRadius: "50%", background: i === currentQ ? color : i < currentQ ? (answers[i] === "correct" ? "#34c759" : answers[i] === "wrong" ? "#ff3b30" : "#ff9500") : "#e5e5ea", transition: "background 0.3s", boxShadow: i === currentQ ? `0 0 0 3px ${color}33` : "none" }} />
+          ))}
+        </div>
+
+        {/* Question card */}
+        <AnimatePresence mode="wait">
+          <motion.div key={currentQ} initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }} transition={{ duration: 0.22 }}
+            style={{ background: "white", borderRadius: 20, overflow: "hidden", boxShadow: "var(--shadow-lg)", border: "1.5px solid var(--border)", marginBottom: 16 }}>
+            <div style={{ height: 4, background: `linear-gradient(90deg, ${color}, ${color}77)` }} />
+            <div style={{ padding: "28px 32px" }}>
+              <div style={{ display: "flex", gap: 8, marginBottom: 18, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 11, fontWeight: 600, color: diffData.color, background: diffData.bg, padding: "3px 10px", borderRadius: 20 }}>{question?.difficulty}</span>
+                <span style={{ fontSize: 11, fontWeight: 500, color: "#86868b", background: "#f5f5f7", padding: "3px 10px", borderRadius: 20 }}>{question?.company}</span>
               </div>
-              <AnimatePresence>
-                {isRevealed && (
-                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}>
-                    <div style={{ padding: "0 24px 20px", borderTop: "1px solid var(--border)" }}>
-                      <div style={{ padding: "16px 20px", background: "#f5f5f7", borderRadius: 14, margin: "16px 0", borderLeft: `3px solid ${MOD_COLORS[selMod]}` }}>
-                        <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.5, color: MOD_COLORS[selMod], textTransform: "uppercase", marginBottom: 8 }}>Answer</div>
-                        <p style={{ fontSize: 14, lineHeight: 1.8, color: "#1d1d1f" }}>{item.a}</p>
-                      </div>
-                      {!status && (
-                        <div style={{ display: "flex", gap: 10 }}>
-                          <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={() => markAnswer(qid, true)}
-                            style={{ padding: "9px 20px", fontSize: 13, fontWeight: 600, background: "#34c75918", color: "#34c759", border: "1.5px solid #34c75944", borderRadius: 12, cursor: "pointer" }}>
-                            ✓ Got it right
-                          </motion.button>
-                          <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={() => markAnswer(qid, false)}
-                            style={{ padding: "9px 20px", fontSize: 13, fontWeight: 600, background: "#ff3b3018", color: "#ff3b30", border: "1.5px solid #ff3b3044", borderRadius: 12, cursor: "pointer" }}>
-                            Need more practice
-                          </motion.button>
-                        </div>
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
+              <p style={{ fontSize: 18, fontWeight: 600, lineHeight: 1.65, color: "#1d1d1f", marginBottom: 28 }}>{question?.q}</p>
+
+              {!revealed ? (
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={() => setRevealed(true)}
+                  style={{ padding: "13px 32px", fontSize: 14, fontWeight: 700, background: color, color: "white", borderRadius: 14, border: "none", cursor: "pointer", boxShadow: `0 4px 16px ${color}44` }}>
+                  💡 Reveal Answer
+                </motion.button>
+              ) : (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                  <div style={{ background: "#f5f5f7", borderRadius: 16, padding: "20px 24px", marginBottom: 20, borderLeft: `4px solid ${color}` }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.5, color, textTransform: "uppercase", marginBottom: 10 }}>Answer</div>
+                    <p style={{ fontSize: 14, lineHeight: 1.8, color: "#1d1d1f" }}>{question?.a}</p>
+                  </div>
+                  <p style={{ fontSize: 12, color: "#86868b", marginBottom: 12, fontWeight: 500 }}>Were you able to answer this correctly?</p>
+                  <div style={{ display: "flex", gap: 12 }}>
+                    <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => answerQuestion(true)}
+                      style={{ flex: 1, padding: "14px", fontSize: 15, fontWeight: 700, background: "#34c759", color: "white", borderRadius: 14, border: "none", cursor: "pointer", boxShadow: "0 4px 12px rgba(52,199,89,0.35)" }}>
+                      ✓ Yes, I knew it! +1
+                    </motion.button>
+                    <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => answerQuestion(false)}
+                      style={{ flex: 1, padding: "14px", fontSize: 15, fontWeight: 700, background: "#ff3b30", color: "white", borderRadius: 14, border: "none", cursor: "pointer", boxShadow: "0 4px 12px rgba(255,59,48,0.3)" }}>
+                      ✗ No, I didn't
+                    </motion.button>
+                  </div>
+                </motion.div>
+              )}
+            </div>
+          </motion.div>
+        </AnimatePresence>
+
+        <div style={{ display: "flex", gap: 10 }}>
+          <button onClick={skipQuestion} style={{ padding: "10px 22px", fontSize: 13, fontWeight: 600, background: "white", color: "#86868b", border: "1.5px solid var(--border)", borderRadius: 12, cursor: "pointer" }}>Skip →</button>
+          <button onClick={finishExam} style={{ padding: "10px 22px", fontSize: 13, fontWeight: 600, background: "#fff1f0", color: "#ff3b30", border: "1.5px solid rgba(255,59,48,0.2)", borderRadius: 12, cursor: "pointer" }}>⏹ End Exam</button>
+        </div>
+      </div>
+    );
+  }
+
+  /* ── RESULTS SCREEN ── */
+  const correct = answers.filter(a => a === "correct").length;
+  const wrong = answers.filter(a => a === "wrong").length;
+  const skipped = answers.filter(a => a === "skipped" || a === null).length;
+  const total = examQuestions.length;
+  const score = total > 0 ? Math.round((correct / total) * 100) : 0;
+  const gradeInfo = getGrade(score);
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+      {/* Grade card */}
+      <div style={{ background: "white", borderRadius: 24, overflow: "hidden", boxShadow: "var(--shadow-lg)", marginBottom: 16, border: "1.5px solid var(--border)" }}>
+        <div style={{ height: 6, background: `linear-gradient(90deg, ${gradeInfo.color}, ${gradeInfo.color}77)` }} />
+        <div style={{ padding: "40px 36px", textAlign: "center" }}>
+          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 200, damping: 14 }}
+            style={{ width: 120, height: 120, borderRadius: "50%", background: `${gradeInfo.color}15`, border: `4px solid ${gradeInfo.color}`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
+            <div style={{ fontSize: 38, fontWeight: 900, color: gradeInfo.color, lineHeight: 1 }}>{gradeInfo.grade}</div>
+          </motion.div>
+          <div style={{ fontSize: 52, fontWeight: 900, color: "#1d1d1f", letterSpacing: -3, marginBottom: 4 }}>{score}%</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: gradeInfo.color, marginBottom: 6 }}>{gradeInfo.label}</div>
+          <div style={{ fontSize: 14, color: "#86868b" }}>{correct} out of {total} questions correct · {formatTime(timeTaken)} taken</div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", borderTop: "1px solid var(--border)" }}>
+          {[["✓ Correct", correct, "#34c759"], ["✗ Wrong", wrong, "#ff3b30"], ["⟳ Skipped", skipped, "#ff9500"]].map(([label, val, c]) => (
+            <div key={label} style={{ padding: "20px", textAlign: "center", borderRight: "1px solid var(--border)" }}>
+              <div style={{ fontSize: 28, fontWeight: 800, color: c }}>{val}</div>
+              <div style={{ fontSize: 11, color: "#86868b", fontWeight: 600, marginTop: 3 }}>{label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Action buttons */}
+      <div style={{ display: "flex", gap: 12, marginBottom: 28, flexWrap: "wrap" }}>
+        <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => { setExamState("setup"); setAnswers([]); setExamQuestions([]); }}
+          style={{ padding: "13px 28px", fontSize: 14, fontWeight: 700, background: color, color: "white", borderRadius: 14, border: "none", cursor: "pointer", boxShadow: `0 4px 16px ${color}44` }}>
+          🔄 New Exam
+        </motion.button>
+        <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={startExam}
+          style={{ padding: "13px 28px", fontSize: 14, fontWeight: 700, background: "white", color: "#424245", border: "1.5px solid var(--border)", borderRadius: 14, cursor: "pointer", boxShadow: "var(--shadow-sm)" }}>
+          🔀 Retry Same Settings
+        </motion.button>
+      </div>
+
+      {/* Answer review */}
+      <div style={{ fontSize: 14, fontWeight: 700, color: "#1d1d1f", marginBottom: 14, letterSpacing: -0.3 }}>📋 Answer Review</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {examQuestions.map((q, i) => {
+          const ans = answers[i];
+          const bc = ans === "correct" ? "rgba(52,199,89,0.3)" : ans === "wrong" ? "rgba(255,59,48,0.3)" : "rgba(255,149,0,0.25)";
+          const bg = ans === "correct" ? "#f0fdf4" : ans === "wrong" ? "#fff1f0" : "#fffbf0";
+          const badge = ans === "correct" ? { icon: "✓", label: "Correct", c: "#34c759" } : ans === "wrong" ? { icon: "✗", label: "Wrong", c: "#ff3b30" } : { icon: "→", label: "Skipped", c: "#ff9500" };
+          const diffData = { Easy: { color: "#34c759", bg: "#e8f9ee" }, Medium: { color: "#ff9500", bg: "#fff4e6" }, Hard: { color: "#ff3b30", bg: "#fff1f0" } }[q.difficulty] || { color: "#86868b", bg: "#f5f5f7" };
+          return (
+            <div key={i} style={{ background: bg, border: `1.5px solid ${bc}`, borderRadius: 16, padding: "18px 22px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 8 }}>
+                <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "#86868b" }}>Q{i + 1}</span>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: diffData.color, background: diffData.bg, padding: "2px 8px", borderRadius: 12 }}>{q.difficulty}</span>
+                  <span style={{ fontSize: 11, color: "#86868b", background: "#f5f5f7", padding: "2px 8px", borderRadius: 12 }}>{q.company}</span>
+                </div>
+                <span style={{ fontSize: 11, fontWeight: 700, color: badge.c, background: `${badge.c}15`, padding: "3px 10px", borderRadius: 20, whiteSpace: "nowrap" }}>{badge.icon} {badge.label}</span>
+              </div>
+              <p style={{ fontSize: 14, fontWeight: 600, color: "#1d1d1f", marginBottom: 8, lineHeight: 1.5 }}>{q.q}</p>
+              <p style={{ fontSize: 13, color: "#424245", lineHeight: 1.7, background: "rgba(255,255,255,0.75)", borderRadius: 10, padding: "10px 14px" }}>{q.a}</p>
+            </div>
           );
         })}
       </div>
-    </div>
+    </motion.div>
   );
 };
 
