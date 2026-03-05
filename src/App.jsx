@@ -1135,6 +1135,7 @@ const InterviewTab = () => {
   const startTimeRef = useRef(null);
   const [examState, setExamState] = useState("setup");
   const [selMod, setSelMod] = useState("Stack");
+  const [search, setSearch] = useState("");
   const [numQuestions, setNumQuestions] = useState(10);
   const [timePerQ, setTimePerQ] = useState(60);
   const [includeCoding, setIncludeCoding] = useState(true);
@@ -1251,7 +1252,6 @@ const InterviewTab = () => {
 
   /* ── SETUP SCREEN ── */
   if (examState === "setup") {
-    const [search, setSearch] = useState("");
     const categories = {
       "Core Data Structures": ["Arrays", "Strings", "Linked Lists", "Stack", "Queue"],
       "Non-Linear": ["Trees", "Binary Search Trees", "Heap / Priority Queue", "Hashing", "Graphs", "Tries", "Segment Trees", "Disjoint Set (Union Find)", "Advanced Graph Algorithms"],
