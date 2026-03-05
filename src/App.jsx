@@ -1393,6 +1393,12 @@ const InterviewTab = () => {
             <div style={{ background: "#f5f5f7", borderRadius: 20, padding: 24, marginBottom: 28, border: "1.5px solid rgba(0,0,0,0.04)" }}>
               <h3 style={{ fontSize: 20, fontWeight: 800, color: "#1d1d1f", marginBottom: 12 }}>{codingQuestion.title}</h3>
               <p style={{ fontSize: 15, color: "#424245", lineHeight: 1.6, marginBottom: 16 }}>{codingQuestion.desc}</p>
+
+              <div style={{ background: "white", borderRadius: 12, padding: "12px 16px", marginBottom: 16, border: "1px solid rgba(0,0,0,0.05)" }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#86868b", textTransform: "uppercase", marginBottom: 6 }}>Example Test Case:</div>
+                <div style={{ fontSize: 13, fontFamily: "var(--font-mono)", color: color, fontWeight: 600 }}>{codingQuestion.testCases}</div>
+              </div>
+
               <div style={{ display: "flex", gap: 8 }}>
                 <span style={{ fontSize: 11, fontWeight: 700, background: "white", color: "#86868b", padding: "4px 10px", borderRadius: 12 }}>{codingQuestion.company}</span>
               </div>
