@@ -1214,6 +1214,13 @@ const InterviewTab = () => {
 
   /* ── SETUP SCREEN ── */
   if (examState === "setup") {
+    const [search, setSearch] = useState("");
+    const categories = {
+      "Core Data Structures": ["Arrays", "Strings", "Linked Lists", "Stack", "Queue"],
+      "Non-Linear": ["Trees", "Binary Search Trees", "Heap / Priority Queue", "Hashing", "Graphs", "Tries", "Segment Trees", "Disjoint Set (Union Find)", "Advanced Graph Algorithms"],
+      "Algorithms": ["Recursion", "Backtracking", "Linear Search", "Bubble Sort", "Greedy Algorithms", "Dynamic Programming", "Bit Manipulation"]
+    };
+
     const actualQ = Math.min(numQuestions, INTERVIEW_DATA[selMod]?.length || 0);
     return (
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
@@ -1223,16 +1230,46 @@ const InterviewTab = () => {
         </div>
 
         <div style={{ background: "white", borderRadius: 24, padding: 28, boxShadow: "var(--shadow-lg)", border: "1.5px solid var(--border)", marginBottom: 20 }}>
-          {/* Topic row */}
-          <div style={{ marginBottom: 24 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: "#86868b", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 12 }}>1 — Choose Topic</div>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {MODULES.map(m => {
-                const c = MOD_COLORS[m]; const sel = selMod === m;
-                return <button key={m} onClick={() => setSelMod(m)}
-                  style={{ padding: "10px 18px", fontSize: 13, fontWeight: 600, borderRadius: 12, border: `1.5px solid ${sel ? c : "var(--border)"}`, cursor: "pointer", background: sel ? c : "white", color: sel ? "white" : "#424245", transition: "all 0.2s", boxShadow: sel ? `0 4px 12px ${c}44` : "var(--shadow-sm)", display: "flex", alignItems: "center", gap: 6 }}>
-                  {MOD_ICONS[m]} {m}
-                </button>;
+          {/* Topic Selection Area */}
+          <div style={{ marginBottom: 32 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 16 }}>
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#86868b", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>1 — Choose Topic</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: "#1d1d1f" }}>Selected: <span style={{ color }}>{selMod}</span></div>
+              </div>
+              <div style={{ position: "relative" }}>
+                <input type="text" placeholder="Search topics..." value={search} onChange={e => setSearch(e.target.value)}
+                  style={{ padding: "8px 12px 8px 32px", fontSize: 13, borderRadius: 10, border: "1.5px solid var(--border)", outline: "none", width: 180, background: "#f5f5f7" }} />
+                <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", fontSize: 14, opacity: 0.4 }}>🔍</span>
+              </div>
+            </div>
+
+            <div style={{ maxHeight: 280, overflowY: "auto", paddingRight: 8, paddingBottom: 4, display: "flex", flexDirection: "column", gap: 20 }}>
+              {Object.entries(categories).map(([cat, mods]) => {
+                const filtered = mods.filter(m => m.toLowerCase().includes(search.toLowerCase()));
+                if (filtered.length === 0) return null;
+                return (
+                  <div key={cat}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "#86868b", marginBottom: 10, letterSpacing: 0.3 }}>{cat}</div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 8 }}>
+                      {filtered.map(m => {
+                        const c = MOD_COLORS[m]; const sel = selMod === m;
+                        return <button key={m} onClick={() => setSelMod(m)}
+                          style={{
+                            padding: "10px 14px", fontSize: 12.5, fontWeight: 600, borderRadius: 12, cursor: "pointer", transition: "all 0.2s",
+                            border: `1.5px solid ${sel ? c : "rgba(0,0,0,0.06)"}`,
+                            background: sel ? c : "white",
+                            color: sel ? "white" : "#424245",
+                            boxShadow: sel ? `0 4px 12px ${c}33` : "none",
+                            display: "flex", alignItems: "center", gap: 8, textAlign: "left"
+                          }}>
+                          <span style={{ fontSize: 16 }}>{MOD_ICONS[m]}</span>
+                          <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m}</span>
+                        </button>;
+                      })}
+                    </div>
+                  </div>
+                );
               })}
             </div>
           </div>
