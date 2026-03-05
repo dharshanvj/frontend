@@ -809,6 +809,7 @@ export const HomeScreen = ({ onEnter, user, onLogout }) => {
 ============================================================ */
 const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress }) => {
   const [activeTab, setActiveTab] = useState("learn");
+  const tabs = [["learn", "📚 Learn"], ["interview", "🎤 Interview"], ["code", "💻 Code"]];
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg)" }}>
       <div style={{ position: "sticky", top: 0, zIndex: 50, backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", background: "rgba(245,245,247,0.85)", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
@@ -819,16 +820,43 @@ const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress }) => {
             <span style={{ fontSize: 15, fontWeight: 600, color: "#1d1d1f" }}>Choose Your Path</span>
           </div>
           <div style={{ display: "flex", gap: 4, background: "rgba(0,0,0,0.06)", borderRadius: 12, padding: 3 }}>
-            {[["learn", "📚 Learn"], ["interview", "🎤 Interview"], ["code", "💻 Code"]].map(([t, l]) => (
-              <button key={t} onClick={() => setActiveTab(t)} style={{ padding: "6px 16px", fontSize: 13, fontWeight: 500, borderRadius: 9, border: "none", cursor: "pointer", transition: "all 0.2s", background: activeTab === t ? "white" : "transparent", color: activeTab === t ? "#1d1d1f" : "#86868b", boxShadow: activeTab === t ? "var(--shadow-sm)" : "none" }}>{l}</button>
+            {tabs.map(([t, l]) => (
+              <button key={t} onClick={() => setActiveTab(t)}
+                style={{
+                  padding: "6px 16px", fontSize: 13, fontWeight: 600, borderRadius: 9, border: "none", cursor: "pointer", transition: "all 0.2s",
+                  background: activeTab === t ? "white" : "transparent",
+                  color: activeTab === t ? "#1d1d1f" : "#86868b",
+                  boxShadow: activeTab === t ? "var(--shadow-sm)" : "none"
+                }}>{l}
+              </button>
             ))}
           </div>
         </div>
+        {/* Tab indicator bar */}
+        <div style={{ maxWidth: 960, margin: "0 auto", padding: "0 32px", display: "flex", gap: 0 }}>
+          {tabs.map(([t]) => (
+            <div key={t} style={{ flex: 1, height: 2, background: activeTab === t ? "#0071e3" : "transparent", transition: "background 0.2s", borderRadius: 2 }} />
+          ))}
+        </div>
       </div>
       <div style={{ maxWidth: 960, margin: "0 auto", padding: "40px 32px" }}>
-        {activeTab === "learn" && <LearnTab level={level} setLevel={setLevel} onSelectModule={onSelectModule} progress={progress} />}
-        {activeTab === "interview" && <InterviewTab />}
-        {activeTab === "code" && <CodeArenaTab />}
+        <AnimatePresence mode="wait">
+          {activeTab === "learn" && (
+            <motion.div key="learn" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+              <LearnTab level={level} setLevel={setLevel} onSelectModule={onSelectModule} progress={progress} />
+            </motion.div>
+          )}
+          {activeTab === "interview" && (
+            <motion.div key="interview" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+              <InterviewTab />
+            </motion.div>
+          )}
+          {activeTab === "code" && (
+            <motion.div key="code" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+              <CodeArenaTab />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
@@ -836,35 +864,49 @@ const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress }) => {
 
 const LearnTab = ({ level, setLevel, onSelectModule, progress }) => (
   <div>
-    <div style={{ marginBottom: 32 }}>
+    <div style={{ marginBottom: 28 }}>
       <h2 style={{ fontSize: 32, fontWeight: 700, letterSpacing: -1, color: "#1d1d1f", marginBottom: 6 }}>Modules</h2>
-      <p style={{ color: "#86868b", fontSize: 15 }}>Start with fundamentals and progress to advanced concepts</p>
+      <p style={{ color: "#86868b", fontSize: 15 }}>Pick a topic below — explore concepts, visualize, and code challenges all in one place</p>
     </div>
-    <div style={{ display: "flex", gap: 8, marginBottom: 32 }}>
+    {/* Difficulty filter */}
+    <div style={{ display: "flex", gap: 6, marginBottom: 28, alignItems: "center" }}>
+      <span style={{ fontSize: 12, fontWeight: 600, color: "#86868b", marginRight: 4 }}>Difficulty:</span>
       {LEVELS.map(l => <PillBtn key={l} active={level === l} onClick={() => setLevel(l)} color="#0071e3">{l}</PillBtn>)}
     </div>
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(340px,1fr))", gap: 16 }}>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(320px,1fr))", gap: 16 }}>
       {MODULES.map((mod, i) => {
         const color = MOD_COLORS[mod];
         const done = Object.keys(progress).filter(k => k.startsWith(`interview_${mod}`)).length;
         const codeDone = Object.keys(progress).filter(k => k.startsWith(`code_${mod}`)).length;
+        const totalPct = Math.round(((done + codeDone) / 29) * 100);
         return (
           <motion.button key={mod} initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07, ease: [0.22, 1, 0.36, 1] }}
-            whileHover={{ scale: 1.02, y: -2, boxShadow: "var(--shadow-lg)" }} whileTap={{ scale: 0.98 }}
+            whileHover={{ scale: 1.02, y: -3, boxShadow: `0 16px 48px ${color}22` }} whileTap={{ scale: 0.98 }}
             onClick={() => onSelectModule(mod)}
-            style={{ textAlign: "left", padding: 28, background: "white", border: "1.5px solid var(--border)", borderRadius: 20, boxShadow: "var(--shadow)", cursor: "pointer", transition: "box-shadow 0.3s" }}>
-            <div style={{ width: 48, height: 48, borderRadius: 14, background: `${color}15`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
-              <span style={{ fontSize: 22 }}>{MOD_ICONS[mod]}</span>
+            style={{ textAlign: "left", padding: 24, background: "white", border: `1.5px solid ${color}22`, borderRadius: 20, boxShadow: "var(--shadow)", cursor: "pointer", transition: "box-shadow 0.3s", position: "relative", overflow: "hidden" }}>
+            {/* Subtle color splash */}
+            <div style={{ position: "absolute", top: -30, right: -30, width: 120, height: 120, borderRadius: "50%", background: `radial-gradient(circle, ${color}18, transparent 70%)`, pointerEvents: "none" }} />
+            <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}>
+              <div style={{ width: 52, height: 52, borderRadius: 16, background: `${color}15`, display: "flex", alignItems: "center", justifyContent: "center", border: `1.5px solid ${color}25`, flexShrink: 0 }}>
+                <span style={{ fontSize: 24 }}>{MOD_ICONS[mod]}</span>
+              </div>
+              <div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: "#1d1d1f", marginBottom: 2 }}>{mod}</div>
+                <div style={{ fontSize: 12, color: "#86868b" }}>{["Last In, First Out", "First In, First Out", "Sequential scan", "Comparison-based sort"][i]}</div>
+              </div>
             </div>
-            <div style={{ fontSize: 20, fontWeight: 700, color: "#1d1d1f", marginBottom: 6 }}>{mod}</div>
-            <div style={{ fontSize: 13, color: "#86868b", marginBottom: 16 }}>{["LIFO structure", "FIFO structure", "Sequential scan", "Comparison sort"][i]}</div>
-            <div style={{ display: "flex", gap: 12 }}>
-              <span style={{ fontSize: 12, color, fontWeight: 500 }}>🎤 {done}/20 Q&A</span>
-              <span style={{ fontSize: 12, color: "#34c759", fontWeight: 500 }}>💻 {codeDone}/9 solved</span>
+            <div style={{ display: "flex", gap: 8, marginBottom: 14, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 11, fontWeight: 600, color, background: `${color}12`, padding: "3px 10px", borderRadius: 20 }}>🎤 {done}/20 Q&A</span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: "#34c759", background: "#e8f9ee", padding: "3px 10px", borderRadius: 20 }}>💻 {codeDone}/9 Solved</span>
+              {totalPct === 100 && <span style={{ fontSize: 11, fontWeight: 600, color: "#ff9500", background: "#fff4e6", padding: "3px 10px", borderRadius: 20 }}>🏆 Complete</span>}
             </div>
-            <div style={{ marginTop: 16, height: 4, background: "#f5f5f7", borderRadius: 4, overflow: "hidden" }}>
-              <motion.div initial={{ width: 0 }} animate={{ width: `${Math.round(((done + codeDone) / 29) * 100)}%` }} transition={{ duration: 0.8, ease: "easeOut" }}
-                style={{ height: "100%", background: `linear-gradient(90deg,${color},${color}99)`, borderRadius: 4 }} />
+            <div style={{ height: 5, background: "#f5f5f7", borderRadius: 4, overflow: "hidden", marginBottom: 12 }}>
+              <motion.div initial={{ width: 0 }} animate={{ width: `${totalPct}%` }} transition={{ duration: 0.9, ease: "easeOut" }}
+                style={{ height: "100%", background: `linear-gradient(90deg,${color},${color}88)`, borderRadius: 4 }} />
+            </div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <span style={{ fontSize: 12, color: "#86868b", fontWeight: 500 }}>{totalPct}% complete</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color, background: `${color}12`, padding: "5px 14px", borderRadius: 20, display: "flex", alignItems: "center", gap: 4 }}>Explore →</span>
             </div>
           </motion.button>
         );
@@ -960,53 +1002,66 @@ const InterviewTab = () => {
     const actualQ = Math.min(numQuestions, INTERVIEW_DATA[selMod]?.length || 0);
     return (
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-        <div style={{ marginBottom: 28 }}>
-          <h2 style={{ fontSize: 32, fontWeight: 700, letterSpacing: -1, color: "#1d1d1f", marginBottom: 6 }}>🎤 Mock Interview Exam</h2>
-          <p style={{ color: "#86868b", fontSize: 15 }}>Timed exam • Self-assess your answers • Get graded at the end</p>
+        <div style={{ marginBottom: 24 }}>
+          <h2 style={{ fontSize: 32, fontWeight: 700, letterSpacing: -1, color: "#1d1d1f", marginBottom: 6 }}>🎤 Mock Interview</h2>
+          <p style={{ color: "#86868b", fontSize: 15 }}>Configure your session and hit Start — takes under 30 seconds to set up</p>
         </div>
 
-        {/* Topic */}
-        <div style={{ background: "white", borderRadius: 20, padding: 28, boxShadow: "var(--shadow)", marginBottom: 16, border: "1.5px solid var(--border)" }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#86868b", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 16 }}>📚 Choose Topic</div>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            {MODULES.map(m => {
-              const c = MOD_COLORS[m]; const sel = selMod === m;
-              return <button key={m} onClick={() => setSelMod(m)} style={{ padding: "12px 22px", fontSize: 14, fontWeight: 600, borderRadius: 14, border: `1.5px solid ${sel ? c : "var(--border)"}`, cursor: "pointer", background: sel ? c : "white", color: sel ? "white" : "#424245", transition: "all 0.2s", boxShadow: sel ? `0 4px 12px ${c}44` : "var(--shadow-sm)" }}>{MOD_ICONS[m]} {m}</button>;
-            })}
-          </div>
-        </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
-          {/* Num questions */}
-          <div style={{ background: "white", borderRadius: 20, padding: 28, boxShadow: "var(--shadow)", border: "1.5px solid var(--border)" }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#86868b", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 16 }}>🔢 Questions</div>
+        <div style={{ background: "white", borderRadius: 24, padding: 28, boxShadow: "var(--shadow-lg)", border: "1.5px solid var(--border)", marginBottom: 20 }}>
+          {/* Topic row */}
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#86868b", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 12 }}>1 — Choose Topic</div>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {[5, 10, 15, 20].map(n => <button key={n} onClick={() => setNumQuestions(n)} style={{ padding: "10px 18px", fontSize: 14, fontWeight: 600, borderRadius: 12, border: `1.5px solid ${numQuestions === n ? color : "var(--border)"}`, cursor: "pointer", background: numQuestions === n ? color : "white", color: numQuestions === n ? "white" : "#424245", transition: "all 0.2s" }}>{n}</button>)}
+              {MODULES.map(m => {
+                const c = MOD_COLORS[m]; const sel = selMod === m;
+                return <button key={m} onClick={() => setSelMod(m)}
+                  style={{ padding: "10px 18px", fontSize: 13, fontWeight: 600, borderRadius: 12, border: `1.5px solid ${sel ? c : "var(--border)"}`, cursor: "pointer", background: sel ? c : "white", color: sel ? "white" : "#424245", transition: "all 0.2s", boxShadow: sel ? `0 4px 12px ${c}44` : "var(--shadow-sm)", display: "flex", alignItems: "center", gap: 6 }}>
+                  {MOD_ICONS[m]} {m}
+                </button>;
+              })}
             </div>
           </div>
-          {/* Time per Q */}
-          <div style={{ background: "white", borderRadius: 20, padding: 28, boxShadow: "var(--shadow)", border: "1.5px solid var(--border)" }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#86868b", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 16 }}>⏱ Time / Question</div>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {[30, 60, 90, 120].map(t => <button key={t} onClick={() => setTimePerQ(t)} style={{ padding: "10px 18px", fontSize: 14, fontWeight: 600, borderRadius: 12, border: `1.5px solid ${timePerQ === t ? color : "var(--border)"}`, cursor: "pointer", background: timePerQ === t ? color : "white", color: timePerQ === t ? "white" : "#424245", transition: "all 0.2s" }}>{t}s</button>)}
+
+          {/* Questions + Time inline */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 24 }}>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#86868b", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 10 }}>2 — Questions</div>
+              <div style={{ display: "flex", gap: 6 }}>
+                {[5, 10, 15, 20].map(n => (
+                  <button key={n} onClick={() => setNumQuestions(n)}
+                    style={{ flex: 1, padding: "10px 4px", fontSize: 14, fontWeight: 700, borderRadius: 12, border: `1.5px solid ${numQuestions === n ? color : "var(--border)"}`, cursor: "pointer", background: numQuestions === n ? color : "#f5f5f7", color: numQuestions === n ? "white" : "#424245", transition: "all 0.2s" }}>{n}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#86868b", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 10 }}>3 — Time / Question</div>
+              <div style={{ display: "flex", gap: 6 }}>
+                {[30, 60, 90, 120].map(t => (
+                  <button key={t} onClick={() => setTimePerQ(t)}
+                    style={{ flex: 1, padding: "10px 4px", fontSize: 13, fontWeight: 700, borderRadius: 12, border: `1.5px solid ${timePerQ === t ? color : "var(--border)"}`, cursor: "pointer", background: timePerQ === t ? color : "#f5f5f7", color: timePerQ === t ? "white" : "#424245", transition: "all 0.2s" }}>{t}s
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Summary */}
-        <div style={{ background: `${color}0f`, border: `1.5px solid ${color}25`, borderRadius: 18, padding: "20px 28px", marginBottom: 28, display: "flex", gap: 32, flexWrap: "wrap" }}>
-          {[["📋", "Questions", actualQ], ["⏱", "Total Time", formatTime(timePerQ * actualQ)], ["🎯", "Topic", selMod], ["🏅", "Scoring", "+1 correct"]].map(([icon, label, val]) => (
-            <div key={label}>
-              <div style={{ fontSize: 11, color: "#86868b", fontWeight: 600, marginBottom: 2 }}>{icon} {label}</div>
-              <div style={{ fontSize: 20, fontWeight: 800, color: "#1d1d1f" }}>{val}</div>
+          {/* Summary + CTA inline */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16, background: `${color}0a`, borderRadius: 16, padding: "16px 20px" }}>
+            <div style={{ display: "flex", gap: 28, flexWrap: "wrap" }}>
+              {[["📋", actualQ + " questions"], ["⏱", formatTime(timePerQ * actualQ) + " total"], ["🎯", selMod]].map(([icon, val]) => (
+                <div key={val} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ fontSize: 14 }}>{icon}</span>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: "#1d1d1f" }}>{val}</span>
+                </div>
+              ))}
             </div>
-          ))}
+            <motion.button whileHover={{ scale: 1.04, boxShadow: `0 8px 28px ${color}44` }} whileTap={{ scale: 0.97 }} onClick={startExam}
+              style={{ padding: "13px 36px", fontSize: 15, fontWeight: 700, background: color, color: "white", borderRadius: 50, border: "none", cursor: "pointer", boxShadow: `0 4px 16px ${color}44`, letterSpacing: -0.3, whiteSpace: "nowrap" }}>
+              🚀 Start Exam →
+            </motion.button>
+          </div>
         </div>
-
-        <motion.button whileHover={{ scale: 1.03, boxShadow: `0 8px 28px ${color}44` }} whileTap={{ scale: 0.97 }} onClick={startExam}
-          style={{ padding: "16px 52px", fontSize: 17, fontWeight: 700, background: color, color: "white", borderRadius: 50, border: "none", cursor: "pointer", boxShadow: `0 4px 16px ${color}44`, letterSpacing: -0.3 }}>
-          🚀 Start Exam →
-        </motion.button>
       </motion.div>
     );
   }
@@ -1353,45 +1408,79 @@ const ProgressCard = ({ module: mod, progress, total, type }) => {
 /* ============================================================
    MODULE SCREEN
 ============================================================ */
+const MODULE_TABS = [["concept", "📖 Concept"], ["visual", "🎬 Visualizer"], ["program", "💻 Code"]];
+
 const ModuleScreen = ({ module: mod, data, subScreen, setSubScreen, onBack }) => {
   const color = MOD_COLORS[mod] || "#0071e3";
+
+  // Auto-open concept tab when first entering the module
+  useEffect(() => {
+    if (!subScreen) setSubScreen("concept");
+  }, [mod]);
+
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg)" }}>
-      <div style={{ position: "sticky", top: 0, zIndex: 50, backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", background: "rgba(245,245,247,0.85)", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
-        <div style={{ maxWidth: 960, margin: "0 auto", padding: "0 32px", height: 56, display: "flex", alignItems: "center", gap: 16 }}>
-          <button onClick={onBack} style={{ display: "flex", alignItems: "center", gap: 6, color: "#0071e3", fontSize: 14, fontWeight: 500, cursor: "pointer" }}>‹ Modules</button>
-          <span style={{ color: "#d2d2d7" }}>|</span>
-          <span style={{ fontSize: 14, fontWeight: 600, color: "#1d1d1f" }}>{mod}</span>
+      {/* Sticky header with breadcrumb + tabs */}
+      <div style={{ position: "sticky", top: 0, zIndex: 50, backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", background: "rgba(245,245,247,0.9)", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+        <div style={{ maxWidth: 960, margin: "0 auto", padding: "0 32px", height: 52, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          {/* Breadcrumb */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <button onClick={onBack} style={{ display: "flex", alignItems: "center", gap: 5, color: "#0071e3", fontSize: 13, fontWeight: 600, cursor: "pointer", padding: "5px 10px", borderRadius: 8, background: "rgba(0,113,227,0.07)", transition: "background 0.2s" }}>‹ Modules</button>
+            <span style={{ color: "#d2d2d7", fontSize: 16 }}>/</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ fontSize: 16 }}>{MOD_ICONS[mod]}</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: "#1d1d1f" }}>{mod}</span>
+            </div>
+          </div>
+          {/* Inline tab switcher */}
+          <div style={{ display: "flex", gap: 2, background: "rgba(0,0,0,0.05)", borderRadius: 12, padding: 3 }}>
+            {MODULE_TABS.map(([s, l]) => (
+              <button key={s} onClick={() => setSubScreen(s)}
+                style={{
+                  padding: "6px 18px", fontSize: 13, fontWeight: 600, borderRadius: 9, border: "none", cursor: "pointer", transition: "all 0.2s",
+                  background: subScreen === s ? "white" : "transparent",
+                  color: subScreen === s ? color : "#86868b",
+                  boxShadow: subScreen === s ? `0 2px 8px ${color}22` : "none"
+                }}>
+                {l}
+              </button>
+            ))}
+          </div>
+        </div>
+        {/* Active tab underline indicator */}
+        <div style={{ maxWidth: 960, margin: "0 auto", display: "flex", justifyContent: "flex-end", padding: "0 32px" }}>
+          <div style={{ display: "flex", width: "auto" }}>
+            {MODULE_TABS.map(([s]) => (
+              <div key={s} style={{ width: 72, height: 2, background: subScreen === s ? color : "transparent", transition: "background 0.2s", borderRadius: 2 }} />
+            ))}
+          </div>
         </div>
       </div>
-      <div style={{ maxWidth: 960, margin: "0 auto", padding: "48px 32px" }}>
-        <div style={{ display: "flex", gap: 20, alignItems: "center", marginBottom: 40 }}>
-          <div style={{ width: 72, height: 72, borderRadius: 20, background: `${color}15`, display: "flex", alignItems: "center", justifyContent: "center", border: `1.5px solid ${color}25`, flexShrink: 0 }}>
-            <span style={{ fontSize: 32 }}>{MOD_ICONS[mod]}</span>
+
+      <div style={{ maxWidth: 960, margin: "0 auto", padding: "32px 32px 60px" }}>
+        {/* Module header — compact */}
+        <div style={{ display: "flex", gap: 16, alignItems: "center", marginBottom: 28 }}>
+          <div style={{ width: 56, height: 56, borderRadius: 16, background: `${color}15`, display: "flex", alignItems: "center", justifyContent: "center", border: `1.5px solid ${color}25`, flexShrink: 0 }}>
+            <span style={{ fontSize: 26 }}>{MOD_ICONS[mod]}</span>
           </div>
           <div>
-            <h1 style={{ fontSize: "clamp(2rem,5vw,3rem)", fontWeight: 700, letterSpacing: -1, color: "#1d1d1f", marginBottom: 6 }}>{mod}</h1>
-            <p style={{ color: "#86868b", fontSize: 15 }}>Select a section to start exploring</p>
+            <h1 style={{ fontSize: "clamp(1.5rem,4vw,2.2rem)", fontWeight: 700, letterSpacing: -0.5, color: "#1d1d1f", marginBottom: 3 }}>{mod}</h1>
+            <div style={{ display: "flex", gap: 6 }}>
+              {MODULE_TABS.map(([s, l]) => (
+                <button key={s} onClick={() => setSubScreen(s)}
+                  style={{
+                    padding: "3px 12px", fontSize: 11, fontWeight: 600, borderRadius: 20, border: "none", cursor: "pointer", transition: "all 0.2s",
+                    background: subScreen === s ? color : "transparent",
+                    color: subScreen === s ? "white" : "#86868b"
+                  }}>
+                  {l}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-        <div style={{ display: "flex", gap: 12, marginBottom: 40, flexWrap: "wrap" }}>
-          {[["concept", "📖 Concept"], ["visual", "🎬 Visualizer"], ["program", "💻 Code"]].map(([s, l]) => (
-            <motion.button key={s} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => setSubScreen(subScreen === s ? null : s)}
-              style={{
-                padding: "12px 28px", fontSize: 14, fontWeight: 600, borderRadius: 14, border: "1.5px solid", cursor: "pointer", transition: "all 0.2s",
-                borderColor: subScreen === s ? color : "var(--border)", background: subScreen === s ? color : "white", color: subScreen === s ? "white" : "#424245",
-                boxShadow: subScreen === s ? `0 4px 16px ${color}44` : "var(--shadow-sm)"
-              }}>
-              {l}
-            </motion.button>
-          ))}
-        </div>
+
         <AnimatePresence mode="wait">
-          {!subScreen && (
-            <motion.div key="ph" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ textAlign: "center", padding: "80px 0", color: "#86868b", fontSize: 15 }}>
-              Select a section above to explore {mod}
-            </motion.div>
-          )}
           {subScreen === "concept" && data && (
             <motion.div key="c" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ ease: [0.22, 1, 0.36, 1] }}>
               <ConceptPanel data={data} color={color} />
@@ -1408,8 +1497,16 @@ const ModuleScreen = ({ module: mod, data, subScreen, setSubScreen, onBack }) =>
             </motion.div>
           )}
           {(subScreen === "concept" || subScreen === "program") && !data && (
-            <motion.div key="l" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ color: "#86868b", fontSize: 14, padding: "40px 0", textAlign: "center" }}>
-              ⏳ Loading...
+            <motion.div key="l" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                {[1, 2, 3, 4].map(i => (
+                  <div key={i} style={{
+                    background: "white", border: "1.5px solid var(--border)", borderRadius: 18, padding: 24, height: 120,
+                    background: "linear-gradient(90deg, #f5f5f7 25%, #e8e8ea 50%, #f5f5f7 75%)",
+                    backgroundSize: "200% 100%", animation: "shimmer 1.5s infinite"
+                  }} />
+                ))}
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -1491,44 +1588,98 @@ const VizBtn = ({ onClick, children, color }) => (
 
 function StackVisual({ color }) {
   const [stack, setStack] = useState([42, 17]);
+  const [inputVal, setInputVal] = useState("");
+  const pushValue = () => {
+    const v = parseInt(inputVal);
+    if (!isNaN(v)) { setStack(p => [...p, v]); setInputVal(""); }
+    else setStack(p => [...p, Math.floor(Math.random() * 99) + 1]);
+  };
   return (
     <div>
-      <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: 0.5, color: "#86868b", textTransform: "uppercase", marginBottom: 20 }}>Stack — Last In, First Out</div>
-      <div style={{ display: "flex", flexDirection: "column-reverse", alignItems: "flex-start", minHeight: 180, gap: 8, marginBottom: 28 }}>
-        <AnimatePresence>
-          {stack.map((item, i) => (
-            <motion.div key={`${item}-${i}`} layout initial={{ opacity: 0, x: -30, scale: 0.8 }} animate={{ opacity: 1, x: 0, scale: 1 }} exit={{ opacity: 0, x: 30, scale: 0.8 }} transition={{ type: "spring", stiffness: 400, damping: 28 }}
-              style={{ width: 160, padding: "12px 20px", background: i === stack.length - 1 ? color : `${color}12`, color: i === stack.length - 1 ? "white" : color, fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: 15, borderRadius: 12, display: "flex", justifyContent: "space-between", alignItems: "center", border: `1.5px solid ${color}30`, boxShadow: i === stack.length - 1 ? `0 4px 16px ${color}44` : "none" }}>
-              {item}{i === stack.length - 1 && <span style={{ fontSize: 10, opacity: 0.7, fontWeight: 500 }}>TOP</span>}
-            </motion.div>
-          ))}
-        </AnimatePresence>
+      <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.5, color: "#86868b", textTransform: "uppercase", marginBottom: 20 }}>Stack — Last In, First Out (LIFO)</div>
+      <div style={{ display: "flex", gap: 24, flexWrap: "wrap", alignItems: "flex-start" }}>
+        {/* Stack visualization */}
+        <div style={{ flex: "0 0 auto" }}>
+          <div style={{ display: "flex", flexDirection: "column-reverse", alignItems: "flex-start", minHeight: 180, gap: 8, marginBottom: 20 }}>
+            <AnimatePresence>
+              {stack.map((item, i) => (
+                <motion.div key={`${item}-${i}`} layout initial={{ opacity: 0, x: -30, scale: 0.8 }} animate={{ opacity: 1, x: 0, scale: 1 }} exit={{ opacity: 0, x: 30, scale: 0.8 }} transition={{ type: "spring", stiffness: 400, damping: 28 }}
+                  style={{ width: 180, padding: "12px 20px", background: i === stack.length - 1 ? color : `${color}12`, color: i === stack.length - 1 ? "white" : color, fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: 15, borderRadius: 12, display: "flex", justifyContent: "space-between", alignItems: "center", border: `1.5px solid ${color}30`, boxShadow: i === stack.length - 1 ? `0 4px 16px ${color}44` : "none" }}>
+                  {item}{i === stack.length - 1 && <span style={{ fontSize: 10, opacity: 0.8, fontWeight: 600, letterSpacing: 0.5 }}>← TOP</span>}
+                </motion.div>
+              ))}
+              {stack.length === 0 && (
+                <div style={{ width: 180, padding: "12px 20px", border: `2px dashed ${color}40`, borderRadius: 12, color: `${color}60`, fontFamily: "var(--font-mono)", fontSize: 13, textAlign: "center" }}>Empty Stack</div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+        {/* Controls */}
+        <div style={{ flex: 1, minWidth: 200 }}>
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: "#86868b", marginBottom: 8, letterSpacing: 0.3 }}>PUSH VALUE</div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <input type="number" value={inputVal} onChange={e => setInputVal(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && pushValue()}
+                placeholder="Enter number..."
+                style={{ flex: 1, padding: "10px 14px", border: `1.5px solid ${color}40`, borderRadius: 10, fontSize: 14, fontFamily: "var(--font-mono)", fontWeight: 600, color: "#1d1d1f", outline: "none", background: "#f5f5f7" }} />
+              <VizBtn onClick={pushValue} color={color}>Push ↑</VizBtn>
+            </div>
+          </div>
+          <VizBtn onClick={() => setStack(p => p.slice(0, -1))} color={color}>Pop ↓</VizBtn>
+          <div style={{ marginTop: 16, padding: "12px 16px", background: `${color}08`, borderRadius: 12, border: `1px solid ${color}20` }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color, marginBottom: 4, letterSpacing: 0.3 }}>STATE</div>
+            <div style={{ fontSize: 12, fontFamily: "var(--font-mono)", color: "#424245" }}>Size: {stack.length} | Top: {stack.length > 0 ? stack[stack.length - 1] : "null"}</div>
+          </div>
+        </div>
       </div>
-      <VizBtn onClick={() => setStack(p => [...p, Math.floor(Math.random() * 99) + 1])} color={color}>Push</VizBtn>
-      <VizBtn onClick={() => setStack(p => p.slice(0, -1))} color={color}>Pop</VizBtn>
     </div>
   );
 }
 
 function QueueVisual({ color }) {
   const [queue, setQueue] = useState([10, 30, 55]);
+  const [inputVal, setInputVal] = useState("");
+  const enqueue = () => {
+    const v = parseInt(inputVal);
+    if (!isNaN(v)) { setQueue(p => [...p, v]); setInputVal(""); }
+    else setQueue(p => [...p, Math.floor(Math.random() * 99) + 1]);
+  };
   return (
     <div>
-      <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: 0.5, color: "#86868b", textTransform: "uppercase", marginBottom: 20 }}>Queue — First In, First Out</div>
-      <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginBottom: 28, minHeight: 70 }}>
-        <span style={{ fontSize: 11, color: "#86868b", fontFamily: "var(--font-mono)", fontWeight: 500 }}>FRONT →</span>
-        <AnimatePresence>
-          {queue.map((item, i) => (
-            <motion.div key={`${item}-${i}`} layout initial={{ opacity: 0, y: -20, scale: 0.8 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }} transition={{ type: "spring", stiffness: 350, damping: 25 }}
-              style={{ width: 58, height: 58, display: "flex", alignItems: "center", justifyContent: "center", background: i === 0 ? color : `${color}12`, color: i === 0 ? "white" : color, fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: 16, borderRadius: 14, border: `1.5px solid ${color}30`, boxShadow: i === 0 ? `0 4px 16px ${color}44` : "none" }}>
-              {item}
-            </motion.div>
-          ))}
-        </AnimatePresence>
-        <span style={{ fontSize: 11, color: "#86868b", fontFamily: "var(--font-mono)", fontWeight: 500 }}>← REAR</span>
+      <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.5, color: "#86868b", textTransform: "uppercase", marginBottom: 20 }}>Queue — First In, First Out (FIFO)</div>
+      {/* Queue display */}
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ display: "flex", gap: 4, alignItems: "center", flexWrap: "wrap", padding: "16px", background: `${color}06`, borderRadius: 16, border: `1px solid ${color}18`, minHeight: 80 }}>
+          <span style={{ fontSize: 10, color: color, fontFamily: "var(--font-mono)", fontWeight: 700, marginRight: 4 }}>FRONT</span>
+          <AnimatePresence>
+            {queue.map((item, i) => (
+              <motion.div key={`${item}-${i}`} layout initial={{ opacity: 0, x: 20, scale: 0.8 }} animate={{ opacity: 1, x: 0, scale: 1 }} exit={{ opacity: 0, x: -20, scale: 0.5 }} transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                style={{ position: "relative", width: 56, height: 56, display: "flex", alignItems: "center", justifyContent: "center", background: i === 0 ? color : `${color}12`, color: i === 0 ? "white" : color, fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: 15, borderRadius: 12, border: `1.5px solid ${color}30`, boxShadow: i === 0 ? `0 4px 16px ${color}44` : "none" }}>
+                {item}
+                {i === 0 && <div style={{ position: "absolute", bottom: -18, fontSize: 9, color, fontWeight: 700 }}>FRONT</div>}
+                {i === queue.length - 1 && i !== 0 && <div style={{ position: "absolute", bottom: -18, fontSize: 9, color: "#86868b", fontWeight: 700 }}>REAR</div>}
+              </motion.div>
+            ))}
+            {queue.length === 0 && (
+              <div style={{ padding: "12px 20px", border: `2px dashed ${color}40`, borderRadius: 12, color: `${color}60`, fontFamily: "var(--font-mono)", fontSize: 12 }}>Empty Queue</div>
+            )}
+          </AnimatePresence>
+          {queue.length > 0 && <span style={{ fontSize: 10, color: "#86868b", fontFamily: "var(--font-mono)", fontWeight: 700, marginLeft: 4 }}>REAR</span>}
+        </div>
       </div>
-      <VizBtn onClick={() => setQueue(p => [...p, Math.floor(Math.random() * 99) + 1])} color={color}>Enqueue</VizBtn>
-      <VizBtn onClick={() => setQueue(p => p.slice(1))} color={color}>Dequeue</VizBtn>
+      {/* Controls */}
+      <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: 8 }}>
+          <input type="number" value={inputVal} onChange={e => setInputVal(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && enqueue()}
+            placeholder="Value..."
+            style={{ width: 110, padding: "10px 14px", border: `1.5px solid ${color}40`, borderRadius: 10, fontSize: 14, fontFamily: "var(--font-mono)", fontWeight: 600, color: "#1d1d1f", outline: "none", background: "#f5f5f7" }} />
+          <VizBtn onClick={enqueue} color={color}>Enqueue →</VizBtn>
+        </div>
+        <VizBtn onClick={() => setQueue(p => p.slice(1))} color={color}>← Dequeue</VizBtn>
+        <div style={{ fontSize: 12, fontFamily: "var(--font-mono)", color: "#86868b", fontWeight: 500 }}>Size: {queue.length}</div>
+      </div>
     </div>
   );
 }
