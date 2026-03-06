@@ -78,6 +78,8 @@ const GLOBAL_CSS = `
   }
   
   @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-6px); } }
+  @keyframes corners-dance-tr { 0%, 100% { transform: translate(0,0) rotate(0deg); } 50% { transform: translate(15px, 15px) rotate(5deg); } }
+  @keyframes corners-dance-bl { 0%, 100% { transform: translate(0,0) rotate(0deg); } 50% { transform: translate(-15px, -15px) rotate(-5deg); } }
   @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(0,184,163,0.3); } 50% { box-shadow: 0 0 0 8px rgba(0,184,163,0); } }
   @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
   @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -1056,6 +1058,54 @@ const FloatingWords = () => {
   );
 };
 
+const CornerDance = () => {
+  const languages = ["Java", "Python", "JavaScript", "C++", "Golang", "Swift", "Ruby", "TypeScript"];
+  return (
+    <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 5 }}>
+      {languages.map((l, i) => {
+        const isRight = i % 2 === 0;
+        const isBottom = i < 4;
+        return (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0 }}
+            animate={{
+              opacity: [0, 0.3, 0],
+              x: isRight ? [0, 20, 0] : [0, -20, 0],
+              y: isBottom ? [0, 20, 0] : [0, -20, 0],
+              rotate: [0, 10, -10, 0]
+            }}
+            transition={{
+              duration: 8 + Math.random() * 5,
+              repeat: Infinity,
+              delay: i * 1.5,
+              ease: "easeInOut"
+            }}
+            style={{
+              position: "absolute",
+              top: !isBottom ? `${10 + Math.random() * 15}%` : "auto",
+              bottom: isBottom ? `${10 + Math.random() * 15}%` : "auto",
+              right: isRight ? `${5 + Math.random() * 10}%` : "auto",
+              left: !isRight ? `${5 + Math.random() * 10}%` : "auto",
+              fontSize: 16,
+              fontWeight: 800,
+              color: i % 3 === 0 ? "var(--gold)" : "var(--teal)",
+              fontFamily: "var(--font-mono)",
+              background: "rgba(255,255,255,0.05)",
+              padding: "8px 16px",
+              borderRadius: 12,
+              border: "1px solid rgba(255,255,255,0.1)",
+              backdropFilter: "blur(4px)"
+            }}
+          >
+            {l}
+          </motion.div>
+        );
+      })}
+    </div>
+  );
+};
+
 const DSATopicCard = () => (
   <motion.div
     style={{
@@ -1154,7 +1204,10 @@ export const HomeScreen = ({ onEnter, user, onLogout }) => {
             </motion.div>
 
             {/* Content Section */}
-            <div style={{ position: "relative", zIndex: 10, maxWidth: 1200, margin: "0 auto", padding: "120px 40px", display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 60, minHeight: "100vh", alignItems: "center" }}>
+            <div style={{ position: "relative", zIndex: 10, maxWidth: 1200, margin: "0 auto", padding: "120px 40px", display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 60, minHeight: "calc(100vh - 64px)", alignItems: "center" }}>
+
+              {/* Corner Dancing Animations */}
+              <CornerDance />
 
               {/* Left Side: 3D Card */}
               <motion.div
@@ -1173,30 +1226,108 @@ export const HomeScreen = ({ onEnter, user, onLogout }) => {
                 transition={{ duration: 0.8, delay: 0.8 }}
                 style={{ textAlign: "center", color: "white" }}
               >
-                <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(3.5rem, 6vw, 5.5rem)", fontWeight: 400, lineHeight: 1, marginBottom: 24, letterSpacing: -1 }}>
-                  A New Way <br /> to <span style={{ color: "var(--gold)", fontStyle: "italic" }}>Learn DSA</span>
+                <div style={{ display: "inline-block", padding: "6px 14px", background: "rgba(212, 175, 55, 0.1)", borderRadius: 10, border: "1px solid rgba(212, 175, 55, 0.2)", marginBottom: 20 }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "var(--gold)", letterSpacing: 0.5 }}>Professional DSA Mastery</span>
+                </div>
+                <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(3.2rem, 5.5vw, 5rem)", fontWeight: 400, lineHeight: 1.1, marginBottom: 20, letterSpacing: -1.5 }}>
+                  A New Way <br /> to <span style={{ color: "var(--gold)", fontStyle: "italic", borderBottom: "3px solid var(--gold)" }}>Learn DSA</span>
                 </h1>
-                <p style={{ fontSize: 18, color: "rgba(255,255,255,0.7)", lineHeight: 1.6, marginBottom: 40, maxWidth: 440, margin: "0 auto 40px" }}>
-                  FITA Academy is the best platform to master Data Structures, Algorithms, and crack technical interviews.
+                <p style={{ fontSize: 17, color: "rgba(255,255,255,0.6)", lineHeight: 1.7, marginBottom: 44, maxWidth: 460, margin: "0 auto 40px", fontWeight: 500 }}>
+                  Elevate your technical skills with CodeLoom. Our platform transforms complex concepts into intuitive visual experiences for elite software engineers.
                 </p>
                 <div style={{ display: "flex", gap: 16, justifyContent: "center" }}>
                   <motion.button
-                    whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(0,184,163,0.4)" }}
+                    whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(0,184,163,0.5)" }}
                     whileTap={{ scale: 0.95 }}
                     onClick={onEnter}
-                    style={{ background: "var(--teal)", color: "white", padding: "18px 40px", borderRadius: 16, fontSize: 16, fontWeight: 700, transition: "0.3s", animation: "pulse-glow 2s infinite" }}
+                    style={{ background: "var(--teal)", color: "white", padding: "18px 52px", borderRadius: 16, fontSize: 16, fontWeight: 800, transition: "0.3s", animation: "pulse-glow 2s infinite", letterSpacing: 0.5 }}
                   >
-                    Create Account →
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ background: "rgba(255,255,255,0.1)" }}
-                    onClick={handleExplore}
-                    style={{ border: "1.5px solid rgba(255,255,255,0.2)", color: "white", padding: "18px 40px", borderRadius: 16, fontSize: 16, fontWeight: 700 }}
-                  >
-                    Explore Modules
+                    Start Exploring Modules →
                   </motion.button>
                 </div>
               </motion.div>
+            </div>
+
+            {/* NEW AUTHENTIC SECTIONS (模仿 LeetCode) */}
+            <div style={{ background: "white", position: "relative", zIndex: 10 }}>
+              <div style={{ maxWidth: 1200, margin: "0 auto", padding: "100px 40px" }}>
+
+                {/* Section 1: Questions & Community */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, marginBottom: 120, alignItems: "center" }}>
+                  <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }}>
+                    <div style={{ display: "flex", gap: 12, marginBottom: 24 }}>
+                      <div style={{ width: 44, height: 44, borderRadius: 12, background: "#0071E315", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>🔷</div>
+                      <div style={{ width: 44, height: 44, borderRadius: 12, background: "#34C75915", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>👥</div>
+                      <div style={{ width: 44, height: 44, borderRadius: 12, background: "#FF950015", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>🏆</div>
+                    </div>
+                    <h3 style={{ fontSize: 32, fontWeight: 800, marginBottom: 20, color: "var(--dark)" }}>Questions, Community & Contests</h3>
+                    <p style={{ fontSize: 16, color: "var(--text-muted)", lineHeight: 1.8, marginBottom: 24 }}>
+                      Over 1000+ structured questions for you to practice. Join a community of dedicated learners, participate in weekly contests, and earn recognition within the FITA Academy ecosystem.
+                    </p>
+                    <a href="#" style={{ color: "var(--teal)", fontWeight: 800, fontSize: 15 }}>View Modules ›</a>
+                  </motion.div>
+                  <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} style={{ position: "relative" }}>
+                    <div style={{ height: 300, background: "#F5F5F7", borderRadius: 24, border: "1.5px solid #E6E6E6", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <span style={{ fontSize: 80, opacity: 0.05 }}>📊</span>
+                    </div>
+                  </motion.div>
+                </div>
+
+                {/* Section 2: Companies & Candidates */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, marginBottom: 120, alignItems: "center" }}>
+                  <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} style={{ order: 2 }}>
+                    <div style={{ display: "flex", gap: 12, marginBottom: 24 }}>
+                      <div style={{ width: 44, height: 44, borderRadius: 12, background: "#D4AF3715", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>💼</div>
+                      <div style={{ width: 44, height: 44, borderRadius: 12, background: "#66666615", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>🏢</div>
+                    </div>
+                    <h3 style={{ fontSize: 32, fontWeight: 800, marginBottom: 20, color: "var(--dark)" }}>Companies & Candidates</h3>
+                    <p style={{ fontSize: 16, color: "var(--text-muted)", lineHeight: 1.8, marginBottom: 24 }}>
+                      We help you prepare for technical interviews at top-tier companies. FITA Academy partners with industry leaders to identify talent and provide tailored assessment training.
+                    </p>
+                    <a href="#" style={{ color: "var(--teal)", fontWeight: 800, fontSize: 15 }}>Interview Prep ›</a>
+                  </motion.div>
+                  <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} style={{ position: "relative", order: 1 }}>
+                    <div style={{ height: 300, background: "#F5F5F7", borderRadius: 24, border: "1.5px solid #E6E6E6", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <span style={{ fontSize: 80, opacity: 0.1 }}>☕</span>
+                    </div>
+                  </motion.div>
+                </div>
+
+                {/* Developer Section */}
+                <div style={{ textAlign: "center", marginBottom: 120 }}>
+                  <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
+                    <div style={{ width: 56, height: 56, borderRadius: 16, background: "var(--teal)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px", fontSize: 24 }}>{"</>"}</div>
+                    <h3 style={{ fontSize: 28, fontWeight: 800, marginBottom: 16 }}>Developer Focused</h3>
+                    <p style={{ fontSize: 16, color: "var(--text-muted)", maxWidth: 600, margin: "0 auto 40px", lineHeight: 1.7 }}>
+                      Supporting 10 popular coding languages. Our powerful coding environment helps you test, debug, and learn at your own pace.
+                    </p>
+                  </motion.div>
+                </div>
+
+                {/* Made with Love Section */}
+                <div style={{ textAlign: "center", borderTop: "1px solid #EEE", paddingTop: 100 }}>
+                  <div style={{ width: 44, height: 44, borderRadius: "50%", background: "#FEE2E2", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>🍎</div>
+                  <h4 style={{ fontSize: 20, fontWeight: 800, color: "#EF4444", marginBottom: 12 }}>Made with ❤️ in Chennai</h4>
+                  <p style={{ fontSize: 15, color: "var(--text-muted)", maxWidth: 700, margin: "0 auto 60px", lineHeight: 1.8 }}>
+                    At FITA Academy, our mission is to help you improve yourself and land your dream job. We have a sizable repository of interview resources for many companies.
+                  </p>
+
+                  {/* Logo Strip */}
+                  <div style={{ display: "flex", justifyContent: "center", gap: 40, flexWrap: "wrap", opacity: 0.4, filter: "grayscale(1)" }}>
+                    {["Facebook", "Apple", "Uber", "Cisco", "Amazon", "Intel", "IBM"].map(logo => (
+                      <span key={logo} style={{ fontSize: 18, fontWeight: 900, fontFamily: "var(--font-mono)" }}>{logo.toUpperCase()}</span>
+                    ))}
+                  </div>
+
+                  <motion.button
+                    onClick={onEnter}
+                    whileHover={{ scale: 1.05 }}
+                    style={{ marginTop: 80, color: "var(--teal)", fontWeight: 800, fontSize: 16, border: "none", background: "none", cursor: "pointer" }}
+                  >
+                    Join Our Team ›
+                  </motion.button>
+                </div>
+              </div>
             </div>
 
             {/* Bottom Modules Section - Revealed on handleExplore */}
