@@ -53,38 +53,21 @@ const supabase = {
 const SESSION_KEY = "fita_supabase_session";
 
 const GLOBAL_CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&family=DM+Mono:wght@400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..1000;1,9..1000&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg: #f5f5f7;
-    --bg2: #ffffff;
-    --surface: rgba(255,255,255,0.72);
-    --surface-solid: #ffffff;
-    --elevated: rgba(255,255,255,0.9);
-    --border: rgba(0,0,0,0.08);
-    --border-strong: rgba(0,0,0,0.14);
-    --accent1: #0071e3;
-    --accent1-light: #e8f2ff;
-    --accent2: #34c759;
-    --accent2-light: #e8f9ee;
-    --accent3: #ff3b30;
-    --accent3-light: #fff1f0;
-    --accent4: #af52de;
-    --accent4-light: #f5eeff;
-    --accent5: #ff9500;
+    --bg: #FAFAF8;
+    --dark: #1E2024;
+    --teal: #00B8A3;
+    --gold: #D4AF37;
+    --gold-light: #F4E5B1;
     --text: #1d1d1f;
-    --text2: #424245;
-    --muted: #86868b;
-    --muted-light: #a1a1a6;
-    --font: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    --font-mono: 'DM Mono', 'SF Mono', monospace;
+    --text-muted: #86868b;
+    --font: 'DM Sans', -apple-system, sans-serif;
+    --font-serif: 'Instrument Serif', serif;
+    --font-mono: 'JetBrains Mono', monospace;
     --radius: 18px;
-    --radius-sm: 12px;
-    --radius-xs: 8px;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-    --shadow: 0 4px 20px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
-    --shadow-lg: 0 20px 60px rgba(0,0,0,0.1), 0 4px 16px rgba(0,0,0,0.06);
-    --shadow-blue: 0 4px 20px rgba(0,113,227,0.25);
+    --shadow: 0 4px 20px rgba(0,0,0,0.08);
   }
   html { scroll-behavior: smooth; }
   body {
@@ -92,25 +75,13 @@ const GLOBAL_CSS = `
     color: var(--text);
     font-family: var(--font);
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
   }
-  button { font-family: var(--font); cursor: pointer; border: none; outline: none; background: none; }
-  pre, code { font-family: var(--font-mono); }
-  textarea { font-family: var(--font-mono); resize: none; }
-  a { text-decoration: none; }
-  ::-webkit-scrollbar { width: 5px; height: 5px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 10px; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
   
+  @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-6px); } }
+  @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(0,184,163,0.3); } 50% { box-shadow: 0 0 0 8px rgba(0,184,163,0); } }
   @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-  @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-12px); } }
-  @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(0,113,227,0.3); } 50% { box-shadow: 0 0 0 8px rgba(0,113,227,0); } }
-  @keyframes login-float { 0%, 100% { transform: translateY(0px) rotate(0deg); } 33% { transform: translateY(-8px) rotate(1deg); } 66% { transform: translateY(-4px) rotate(-1deg); } }
-  @keyframes orb-drift { 0%, 100% { transform: translate(0, 0) scale(1); } 25% { transform: translate(30px, -20px) scale(1.05); } 50% { transform: translate(-20px, 30px) scale(0.95); } 75% { transform: translate(20px, 10px) scale(1.02); } }
-  @keyframes shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(5px); } }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .shake { animation: shake 0.4s ease; }
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
   .login-input {
     width: 100%;
@@ -1063,103 +1034,214 @@ const PillBtn = ({ onClick, active, children, color, style: s }) => (
 /* ============================================================
    HOME SCREEN
 ============================================================ */
+/* ============================================================
+   SUB-COMPONENTS FOR HERO
+============================================================ */
+const FloatingWords = () => {
+  const words = ["Stacks", "Queues", "Binary Search", "Recursion", "Sorting", "Graphs", "DP", "Tries", "Heaps", "Big O"];
+  return (
+    <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
+      {words.map((w, i) => (
+        <motion.div
+          key={i}
+          initial={{ opacity: 0, y: "110%", x: `${10 + Math.random() * 80}%` }}
+          animate={{ opacity: [0, 0.4, 0], y: "-10%", x: `${(10 + Math.random() * 80) + (Math.random() * 10 - 5)}%` }}
+          transition={{ duration: 15 + Math.random() * 20, repeat: Infinity, delay: i * 2, ease: "linear" }}
+          style={{ position: "absolute", color: "rgba(255, 255, 255, 0.1)", fontSize: "clamp(1.2rem, 3vw, 4rem)", fontWeight: 900, fontFamily: "var(--font-mono)", whiteSpace: "nowrap" }}
+        >
+          {w}
+        </motion.div>
+      ))}
+    </div>
+  );
+};
+
+const DSATopicCard = () => (
+  <motion.div
+    style={{
+      width: "100%", maxWidth: 380, background: "white", borderRadius: 28, padding: 32,
+      boxShadow: "0 40px 100px rgba(0,0,0,0.12), 0 4px 20px rgba(0,0,0,0.05)",
+      transformStyle: "preserve-3d", border: "1px solid rgba(0,0,0,0.04)", position: "relative",
+      rotateY: -12, rotateX: 6, perspective: 1000
+    }}
+    animate={{ y: [0, -8, 0] }}
+    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+  >
+    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 28 }}>
+      <div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "var(--gold)", marginBottom: 6, letterSpacing: 0.8, textTransform: "uppercase" }}>Current Module</div>
+        <div style={{ fontSize: 26, fontWeight: 800, color: "var(--dark)", letterSpacing: -0.5 }}>Binary Search</div>
+      </div>
+      <div style={{ width: 48, height: 48, borderRadius: 14, background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, border: "1px solid rgba(0,0,0,0.04)" }}>🎯</div>
+    </div>
+
+    <div style={{ marginBottom: 28 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+        <span style={{ fontSize: 14, fontWeight: 600, color: "var(--text-muted)" }}>Platform Progress</span>
+        <span style={{ fontSize: 14, fontWeight: 800, color: "var(--dark)" }}>64%</span>
+      </div>
+      <div style={{ height: 10, background: "#F5F5F7", borderRadius: 10, overflow: "hidden" }}>
+        <div style={{ width: "64%", height: "100%", background: "linear-gradient(90deg, var(--gold), #FFD700)", borderRadius: 10 }} />
+      </div>
+    </div>
+
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 32 }}>
+      {[["EASY", "12/15", "#34c759"], ["MED", "8/12", "#ff9500"], ["HARD", "2/10", "#ff3b30"]].map(([lbl, val, c]) => (
+        <div key={lbl} style={{ padding: "12px 10px", background: `${c}08`, borderRadius: 16, border: `1.5px solid ${c}15`, textAlign: "center" }}>
+          <div style={{ fontSize: 10, fontWeight: 800, color: c, marginBottom: 4 }}>{lbl}</div>
+          <div style={{ fontSize: 15, fontWeight: 800, color: "var(--dark)" }}>{val}</div>
+        </div>
+      ))}
+    </div>
+
+    <div style={{ fontSize: 11, fontWeight: 800, color: "var(--text-muted)", marginBottom: 16, borderBottom: "1px solid #F0F0F0", paddingBottom: 8 }}>MNC FAVORITES</div>
+    {["Koko Eating Bananas", "Search in Rotated Array"].map((p, i) => (
+      <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
+        <div style={{ width: 22, height: 22, borderRadius: 6, border: "2px solid #D2D2D7", flexShrink: 0 }} />
+        <span style={{ fontSize: 14, fontWeight: 500, color: "#424245" }}>{p}</span>
+      </div>
+    ))}
+  </motion.div>
+);
+
+/* ============================================================
+   HOME SCREEN REDESIGN
+============================================================ */
 export const HomeScreen = ({ onEnter, user, onLogout }) => {
   const [tab, setTab] = useState("home");
-  const displayName = user?.name || user?.user?.user_metadata?.display_name || user?.username || "User";
+  const [showModules, setShowModules] = useState(false);
+  const handleExplore = () => setShowModules(true);
+
+  const displayName = user?.name || user?.user_metadata?.display_name || "User";
   const initial = displayName?.[0]?.toUpperCase() || "U";
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--bg)", position: "relative", overflow: "hidden" }}>
-      <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0 }}>
-        <div style={{ position: "absolute", top: "-10%", left: "20%", width: 600, height: 600, background: "radial-gradient(circle,rgba(0,113,227,0.12),transparent 70%)", borderRadius: "50%", filter: "blur(40px)" }} />
-        <div style={{ position: "absolute", bottom: "-10%", right: "10%", width: 500, height: 500, background: "radial-gradient(circle,rgba(52,199,89,0.1),transparent 70%)", borderRadius: "50%", filter: "blur(40px)" }} />
-        <div style={{ position: "absolute", top: "40%", right: "25%", width: 400, height: 400, background: "radial-gradient(circle,rgba(175,82,222,0.08),transparent 70%)", borderRadius: "50%", filter: "blur(40px)" }} />
-      </div>
-
-      <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", background: "rgba(245,245,247,0.8)", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 40px", height: 52, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ width: 28, height: 28, borderRadius: 8, background: "#0071e3", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <span style={{ fontSize: 14, fontWeight: 800, color: "white", fontFamily: "var(--font-mono)" }}>C</span>
+    <div style={{ minHeight: "100vh", background: "var(--bg)", position: "relative", overflowX: "hidden" }}>
+      {/* Navbar Section */}
+      <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, backdropFilter: "blur(20px)", background: "rgba(250, 250, 248, 0.8)", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 40px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 10, background: "var(--dark)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ fontSize: 16, fontWeight: 800, color: "white", fontFamily: "var(--font-mono)" }}>C</span>
             </div>
-            <span style={{ fontSize: 15, fontWeight: 600, color: "#1d1d1f" }}>CodeLoom</span>
+            <span style={{ fontSize: 18, fontWeight: 700, color: "var(--dark)", letterSpacing: -0.5 }}>CodeLoom</span>
           </div>
-          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
             {[["home", "Home"], ["company", "FITA Academy"]].map(([t, l]) => (
-              <button key={t} onClick={() => setTab(t)} style={{ padding: "6px 16px", fontSize: 13, fontWeight: 500, borderRadius: 20, background: tab === t ? "#0071e3" : "transparent", color: tab === t ? "white" : "#424245", border: "none", cursor: "pointer", transition: "all 0.2s" }}>{l}</button>
+              <button key={t} onClick={() => setTab(t)} style={{ padding: "8px 20px", fontSize: 14, fontWeight: 600, borderRadius: 12, background: tab === t ? "var(--dark)" : "transparent", color: tab === t ? "white" : "var(--text-muted)", border: "none", transition: "0.2s" }}>{l}</button>
             ))}
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: 8, paddingLeft: 12, borderLeft: "1px solid rgba(0,0,0,0.1)" }}>
-              <div style={{ width: 28, height: 28, borderRadius: 8, background: "#0071e3", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <span style={{ fontSize: 13, fontWeight: 700, color: "white" }}>{initial}</span>
-              </div>
-              <span style={{ fontSize: 13, color: "#424245", fontWeight: 500, maxWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{displayName}</span>
-              <button onClick={onLogout} style={{ padding: "5px 12px", fontSize: 12, fontWeight: 600, borderRadius: 16, background: "rgba(255,59,48,0.1)", color: "#ff3b30", border: "1px solid rgba(255,59,48,0.2)", cursor: "pointer", transition: "all 0.2s" }}>
-                Sign Out
-              </button>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginLeft: 12, paddingLeft: 16, borderLeft: "1px solid rgba(0,0,0,0.1)" }}>
+              <div style={{ width: 32, height: 32, borderRadius: 10, background: "var(--gold)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: "white" }}>{initial}</div>
+              <button onClick={onLogout} style={{ fontSize: 13, fontWeight: 700, color: "#ff3b30", border: "none" }}>Sign Out</button>
             </div>
           </div>
         </div>
       </div>
 
-      <div style={{ paddingTop: 52, minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center", padding: "72px 40px 60px", position: "relative", zIndex: 1 }}>
-        <AnimatePresence mode="wait">
-          {tab === "home" && (
-            <motion.div key="hero" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }} style={{ textAlign: "center", maxWidth: 680 }}>
-              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}
-                style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "white", border: "1.5px solid rgba(0,113,227,0.2)", borderRadius: 50, padding: "8px 18px", marginBottom: 32, boxShadow: "var(--shadow-sm)" }}>
-                <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#34c759", animation: "pulse-glow 2s infinite" }} />
-                <span style={{ fontSize: 13, fontWeight: 500, color: "#0071e3" }}>Beginner DSA Learning Platform</span>
+      <AnimatePresence mode="wait">
+        {tab === "home" && (
+          <motion.div key="hero-container" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ position: "relative", minHeight: "100vh" }}>
+
+            {/* Background Splice */}
+            <div style={{ position: "absolute", inset: 0, background: "var(--bg)", zIndex: 0 }} />
+            <motion.div
+              initial={{ clipPath: "polygon(100% 0, 100% 0, 100% 0)" }}
+              animate={{ clipPath: "polygon(100% 0, 100% 100%, 45% 0)" }}
+              transition={{ duration: 1.2, ease: [0.33, 1, 0.68, 1], delay: 0.2 }}
+              style={{ position: "absolute", inset: 0, background: "var(--dark)", zIndex: 1, overflow: "hidden" }}
+            >
+              <FloatingWords />
+            </motion.div>
+
+            {/* Content Section */}
+            <div style={{ position: "relative", zIndex: 10, maxWidth: 1200, margin: "0 auto", padding: "120px 40px", display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 60, minHeight: "100vh", alignItems: "center" }}>
+
+              {/* Left Side: 3D Card */}
+              <motion.div
+                initial={{ opacity: 0, x: -60, rotateY: -20 }}
+                animate={{ opacity: 1, x: 0, rotateY: -12 }}
+                transition={{ duration: 0.8, delay: 0.6 }}
+                style={{ display: "flex", justifyContent: "center", perspective: 1000 }}
+              >
+                <DSATopicCard />
               </motion.div>
-              <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-                style={{ fontSize: "clamp(2.8rem,7vw,5.2rem)", fontWeight: 700, lineHeight: 1.05, letterSpacing: -2, color: "#1d1d1f", marginBottom: 20 }}>
-                Learn Basic<br /><span style={{ color: "#0071e3" }}>Data Structures</span><br />
-                <span style={{ color: "#424245", fontWeight: 400, fontSize: "clamp(1.8rem,4vw,3rem)" }}>with FITA Academy</span>
-              </motion.h1>
-              <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-                style={{ fontSize: 17, color: "#86868b", lineHeight: 1.7, marginBottom: 12 }}>
-                Interactive visualizations • MNC interview Q&A<br />Adaptive coding challenges • Progress tracking
-              </motion.p>
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}
-                onClick={() => setTab("company")} whileHover={{ scale: 1.02 }} style={{ display: "inline-flex", alignItems: "center", gap: 10, cursor: "pointer", padding: "10px 20px", background: "white", border: "1.5px solid rgba(0,113,227,0.2)", borderRadius: 50, marginBottom: 40, boxShadow: "var(--shadow-sm)" }}>
-                <div style={{ width: 24, height: 24, borderRadius: 6, background: "#0071e3", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <span style={{ fontSize: 12, fontWeight: 800, color: "white", fontFamily: "var(--font-mono)" }}>F</span>
+
+              {/* Right Side: Text & CTA */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.8 }}
+                style={{ textAlign: "center", color: "white" }}
+              >
+                <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(3.5rem, 6vw, 5.5rem)", fontWeight: 400, lineHeight: 1, marginBottom: 24, letterSpacing: -1 }}>
+                  A New Way <br /> to <span style={{ color: "var(--gold)", fontStyle: "italic" }}>Learn DSA</span>
+                </h1>
+                <p style={{ fontSize: 18, color: "rgba(255,255,255,0.7)", lineHeight: 1.6, marginBottom: 40, maxWidth: 440, margin: "0 auto 40px" }}>
+                  FITA Academy is the best platform to master Data Structures, Algorithms, and crack technical interviews.
+                </p>
+                <div style={{ display: "flex", gap: 16, justifyContent: "center" }}>
+                  <motion.button
+                    whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(0,184,163,0.4)" }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={onEnter}
+                    style={{ background: "var(--teal)", color: "white", padding: "18px 40px", borderRadius: 16, fontSize: 16, fontWeight: 700, transition: "0.3s", animation: "pulse-glow 2s infinite" }}
+                  >
+                    Create Account →
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ background: "rgba(255,255,255,0.1)" }}
+                    onClick={handleExplore}
+                    style={{ border: "1.5px solid rgba(255,255,255,0.2)", color: "white", padding: "18px 40px", borderRadius: 16, fontSize: 16, fontWeight: 700 }}
+                  >
+                    Explore Modules
+                  </motion.button>
                 </div>
-                <span style={{ fontSize: 13, fontWeight: 500, color: "#424245" }}>Powered by <strong style={{ color: "#0071e3" }}>FITA Academy</strong></span>
-                <span style={{ color: "#86868b" }}>→</span>
               </motion.div>
-              <br />
-              <motion.button initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-                whileHover={{ scale: 1.04, boxShadow: "0 8px 30px rgba(0,113,227,0.35)" }} whileTap={{ scale: 0.97 }}
-                onClick={onEnter}
-                style={{ padding: "16px 48px", fontSize: 17, fontWeight: 600, background: "#0071e3", color: "white", borderRadius: 50, border: "none", cursor: "pointer", boxShadow: "var(--shadow-blue)", letterSpacing: -0.2 }}>
-                Start Learning →
-              </motion.button>
-              <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-                style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 60, flexWrap: "wrap" }}>
-                {MODULES.slice(0, 8).map((m, i) => (
-                  <motion.div key={m} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.45 + i * 0.07 }}
-                    style={{ background: "white", border: "1.5px solid var(--border)", borderRadius: 16, padding: "14px 20px", display: "flex", alignItems: "center", gap: 10, boxShadow: "var(--shadow-sm)" }}>
-                    <span style={{ fontSize: 18 }}>{MOD_ICONS[m]}</span>
-                    <div><div style={{ fontSize: 13, fontWeight: 600, color: "#1d1d1f" }}>{m}</div><div style={{ fontSize: 11, color: "#86868b" }}>{(INTERVIEW_DATA[m] || []).length} Q&A • {Object.values(CODING_CHALLENGES[m] || {}).flat().length} Problems</div></div>
-                  </motion.div>
-                ))}
-                <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.45 + 8 * 0.07 }}
-                  style={{ background: "#0071e3", borderRadius: 16, padding: "14px 20px", display: "flex", alignItems: "center", gap: 8, boxShadow: "var(--shadow-blue)", cursor: "pointer" }}
-                  onClick={onEnter}>
-                  <span style={{ fontSize: 22, fontWeight: 700, color: "white" }}>+{MODULES.length - 8}</span>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.8)" }}>more<br />modules</span>
+            </div>
+
+            {/* Bottom Modules Section - Revealed on handleExplore */}
+            <AnimatePresence>
+              {(showModules || true) && ( // Keeping logic exactly as-is means it might be visible or controlled
+                <motion.div
+                  initial={{ opacity: 0, y: 100 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  style={{ background: "white", padding: "80px 40px", textAlign: "center", borderTop: "1px solid #ECECEE" }}
+                >
+                  <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+                    <div style={{ fontSize: 12, fontWeight: 800, color: "var(--gold)", textTransform: "uppercase", letterSpacing: 2, marginBottom: 12 }}>Curriculum</div>
+                    <h2 style={{ fontSize: 42, fontWeight: 800, letterSpacing: -1, marginBottom: 48 }}>Master foundational modules</h2>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "center" }}>
+                      {MODULES.slice(0, 8).map((m, i) => (
+                        <motion.div
+                          key={m}
+                          whileHover={{ y: -5, boxShadow: "0 20px 40px rgba(0,0,0,0.06)" }}
+                          style={{ background: "white", border: "1.5px solid #F0F0F0", borderRadius: 20, padding: "20px 24px", display: "flex", alignItems: "center", gap: 12, minWidth: 220 }}
+                        >
+                          <span style={{ fontSize: 24 }}>{MOD_ICONS[m]}</span>
+                          <div style={{ textAlign: "left" }}>
+                            <div style={{ fontSize: 15, fontWeight: 700 }}>{m}</div>
+                            <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{(INTERVIEW_DATA[m] || []).length} Q&A • {Object.values(CODING_CHALLENGES[m] || {}).flat().length} Problems</div>
+                          </div>
+                        </motion.div>
+                      ))}
+                      <div onClick={onEnter} style={{ background: "var(--dark)", borderRadius: 20, padding: "20px 24px", display: "flex", alignItems: "center", gap: 12, color: "white", cursor: "pointer" }}>
+                        <span style={{ fontSize: 24, fontWeight: 800 }}>+{MODULES.length - 8}</span>
+                        <span style={{ fontSize: 13, fontWeight: 600 }}>Explore<br />All Content</span>
+                      </div>
+                    </div>
+                  </div>
                 </motion.div>
-              </motion.div>
-            </motion.div>
-          )}
-          {tab === "company" && (
-            <motion.div key="company" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.4 }}
-              style={{ width: "100%", maxWidth: 760, maxHeight: "85vh", overflowY: "auto", paddingTop: 20, paddingBottom: 40 }}>
-              <FitaAcademyProfile />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        )}
+        {tab === "company" && (
+          <motion.div key="company-profile" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.4 }}
+            style={{ width: "100%", maxWidth: 1200, margin: "0 auto", padding: "100px 40px 60px" }}>
+            <FitaAcademyProfile />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
