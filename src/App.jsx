@@ -1226,7 +1226,7 @@ const ChennaiSection = () => (
    HOME SCREEN REDESIGN
 ============================================================ */
 export const HomeScreen = ({ onEnter, user, onLogout, progress }) => {
-  const [tab, setTab] = useState("company");
+  const [tab, setTab] = useState("home");
   const displayName = user?.name || user?.user_metadata?.display_name || "User";
   const initial = displayName?.[0]?.toUpperCase() || "U";
 
@@ -1247,7 +1247,7 @@ export const HomeScreen = ({ onEnter, user, onLogout, progress }) => {
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            {[["company", "FITA Academy"]].map(([t, l]) => (
+            {[["home", "My Path"], ["origin", "Our Story"], ["company", "FITA Academy"]].map(([t, l]) => (
               <button key={t} onClick={() => setTab(t)} style={{
                 padding: "10px 24px", borderRadius: 24, fontSize: 14, fontWeight: 700,
                 background: tab === t ? "var(--teal)" : "transparent",
