@@ -56,18 +56,17 @@ const GLOBAL_CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg: #FAFAF8;
-    --dark: #000000;
-    --teal: #0071e3;
-    --gold: #BF4800;
-    --gold-light: #FFD60A;
+    --bg: #F5F9FF;
+    --dark: #1D1D1F;
+    --teal: #0071E3;
+    --gold: #FF9500;
+    --gold-light: #FFCC00;
     --text: #1d1d1f;
     --text-muted: #86868b;
-    --font: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font: 'Inter', -apple-system, sans-serif;
     --font-serif: 'Instrument Serif', serif;
-    --font-mono: 'JetBrains Mono', monospace;
-    --radius: 20px;
-    --shadow: 0 4px 24px rgba(0,0,0,0.06);
+    --radius: 32px;
+    --shadow: 0 4px 20px rgba(0,0,0,0.04);
   }
   html { scroll-behavior: smooth; }
   body {
@@ -77,13 +76,9 @@ const GLOBAL_CSS = `
     -webkit-font-smoothing: antialiased;
   }
   
-  @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-6px); } }
-  @keyframes corners-dance-tr { 0%, 100% { transform: translate(0,0) rotate(0deg); } 50% { transform: translate(15px, 15px) rotate(5deg); } }
-  @keyframes corners-dance-bl { 0%, 100% { transform: translate(0,0) rotate(0deg); } 50% { transform: translate(-15px, -15px) rotate(-5deg); } }
-  @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(0,184,163,0.3); } 50% { box-shadow: 0 0 0 8px rgba(0,184,163,0); } }
-  @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-  @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+  @keyframes drift { 0%, 100% { transform: translateX(0px); } 50% { transform: translateX(20px); } }
+  .sky-gradient { background: linear-gradient(180deg, #AEE2FF 0%, #F5F9FF 100%); }
 
   .login-input {
     width: 100%;
@@ -1116,125 +1111,81 @@ const CornerDance = () => {
   );
 };
 
-const DSATopicCard = ({ progress = {} }) => {
-  const lastMod = progress.last_module || "Binary Search";
-  const color = MOD_COLORS[lastMod] || "var(--gold)";
+/* ============================================================
+   NEW COMPONENTS
+============================================================ */
+const EduDivider = ({ label }) => (
+  <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 20, margin: "80px 0 40px" }}>
+    <svg width="60" height="20" viewBox="0 0 60 20" fill="none">
+      <path d="M0 10C5 10 10 0 15 0C20 0 25 10 30 10" stroke="#D2D2D7" strokeWidth="2" />
+      <circle cx="34" cy="10" r="2.5" fill="#D2D2D7" />
+    </svg>
+    <span style={{ fontSize: 28, fontWeight: 800, color: "var(--dark)", letterSpacing: -1 }}>{label}</span>
+    <svg width="60" height="20" viewBox="0 0 60 20" fill="none">
+      <circle cx="26" cy="10" r="2.5" fill="#D2D2D7" />
+      <path d="M30 10C35 10 40 0 45 0C50 0 55 10 60 10" stroke="#D2D2D7" strokeWidth="2" />
+    </svg>
+  </motion.div>
+);
 
-  // Calculate module specific progress
-  const qaTotal = (INTERVIEW_DATA[lastMod] || []).length;
-  const codeTotal = Object.values(CODING_CHALLENGES[lastMod] || {}).flat().length;
-  const done = Object.keys(progress).filter(k => k.startsWith(`interview_${lastMod}`)).length;
-  const codeDone = Object.keys(progress).filter(k => k.startsWith(`code_${lastMod}`)).length;
-  const totalItems = qaTotal + codeTotal;
-  const modPct = totalItems > 0 ? Math.round(((done + codeDone) / totalItems) * 100) : 0;
-
-  // Calculate overall platform progress
-  const allModules = Object.keys(INTERVIEW_DATA);
-  let totalDone = 0;
-  let totalPossible = 0;
-  allModules.forEach(m => {
-    const qCount = (INTERVIEW_DATA[m] || []).length;
-    const cCount = Object.values(CODING_CHALLENGES[m] || {}).flat().length;
-    totalPossible += (qCount + cCount);
-    totalDone += Object.keys(progress).filter(k => k.startsWith(`interview_${m}`) || k.startsWith(`code_${m}`)).length;
-  });
-  const platformPct = totalPossible > 0 ? Math.round((totalDone / totalPossible) * 100) : 0;
-
-  // Question difficulty breakdown for this module
-  const qList = INTERVIEW_DATA[lastMod] || [];
-  const getDiffDone = (d) => {
-    const subset = qList.filter(q => q.difficulty === d);
-    const count = subset.length;
-    const solved = subset.filter(q => progress[`interview_${lastMod}_${q.q}`]).length; // Assuming progress stores this way or similar
-    // Actually our progress logic in LearnTab was simpler. Let's stick to a mock breakdown if we don't have per-question tracking yet,
-    // OR we can just show the total/target.
-    return { solved: Math.floor(modPct * count / 100), total: count };
-  };
-
-  const easy = getDiffDone("Easy");
-  const med = getDiffDone("Medium");
-  const hard = getDiffDone("Hard");
-
-  return (
-    <motion.div
-      style={{
-        width: "100%", maxWidth: 380, background: "white", borderRadius: 28, padding: 32,
-        boxShadow: "0 40px 100px rgba(0,0,0,0.12), 0 4px 20px rgba(0,0,0,0.05)",
-        transformStyle: "preserve-3d", border: "1px solid rgba(0,0,0,0.04)", position: "relative",
-        rotateY: -12, rotateX: 6, perspective: 1000
-      }}
-      animate={{ y: [0, -8, 0] }}
-      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-    >
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 28 }}>
-        <div>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--gold)", marginBottom: 6, letterSpacing: 0.8, textTransform: "uppercase" }}>Current Module</div>
-          <div style={{ fontSize: 26, fontWeight: 800, color: "var(--dark)", letterSpacing: -0.5 }}>{lastMod}</div>
-        </div>
-        <div style={{ width: 48, height: 48, borderRadius: 14, background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, border: "1px solid rgba(0,0,0,0.04)" }}>
-          {MOD_ICONS[lastMod] || "🎯"}
-        </div>
-      </div>
-
-      <div style={{ marginBottom: 28 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-          <span style={{ fontSize: 14, fontWeight: 600, color: "var(--text-muted)" }}>Platform Progress</span>
-          <span style={{ fontSize: 14, fontWeight: 800, color: "var(--dark)" }}>{platformPct}%</span>
-        </div>
-        <div style={{ height: 10, background: "#F5F5F7", borderRadius: 10, overflow: "hidden" }}>
-          <div style={{ width: `${platformPct}%`, height: "100%", background: "linear-gradient(90deg, var(--gold), #FFD700)", borderRadius: 10 }} />
-        </div>
-      </div>
-
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 32 }}>
-        {[["EASY", `${easy.solved}/${easy.total}`, "#34c759"], ["MED", `${med.solved}/${med.total}`, "#ff9500"], ["HARD", `${hard.solved}/${hard.total}`, "#ff3b30"]].map(([lbl, val, c]) => (
-          <div key={lbl} style={{ padding: "12px 10px", background: `${c}08`, borderRadius: 16, border: `1.5px solid ${c}15`, textAlign: "center" }}>
-            <div style={{ fontSize: 10, fontWeight: 800, color: c, marginBottom: 4 }}>{lbl}</div>
-            <div style={{ fontSize: 15, fontWeight: 800, color: "var(--dark)" }}>{val}</div>
-          </div>
-        ))}
-      </div>
-
-      <div style={{ fontSize: 11, fontWeight: 800, color: "var(--text-muted)", marginBottom: 16, borderBottom: "1px solid #F0F0F0", paddingBottom: 8 }}>MNC FAVORITES</div>
-      {Object.values(CODING_CHALLENGES[lastMod] || {}).flat().slice(0, 2).map((p, i) => (
-        <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
-          <div style={{ width: 22, height: 22, borderRadius: 6, border: "2px solid #D2D2D7", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12 }}>{progress[`code_${lastMod}_${p.title}`] ? "✅" : ""}</div>
-          <span style={{ fontSize: 13, fontWeight: 500, color: "#424245" }}>{p.title}</span>
-        </div>
-      ))}
-    </motion.div>
-  );
-};
+const EduTabCard = ({ title, badge, children, img }) => (
+  <motion.div
+    whileHover={{ y: -10, boxShadow: "0 40px 80px rgba(0,0,0,0.08)" }}
+    style={{ background: "white", borderRadius: 40, overflow: "hidden", border: "1.5px solid #F0F0F0", position: "relative", minHeight: 400, display: "flex", flexDirection: "column" }}
+  >
+    <div style={{ position: "absolute", top: 0, left: 0, background: "white", padding: "14px 28px", borderRadius: "0 0 32px 0", borderBottom: "1.5px solid #F0F0F0", borderRight: "1.5px solid #F0F0F0", zIndex: 10, display: "flex", alignItems: "center", gap: 12 }}>
+      <span style={{ fontSize: 20, fontWeight: 800 }}>{title}</span>
+      {badge && <span style={{ fontSize: 10, fontWeight: 900, color: "var(--teal)", background: "#E5F1FF", padding: "4px 10px", borderRadius: 20 }}>{badge}</span>}
+    </div>
+    {img && <div style={{ height: 260, overflow: "hidden", background: "#f8f9fa", position: "relative" }}>
+      <img src={img} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+    </div>}
+    <div style={{ padding: 40, flex: 1 }}>{children}</div>
+  </motion.div>
+);
 
 /* ============================================================
    HOME SCREEN REDESIGN
 ============================================================ */
 export const HomeScreen = ({ onEnter, user, onLogout, progress }) => {
   const [tab, setTab] = useState("home");
-  const [showModules, setShowModules] = useState(false);
-  const handleExplore = () => setShowModules(true);
-
   const displayName = user?.name || user?.user_metadata?.display_name || "User";
   const initial = displayName?.[0]?.toUpperCase() || "U";
 
+  const lastMod = progress.last_module || "Binary Search";
+
   return (
-    <div style={{ minHeight: "100vh", background: "var(--bg)", position: "relative", overflowX: "hidden" }}>
-      {/* Navbar Section */}
-      <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, backdropFilter: "blur(20px)", background: "rgba(250, 250, 248, 0.8)", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 40px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 10, background: "var(--dark)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <span style={{ fontSize: 16, fontWeight: 800, color: "white", fontFamily: "var(--font-mono)" }}>C</span>
-            </div>
-            <span style={{ fontSize: 18, fontWeight: 700, color: "var(--dark)", letterSpacing: -0.5 }}>CodeLoom</span>
+    <div style={{ minHeight: "100vh", background: "var(--bg)", position: "relative" }}>
+      {/* Centered Pill Navbar */}
+      <div style={{ position: "fixed", top: 24, left: "50%", transform: "translateX(-50%)", zIndex: 1000, width: "90%", maxWidth: 1000 }}>
+        <div style={{
+          background: "rgba(255, 255, 255, 0.8)", backdropFilter: "blur(20px)", borderRadius: 32,
+          padding: "10px 10px", display: "flex", alignItems: "center", justifyContent: "space-between",
+          boxShadow: "0 10px 40px rgba(0,0,0,0.08)", border: "1px solid rgba(255,255,255,0.4)"
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, paddingLeft: 12 }}>
+            <div style={{ width: 44, height: 44, borderRadius: "50%", background: "#0071E3", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 20 }}>🧑‍💻</div>
+            <span style={{ fontSize: 18, fontWeight: 800, letterSpacing: -1 }}>CodeLoom</span>
           </div>
-          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-            {[["home", "Home"], ["company", "FITA Academy"]].map(([t, l]) => (
-              <button key={t} onClick={() => setTab(t)} style={{ padding: "8px 20px", fontSize: 14, fontWeight: 600, borderRadius: 12, background: tab === t ? "var(--dark)" : "transparent", color: tab === t ? "white" : "var(--text-muted)", border: "none", transition: "0.2s" }}>{l}</button>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            {[["home", "My Path"], ["origin", "Our Story"]].map(([t, l]) => (
+              <button key={t} onClick={() => setTab(t)} style={{
+                padding: "10px 24px", borderRadius: 24, fontSize: 14, fontWeight: 700,
+                background: tab === t ? "var(--teal)" : "transparent",
+                color: tab === t ? "white" : "var(--text-muted)", border: "none", transition: "0.3s"
+              }}>{l}</button>
             ))}
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginLeft: 12, paddingLeft: 16, borderLeft: "1px solid rgba(0,0,0,0.1)" }}>
-              <div style={{ width: 32, height: 32, borderRadius: 10, background: "var(--gold)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: "white" }}>{initial}</div>
-              <button onClick={onLogout} style={{ fontSize: 13, fontWeight: 700, color: "#ff3b30", border: "none" }}>Sign Out</button>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+              style={{ background: "#E5F1FF", color: "#0071E3", padding: "10px 24px", borderRadius: 24, fontSize: 14, fontWeight: 800, border: "none" }}>
+              📄 Syllabus
+            </motion.button>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, borderLeft: "1px solid #EEE", paddingLeft: 16 }}>
+              <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#FF9500", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700 }}>{initial}</div>
+              <button onClick={onLogout} style={{ fontSize: 13, fontWeight: 700, color: "#ff3b30", border: "none", background: "none", cursor: "pointer" }}>Sign Out</button>
             </div>
           </div>
         </div>
@@ -1242,368 +1193,79 @@ export const HomeScreen = ({ onEnter, user, onLogout, progress }) => {
 
       <AnimatePresence mode="wait">
         {tab === "home" && (
-          <motion.div key="hero-container" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ position: "relative", minHeight: "100vh" }}>
-
-            {/* Background Splice */}
-            <div style={{ position: "absolute", inset: 0, background: "var(--bg)", zIndex: 0 }} />
-            <motion.div
-              initial={{ clipPath: "polygon(100% 0, 100% 0, 100% 0)" }}
-              animate={{ clipPath: "polygon(100% 0, 100% 100%, 45% 0)" }}
-              transition={{ duration: 1.2, ease: [0.33, 1, 0.68, 1], delay: 0.2 }}
-              style={{ position: "absolute", inset: 0, background: "var(--dark)", zIndex: 1, overflow: "hidden" }}
-            >
-              <FloatingWords />
-            </motion.div>
-
-            {/* Content Section */}
-            <div style={{ position: "relative", zIndex: 10, maxWidth: 1200, margin: "0 auto", padding: "120px 40px", display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 60, minHeight: "calc(100vh - 64px)", alignItems: "center" }}>
-
-              {/* Corner Dancing Animations */}
-              <CornerDance />
-
-              {/* Left Side: 3D Card */}
-              <motion.div
-                initial={{ opacity: 0, x: -60, rotateY: -20 }}
-                animate={{ opacity: 1, x: 0, rotateY: -12 }}
-                transition={{ duration: 0.8, delay: 0.6 }}
-                style={{ display: "flex", justifyContent: "center", perspective: 1000 }}
-              >
-                <DSATopicCard progress={progress} />
-              </motion.div>
-
-              {/* Right Side: Text & CTA */}
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.8 }}
-                style={{ textAlign: "center", color: "white" }}
-              >
-                <div style={{ display: "inline-block", padding: "6px 14px", background: "rgba(212, 175, 55, 0.1)", borderRadius: 10, border: "1px solid rgba(212, 175, 55, 0.2)", marginBottom: 20 }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: "var(--gold)", letterSpacing: 0.5 }}>Professional DSA Mastery</span>
-                </div>
-                <h1 style={{ fontSize: "clamp(3rem, 6vw, 5.5rem)", fontWeight: 800, lineHeight: 1.05, marginBottom: 28, letterSpacing: "-0.04em", color: "white" }}>
-                  A New Way <br /> to <span style={{ color: "#FFD60A", filter: "brightness(1.2)" }}>Learn DSA</span>
-                </h1>
-                <p style={{ fontSize: 17, color: "rgba(255,255,255,0.6)", lineHeight: 1.7, marginBottom: 44, maxWidth: 460, margin: "0 auto 40px", fontWeight: 500 }}>
-                  Elevate your technical skills with CodeLoom. Our platform transforms complex concepts into intuitive visual experiences for elite software engineers.
-                </p>
-                <div style={{ display: "flex", gap: 16, justifyContent: "center" }}>
-                  <motion.button
-                    whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(0,184,163,0.5)" }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={onEnter}
-                    style={{ background: "var(--teal)", color: "white", padding: "18px 52px", borderRadius: 16, fontSize: 16, fontWeight: 800, transition: "0.3s", animation: "pulse-glow 2s infinite", letterSpacing: 0.5 }}
-                  >
-                    Start Exploring Modules →
-                  </motion.button>
-                </div>
-              </motion.div>
-            </div>
-
-            {/* NEW AUTHENTIC SECTIONS (模仿 LeetCode) */}
-            <div style={{ background: "white", position: "relative", zIndex: 10 }}>
-              <div style={{ maxWidth: 1200, margin: "0 auto", padding: "100px 40px" }}>
-
-                {/* Section 1: Questions & Community */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, marginBottom: 120, alignItems: "center" }}>
-                  <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }}>
-                    <div style={{ display: "flex", gap: 12, marginBottom: 24 }}>
-                      <div style={{ width: 44, height: 44, borderRadius: 12, background: "#0071E315", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>🔷</div>
-                      <div style={{ width: 44, height: 44, borderRadius: 12, background: "#34C75915", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>👥</div>
-                      <div style={{ width: 44, height: 44, borderRadius: 12, background: "#FF950015", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>🏆</div>
-                    </div>
-                    <h3 style={{ fontSize: 32, fontWeight: 800, marginBottom: 20, color: "var(--dark)" }}>Questions, Community & Contests</h3>
-                    <p style={{ fontSize: 16, color: "var(--text-muted)", lineHeight: 1.8, marginBottom: 24 }}>
-                      Over 1000+ structured questions for you to practice. Join a community of dedicated learners, participate in weekly contests, and earn recognition within the FITA Academy ecosystem.
-                    </p>
-                    <a href="#" style={{ color: "var(--teal)", fontWeight: 800, fontSize: 15 }}>View Modules ›</a>
-                  </motion.div>
-                  <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} style={{ position: "relative" }}>
-                    <div style={{
-                      height: 320, background: "white", borderRadius: 32, border: "1.5px solid #F0F0F0",
-                      boxShadow: "0 20px 48px rgba(0,0,0,0.04)", overflow: "hidden", padding: 32
-                    }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: "var(--teal)", marginBottom: 20 }}>LIVE CONTEST LEADERBOARD</div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                        {[
-                          { name: "Rahul S.", score: "2840", icon: "🥇", color: "var(--gold)" },
-                          { name: "Priya V.", score: "2710", icon: "🥈", color: "#A1A1A6" },
-                          { name: "Arjun K.", score: "2650", icon: "🥉", color: "#B87333" },
-                        ].map((user, i) => (
-                          <motion.div
-                            key={i} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + i * 0.1 }}
-                            style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: "#F9F9FB", borderRadius: 16 }}
-                          >
-                            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                              <span style={{ fontSize: 20 }}>{user.icon}</span>
-                              <span style={{ fontWeight: 700, color: "var(--dark)" }}>{user.name}</span>
-                            </div>
-                            <span style={{ fontFamily: "var(--font-mono)", fontWeight: 800, color: user.color }}>{user.score} pts</span>
-                          </motion.div>
-                        ))}
-                      </div>
-                      <div style={{ marginTop: 20, textAlign: "center", fontSize: 12, color: "var(--text-muted)", fontWeight: 600 }}>+ 1,420 others participating now</div>
-                    </div>
-                  </motion.div>
-                </div>
-
-                {/* Section 2: Companies & Candidates */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, marginBottom: 120, alignItems: "center" }}>
-                  <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} style={{ order: 2 }}>
-                    <div style={{ display: "flex", gap: 12, marginBottom: 24 }}>
-                      <div style={{ width: 44, height: 44, borderRadius: 12, background: "#D4AF3715", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>💼</div>
-                      <div style={{ width: 44, height: 44, borderRadius: 12, background: "#66666615", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>🏢</div>
-                    </div>
-                    <h3 style={{ fontSize: 32, fontWeight: 800, marginBottom: 20, color: "var(--dark)" }}>Companies & Candidates</h3>
-                    <p style={{ fontSize: 16, color: "var(--text-muted)", lineHeight: 1.8, marginBottom: 24 }}>
-                      We help you prepare for technical interviews at top-tier companies. FITA Academy partners with industry leaders to identify talent and provide tailored assessment training.
-                    </p>
-                    <a href="#" style={{ color: "var(--teal)", fontWeight: 800, fontSize: 15 }}>Interview Prep ›</a>
-                  </motion.div>
-                  <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} style={{ position: "relative", order: 1 }}>
-                    <div style={{
-                      height: 320, background: "var(--dark)", borderRadius: 32,
-                      boxShadow: "0 30px 60px rgba(0,0,0,0.12)", overflow: "hidden",
-                      display: "flex", flexDirection: "column", justifyContent: "center", padding: 40, color: "white"
-                    }}>
-                      <div style={{ fontSize: 12, fontWeight: 800, color: "var(--gold)", letterSpacing: 2, marginBottom: 24 }}>HIRING INSIGHTS</div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-                        <div>
-                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                            <span style={{ fontSize: 14, fontWeight: 600, opacity: 0.8 }}>Technical Assessment</span>
-                            <span style={{ fontSize: 14, fontWeight: 800 }}>88% PASS RATE</span>
-                          </div>
-                          <div style={{ height: 6, background: "rgba(255,255,255,0.1)", borderRadius: 3 }}>
-                            <motion.div initial={{ width: 0 }} whileInView={{ width: "88%" }} transition={{ duration: 1 }} style={{ height: "100%", background: "var(--teal)", borderRadius: 3 }} />
-                          </div>
-                        </div>
-                        <div>
-                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                            <span style={{ fontSize: 14, fontWeight: 600, opacity: 0.8 }}>System Design Flow</span>
-                            <span style={{ fontSize: 14, fontWeight: 800 }}>92% SUCCESS</span>
-                          </div>
-                          <div style={{ height: 6, background: "rgba(255,255,255,0.1)", borderRadius: 3 }}>
-                            <motion.div initial={{ width: 0 }} whileInView={{ width: "92%" }} transition={{ duration: 1, delay: 0.2 }} style={{ height: "100%", background: "var(--gold)", borderRadius: 3 }} />
-                          </div>
-                        </div>
-                        <div style={{ marginTop: 12, display: "flex", gap: 12 }}>
-                          {["FAANG", "Startups", "FinTech"].map(tag => (
-                            <span key={tag} style={{ padding: "6px 14px", borderRadius: 10, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", fontSize: 12, fontWeight: 700 }}>{tag}</span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                </div>
-
-                {/* Developer Section */}
-                <div style={{ textAlign: "center", marginBottom: 120 }}>
-                  <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
-                    <div style={{ width: 56, height: 56, borderRadius: 16, background: "var(--teal)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px", fontSize: 24 }}>{"</>"}</div>
-                    <h3 style={{ fontSize: 28, fontWeight: 800, marginBottom: 16 }}>Developer Focused</h3>
-                    <p style={{ fontSize: 16, color: "var(--text-muted)", maxWidth: 600, margin: "0 auto 40px", lineHeight: 1.7 }}>
-                      Supporting 10 popular coding languages. Our powerful coding environment helps you test, debug, and learn at your own pace.
-                    </p>
-                  </motion.div>
-                </div>
-
-                {/* Made with Love Section */}
-                <div style={{ textAlign: "center", borderTop: "1px solid #EEE", paddingTop: 100 }}>
-                  <div style={{ width: 44, height: 44, borderRadius: "50%", background: "#FEE2E2", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>🍎</div>
-                  <h4 style={{ fontSize: 20, fontWeight: 800, color: "#EF4444", marginBottom: 12 }}>Made with ❤️ in Chennai</h4>
-                  <p style={{ fontSize: 15, color: "var(--text-muted)", maxWidth: 700, margin: "0 auto 60px", lineHeight: 1.8 }}>
-                    At FITA Academy, our mission is to help you improve yourself and land your dream job. We have a sizable repository of interview resources for many companies.
-                  </p>
-
-                  {/* Logo Strip */}
-                  <div style={{ display: "flex", justifyContent: "center", gap: 40, flexWrap: "wrap", opacity: 0.4, filter: "grayscale(1)" }}>
-                    {["Facebook", "Apple", "Uber", "Cisco", "Amazon", "Intel", "IBM"].map(logo => (
-                      <span key={logo} style={{ fontSize: 18, fontWeight: 900, fontFamily: "var(--font-mono)" }}>{logo.toUpperCase()}</span>
-                    ))}
-                  </div>
-
-                  <motion.button
-                    onClick={onEnter}
-                    whileHover={{ scale: 1.05 }}
-                    style={{ marginTop: 80, color: "var(--teal)", fontWeight: 800, fontSize: 16, border: "none", background: "none", cursor: "pointer" }}
-                  >
-                    Join Our Team ›
-                  </motion.button>
-                </div>
-              </div>
-
-              {/* NEW SECTION: Learning Experience Showcase */}
-              <div style={{ background: "#FDFDFB", padding: "120px 40px", borderTop: "1px solid #F0F0F0" }}>
-                <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-                  <div style={{ textAlign: "center", marginBottom: 80 }}>
-                    <div style={{ display: "inline-block", padding: "6px 14px", background: "rgba(0,184,163,0.1)", borderRadius: 10, marginBottom: 20 }}>
-                      <span style={{ fontSize: 12, fontWeight: 800, color: "var(--teal)", textTransform: "uppercase", letterSpacing: 1.5 }}>The Experience</span>
-                    </div>
-                    <h2 style={{ fontSize: "clamp(2rem, 4vw, 3.5rem)", fontWeight: 800, letterSpacing: -1.5, marginBottom: 20 }}>Beyond Conventional Learning</h2>
-                    <p style={{ fontSize: 18, color: "var(--text-muted)", maxWidth: 700, margin: "0 auto", lineHeight: 1.7 }}>
-                      Traditional platforms focus on memorization. We focus on intuition, visualization, and real-world implementation patterns.
-                    </p>
-                  </div>
-
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 32 }}>
-                    {[
-                      { title: "Dynamic Visualizers", desc: "Step through complex logic like Recursion and DP with our custom animation engine that highlights state changes in real-time.", icon: "🎞️", color: "#0071E3" },
-                      { title: "Interview Blueprints", desc: "Access high-yield questions curated by FITA Academy experts who have analyzed 10,000+ real interview experiences.", icon: "🗺️", color: "#AF52DE" },
-                      { title: "Theory & Code Separation", desc: "Master the structure through theory tests, then master the logic in our Code Arena. A dual-threat approach to technical mastery.", icon: "⚔️", color: "#34C759" }
-                    ].map((item, i) => (
-                      <motion.div key={i} whileHover={{ y: -10 }} style={{ background: "white", padding: 48, borderRadius: 40, boxShadow: "0 20px 48px rgba(0,0,0,0.05)", border: "1.5px solid #F6F6F6" }}>
-                        <div style={{ width: 72, height: 72, borderRadius: 24, background: item.color + "12", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, marginBottom: 32 }}>{item.icon}</div>
-                        <h4 style={{ fontSize: 24, fontWeight: 800, marginBottom: 16 }}>{item.title}</h4>
-                        <p style={{ color: "var(--text-muted)", fontSize: 16, lineHeight: 1.8 }}>{item.desc}</p>
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* NEW SECTION: The Success Path */}
-              <div style={{ background: "var(--dark)", color: "white", padding: "140px 40px", overflow: "hidden", position: "relative" }}>
-                <div style={{ position: "absolute", top: -100, right: -100, width: 400, height: 400, background: "radial-gradient(circle, rgba(212, 175, 55, 0.1), transparent 70%)" }} />
-                <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 5 }}>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 100, alignItems: "center" }}>
-                    <div>
-                      <h2 style={{ fontSize: "clamp(2.5rem, 4vw, 4rem)", fontWeight: 800, letterSpacing: -2, marginBottom: 32, lineHeight: 1 }}>How you become <span style={{ color: "var(--gold)" }}>Interview Ready</span></h2>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 40 }}>
-                        {[
-                          { step: "01", label: "Fundamental Core", sub: "Start with Arrays, Strings, and basic sorting to build a solid foundation of memory and complexity." },
-                          { step: "02", label: "Non-Linear Mastery", sub: "Level up to Trees, Graphs, and Heaps. Understand hierarchical data and relational optimization." },
-                          { step: "03", label: "Algorithmic Precision", sub: "Master DP, Backtracking, and Greedy strategies to solve complex optimization problems." }
-                        ].map((s, i) => (
-                          <div key={i} style={{ display: "flex", gap: 24 }}>
-                            <div style={{ fontSize: 32, fontWeight: 900, color: "rgba(255,255,255,0.1)", fontFamily: "var(--font-mono)", lineHeight: 1 }}>{s.step}</div>
-                            <div>
-                              <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>{s.label}</div>
-                              <p style={{ fontSize: 16, color: "rgba(255,255,255,0.5)", lineHeight: 1.6 }}>{s.sub}</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <div style={{ position: "relative" }}>
-                      <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 32, padding: 40, border: "1px solid rgba(255,255,255,0.05)", backdropFilter: "blur(10px)" }}>
-                        <div style={{ fontSize: 14, fontWeight: 700, color: "var(--gold)", marginBottom: 24 }}>PLATFORM STATS</div>
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32 }}>
-                          {[["25+", "Advanced Modules"], ["1000+", "Interview Qs"], ["500+", "Code Challenges"], ["100%", "FAANG Coverage"]].map(([val, lbl]) => (
-                            <div key={lbl}>
-                              <div style={{ fontSize: 36, fontWeight: 900, marginBottom: 4 }}>{val}</div>
-                              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", fontWeight: 700, letterSpacing: 1 }}>{lbl.toUpperCase()}</div>
-                            </div>
-                          ))}
-                        </div>
-                        <motion.button
-                          whileHover={{ background: "white", color: "black" }}
-                          onClick={handleExplore}
-                          style={{ width: "100%", marginTop: 40, padding: "20px", borderRadius: 16, border: "1.5px solid white", background: "transparent", color: "white", fontWeight: 800, cursor: "pointer", transition: "0.2s" }}
-                        >
-                          Explore Full Curriculum
-                        </motion.button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-
-            {/* Bottom Modules Section - Revealed on handleExplore */}
-            <AnimatePresence>
-              {(showModules || true) && ( // Keeping logic exactly as-is means it might be visible or controlled
-                <motion.div
-                  initial={{ opacity: 0, y: 100 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  style={{ background: "white", padding: "80px 40px", textAlign: "center", borderTop: "1px solid #ECECEE" }}
-                >
-                  <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-                    <div style={{ fontSize: 12, fontWeight: 800, color: "var(--gold)", textTransform: "uppercase", letterSpacing: 2, marginBottom: 12 }}>Curriculum</div>
-                    <h2 style={{ fontSize: 42, fontWeight: 800, letterSpacing: -1, marginBottom: 48 }}>Master foundational modules</h2>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "center" }}>
-                      {MODULES.slice(0, 8).map((m, i) => (
-                        <motion.div
-                          key={m}
-                          whileHover={{ y: -5, boxShadow: "0 20px 40px rgba(0,0,0,0.06)" }}
-                          style={{ background: "white", border: "1.5px solid #F0F0F0", borderRadius: 20, padding: "20px 24px", display: "flex", alignItems: "center", gap: 12, minWidth: 220 }}
-                        >
-                          <span style={{ fontSize: 24 }}>{MOD_ICONS[m]}</span>
-                          <div style={{ textAlign: "left" }}>
-                            <div style={{ fontSize: 15, fontWeight: 700 }}>{m}</div>
-                            <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{(INTERVIEW_DATA[m] || []).length} Q&A • {Object.values(CODING_CHALLENGES[m] || {}).flat().length} Problems</div>
-                          </div>
-                        </motion.div>
-                      ))}
-                      <div onClick={onEnter} style={{ background: "var(--dark)", borderRadius: 20, padding: "20px 24px", display: "flex", alignItems: "center", gap: 12, color: "white", cursor: "pointer" }}>
-                        <span style={{ fontSize: 24, fontWeight: 800 }}>+{MODULES.length - 8}</span>
-                        <span style={{ fontSize: 13, fontWeight: 600 }}>Explore<br />All Content</span>
-                      </div>
-                    </div>
-                  </div>
+          <motion.div key="home-v2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <div className="sky-gradient" style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "140px 40px 100px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+              <motion.div animate={{ x: [0, 50, 0], y: [0, 10, 0] }} transition={{ duration: 20, repeat: Infinity, ease: "linear" }} style={{ position: "absolute", top: "20%", left: "10%", opacity: 0.4, fontSize: 120, pointerEvents: "none" }}>☁️</motion.div>
+              <motion.div animate={{ x: [0, -40, 0], y: [0, -15, 0] }} transition={{ duration: 25, repeat: Infinity, ease: "linear" }} style={{ position: "absolute", bottom: "30%", right: "10%", opacity: 0.3, fontSize: 100, pointerEvents: "none" }}>☁️</motion.div>
+              <motion.h1 initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2, duration: 0.8 }} style={{ fontSize: "clamp(3rem, 7vw, 6rem)", fontWeight: 900, color: "#1D1D1F", letterSpacing: -4, lineHeight: 1, marginBottom: 20 }}>
+                Knowledge is power. <br /> <span style={{ color: "var(--teal)" }}>Master DSA.</span>
+              </motion.h1>
+              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} style={{ fontSize: 20, color: "rgba(0,0,0,0.6)", marginBottom: 60, maxWidth: 600 }}>
+                The ultimate treasure isn't gold—it's the logic you build. Join the academy and start your journey today.
+              </motion.p>
+              <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.7, duration: 0.6 }} style={{ position: "relative", width: "100%", maxWidth: 800, margin: "0 auto" }}>
+                <motion.div animate={{ y: [0, -20, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}>
+                  <img src="https://images.unsplash.com/photo-1587620962725-abab7fe55159?q=80&w=2831&auto=format&fit=crop" style={{ width: "100%", maxHeight: 500, objectFit: "contain", borderRadius: 40 }} />
                 </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Footer Section */}
-            <div style={{ background: "#F5F5F7", padding: "80px 40px 40px", borderTop: "1px solid #E6E6E6" }}>
+              </motion.div>
+            </div>
+            <div style={{ background: "white", padding: "100px 40px" }}>
               <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-                <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1.5fr", gap: 60, marginBottom: 80 }}>
-                  <div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24 }}>
-                      <div style={{ width: 32, height: 32, borderRadius: 10, background: "var(--dark)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <span style={{ fontSize: 16, fontWeight: 800, color: "white", fontFamily: "var(--font-mono)" }}>C</span>
-                      </div>
-                      <span style={{ fontSize: 20, fontWeight: 700, color: "var(--dark)", letterSpacing: -0.5 }}>CodeLoom</span>
-                    </div>
-                    <p style={{ color: "var(--text-muted)", fontSize: 14, lineHeight: 1.8, maxWidth: 320 }}>
-                      The gold standard for technical interview preparation. Powered by FITA Academy's expert mentorship and placement ecosystem.
+                <EduDivider label="Current Path" />
+                <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: 40, marginBottom: 120 }}>
+                  <EduTabCard title="The Core Modules" badge="Learning Path">
+                    <p style={{ fontSize: 18, color: "var(--text-muted)", lineHeight: 1.8, marginBottom: 32 }}>
+                      Our curriculum is built on a "State of Mind". Not just a system, but art-driven building blocks that focus on peak understanding of data structures.
                     </p>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 800, marginBottom: 20, color: "var(--dark)" }}>RESOURCES</div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                      {["DSA Modules", "Interview Prep", "Code Arena", "Visualizers"].map(link => (
-                        <a key={link} href="#" style={{ textDecoration: "none", color: "var(--text-muted)", fontSize: 14 }}>{link}</a>
+                    <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 40 }}>
+                      {MODULES.slice(0, 4).map(m => (
+                        <span key={m} style={{ padding: "8px 20px", background: "#F5F5F7", borderRadius: 20, fontSize: 14, fontWeight: 700 }}>{m}</span>
                       ))}
                     </div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 800, marginBottom: 20, color: "var(--dark)" }}>FITA ACADEMY</div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                      {["Full Stack Web", "Python ML", "UI/UX Design", "Cloud Computing"].map(link => (
-                        <a key={link} href="https://www.fita.in" target="_blank" style={{ textDecoration: "none", color: "var(--text-muted)", fontSize: 14 }}>{link}</a>
-                      ))}
+                    <motion.button onClick={onEnter} whileHover={{ x: 10 }} style={{ color: "var(--teal)", fontWeight: 900, fontSize: 20, border: "none", background: "none", cursor: "pointer" }}>
+                      View Full Map →
+                    </motion.button>
+                  </EduTabCard>
+                  <EduTabCard title="Stats" badge="Active Progress">
+                    <div style={{ display: "flex", flexDirection: "column", gap: 24, marginTop: 40 }}>
+                      <div>
+                        <div style={{ fontSize: 12, fontWeight: 800, color: "var(--teal)", marginBottom: 8 }}>CONTINUING MODULE</div>
+                        <div style={{ fontSize: 32, fontWeight: 900 }}>{lastMod}</div>
+                      </div>
+                      <div style={{ height: 12, background: "#F5F5F7", borderRadius: 10, overflow: "hidden" }}>
+                        <motion.div initial={{ width: 0 }} whileInView={{ width: "64%" }} transition={{ duration: 1 }} style={{ height: "100%", background: "var(--teal)", borderRadius: 10 }} />
+                      </div>
+                      <p style={{ fontSize: 14, color: "var(--text-muted)", fontWeight: 500 }}>
+                        You are currently in the top 5% of learners in Chennai. Keep going!
+                      </p>
                     </div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 800, marginBottom: 20, color: "var(--dark)" }}>NEWSLETTER</div>
-                    <p style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 16 }}>Get weekly interview tips and coding challenges.</p>
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <input type="email" placeholder="Email" style={{ flex: 1, padding: "10px 16px", borderRadius: 12, border: "1px solid #D2D2D7", fontSize: 14, background: "white" }} />
-                      <button style={{ width: 44, height: 44, borderRadius: 12, background: "var(--dark)", color: "white", border: "none", display: "flex", alignItems: "center", justifyContent: "center" }}>→</button>
-                    </div>
-                  </div>
+                  </EduTabCard>
                 </div>
-                <div style={{ borderTop: "1px solid #D2D2D7", paddingTop: 40, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div style={{ fontSize: 13, color: "var(--text-muted)" }}>© 2026 CodeLoom by FITA Academy. All rights reserved.</div>
-                  <div style={{ display: "flex", gap: 24 }}>
-                    {["Copyright", "Privacy Policy", "Terms of Service", "Cookie Policy"].map(link => (
-                      <a key={link} href="#" style={{ textDecoration: "none", color: "var(--text-muted)", fontSize: 12 }}>{link}</a>
-                    ))}
-                  </div>
+                <EduDivider label="Our Origin" />
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))", gap: 40 }}>
+                  <EduTabCard title="Teacher's Note" img="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2670&auto=format&fit=crop">
+                    <p style={{ fontSize: 16, lineHeight: 1.8, color: "var(--text-muted)" }}> Teaching is <b>not an API</b> between user and logic. It's a craft. </p>
+                  </EduTabCard>
+                  <EduTabCard title="FITA Academy" img="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2671&auto=format&fit=crop">
+                    <p style={{ fontSize: 16, lineHeight: 1.8, color: "var(--text-muted)" }}> Building at the heart of <b>Chennai</b>. Our ship never stops. </p>
+                  </EduTabCard>
                 </div>
               </div>
             </div>
           </motion.div>
         )}
-        {tab === "company" && (
-          <motion.div key="company-profile" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.4 }}
-            style={{ width: "100%", maxWidth: 1200, margin: "0 auto", padding: "100px 40px 60px" }}>
-            <FitaAcademyProfile />
+        {tab === "origin" && (
+          <motion.div key="origin-view" initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} style={{ padding: "160px 40px", textAlign: "center", background: "white", minHeight: "100vh" }}>
+            <h2 style={{ fontSize: 48, fontWeight: 900, marginBottom: 24 }}>The CodeLoom Story</h2>
+            <p style={{ fontSize: 20, color: "var(--text-muted)", maxWidth: 800, margin: "0 auto", lineHeight: 1.8 }}> Founded with a vision to make complex CS fundamentals intuitive. </p>
           </motion.div>
         )}
       </AnimatePresence>
+      <motion.div initial={{ y: 100 }} animate={{ y: 0 }} style={{ position: "fixed", bottom: 40, left: "50%", transform: "translateX(-50%)", zIndex: 1000 }}>
+        <motion.button onClick={onEnter} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} style={{ background: "#0071E3", color: "white", padding: "18px 52px", borderRadius: 40, fontSize: 18, fontWeight: 900, border: "none", boxShadow: "0 20px 40px rgba(0,113,227,0.3)", cursor: "pointer" }}>
+          Start Learning Now 🚀
+        </motion.button>
+      </motion.div>
     </div>
   );
 };
