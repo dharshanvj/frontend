@@ -2550,13 +2550,22 @@ const ProgramPanel = ({ data, module: mod, color }) => {
    VISUALIZERS
 ============================================================ */
 const VisualPanel = ({ module: mod, color }) => {
-  const hasViz = ["Stack", "Queue", "Linear Search", "Bubble Sort"].includes(mod);
+  const hasViz = ["Stack", "Queue", "Linear Search", "Bubble Sort", "Selection Sort", "Insertion Sort", "Merge Sort", "Quick Sort", "Binary Search", "Linked Lists", "Recursion", "Trees", "Binary Search Trees", "Graphs"].includes(mod);
   return (
     <div style={{ background: "white", border: "1.5px solid var(--border)", borderRadius: 20, padding: 36, boxShadow: "var(--shadow)", minHeight: 400, display: "flex", flexDirection: "column", justifyContent: hasViz ? "flex-start" : "center", alignItems: hasViz ? "stretch" : "center", textAlign: "center" }}>
       {mod === "Stack" && <StackVisual color={color} />}
       {mod === "Queue" && <QueueVisual color={color} />}
       {mod === "Linear Search" && <LinearSearchVisual color={color} />}
-      {mod === "Bubble Sort" && <BubbleSortVisual color={color} />}
+      {mod === "Bubble Sort" && <UniversalSortVisual color={color} type="Bubble Sort" />}
+      {mod === "Selection Sort" && <UniversalSortVisual color={color} type="Selection Sort" />}
+      {mod === "Insertion Sort" && <UniversalSortVisual color={color} type="Insertion Sort" />}
+      {mod === "Merge Sort" && <UniversalSortVisual color={color} type="Merge Sort" />}
+      {mod === "Quick Sort" && <UniversalSortVisual color={color} type="Quick Sort" />}
+      {mod === "Binary Search" && <BinarySearchVisual color={color} />}
+      {mod === "Linked Lists" && <LinkedListVisual color={color} />}
+      {mod === "Recursion" && <RecursionVisual color={color} />}
+      {(mod === "Trees" || mod === "Binary Search Trees") && <TreeVisual color={color} isBST={mod === "Binary Search Trees"} />}
+      {mod === "Graphs" && <GraphVisual color={color} />}
       {!hasViz && (
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
           <div style={{ fontSize: 64, marginBottom: 20 }}>🎬</div>
@@ -2702,33 +2711,472 @@ function LinearSearchVisual({ color }) {
   );
 }
 
-function BubbleSortVisual({ color }) {
+function UniversalSortVisual({ color, type }) {
   const init = [5, 3, 8, 4, 2, 7, 1, 6];
   const [array, setArray] = useState([...init]);
   const [active, setActive] = useState([-1, -1]);
   const running = useRef(false);
+
   const reset = () => { setArray([...init]); setActive([-1, -1]); };
-  const sort = () => {
-    if (running.current) return; running.current = true;
-    let arr = [...array], steps = [];
-    for (let i = 0; i < arr.length - 1; i++) { for (let j = 0; j < arr.length - 1 - i; j++) { steps.push({ arr: [...arr], comparing: [j, j + 1] }); if (arr[j] > arr[j + 1]) { [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]]; steps.push({ arr: [...arr], comparing: [j, j + 1] }); } } }
-    steps.push({ arr: [...arr], comparing: [-1, -1] });
-    let s = 0; const iv = setInterval(() => { if (s >= steps.length) { clearInterval(iv); running.current = false; setActive([-1, -1]); return; } setArray(steps[s].arr); setActive(steps[s].comparing); s++; }, 180);
+
+  const bubbleSort = (arr, steps) => {
+    let a = [...arr];
+    for (let i = 0; i < a.length - 1; i++) {
+      for (let j = 0; j < a.length - 1 - i; j++) {
+        steps.push({ arr: [...a], comparing: [j, j + 1] });
+        if (a[j] > a[j + 1]) {
+          [a[j], a[j + 1]] = [a[j + 1], a[j]];
+          steps.push({ arr: [...a], comparing: [j, j + 1] });
+        }
+      }
+    }
   };
+
+  const selectionSort = (arr, steps) => {
+    let a = [...arr];
+    for (let i = 0; i < a.length - 1; i++) {
+      let min = i;
+      for (let j = i + 1; j < a.length; j++) {
+        steps.push({ arr: [...a], comparing: [i, j] });
+        if (a[j] < a[min]) min = j;
+      }
+      [a[i], a[min]] = [a[min], a[i]];
+      steps.push({ arr: [...a], comparing: [i, min] });
+    }
+  };
+
+  const insertionSort = (arr, steps) => {
+    let a = [...arr];
+    for (let i = 1; i < a.length; i++) {
+      let key = a[i];
+      let j = i - 1;
+      while (j >= 0 && a[j] > key) {
+        steps.push({ arr: [...a], comparing: [j, j + 1] });
+        a[j + 1] = a[j];
+        j--;
+        steps.push({ arr: [...a], comparing: [j + 1, j + 2] });
+      }
+      a[j + 1] = key;
+      steps.push({ arr: [...a], comparing: [j + 1, j + 1] });
+    }
+  };
+
+  const mergeSort = (arr, steps) => {
+    let a = [...arr];
+    const merge = (low, mid, high) => {
+      let left = a.slice(low, mid + 1);
+      let right = a.slice(mid + 1, high + 1);
+      let i = 0, j = 0, k = low;
+      while (i < left.length && j < right.length) {
+        steps.push({ arr: [...a], comparing: [low + i, mid + 1 + j] });
+        if (left[i] <= right[j]) a[k++] = left[i++];
+        else a[k++] = right[j++];
+        steps.push({ arr: [...a], comparing: [k - 1, k - 1] });
+      }
+      while (i < left.length) a[k++] = left[i++];
+      while (j < right.length) a[k++] = right[j++];
+      steps.push({ arr: [...a], comparing: [low, high] });
+    };
+    const divide = (low, high) => {
+      if (low < high) {
+        let mid = Math.floor((low + high) / 2);
+        divide(low, mid);
+        divide(mid + 1, high);
+        merge(low, mid, high);
+      }
+    };
+    divide(0, a.length - 1);
+  };
+
+  const quickSort = (arr, steps) => {
+    let a = [...arr];
+    const partition = (low, high) => {
+      let pivot = a[high];
+      let i = low - 1;
+      for (let j = low; j < high; j++) {
+        steps.push({ arr: [...a], comparing: [j, high] });
+        if (a[j] < pivot) {
+          i++;
+          [a[i], a[j]] = [a[j], a[i]];
+          steps.push({ arr: [...a], comparing: [i, j] });
+        }
+      }
+      [a[i + 1], a[high]] = [a[high], a[i + 1]];
+      steps.push({ arr: [...a], comparing: [i + 1, high] });
+      return i + 1;
+    };
+    const sortRec = (low, high) => {
+      if (low < high) {
+        let pi = partition(low, high);
+        sortRec(low, pi - 1);
+        sortRec(pi + 1, high);
+      }
+    };
+    sortRec(0, a.length - 1);
+  };
+
+  const sort = () => {
+    if (running.current) return;
+    running.current = true;
+    let steps = [];
+    if (type === "Bubble Sort") bubbleSort(array, steps);
+    else if (type === "Selection Sort") selectionSort(array, steps);
+    else if (type === "Insertion Sort") insertionSort(array, steps);
+    else if (type === "Merge Sort") mergeSort(array, steps);
+    else if (type === "Quick Sort") quickSort(array, steps);
+    else bubbleSort(array, steps);
+
+    if (steps.length === 0) { running.current = false; return; }
+    steps.push({ arr: steps[steps.length - 1].arr, comparing: [-1, -1] });
+
+    let s = 0;
+    const iv = setInterval(() => {
+      if (s >= steps.length) {
+        clearInterval(iv);
+        running.current = false;
+        setActive([-1, -1]);
+        return;
+      }
+      setArray(steps[s].arr);
+      setActive(steps[s].comparing);
+      s++;
+    }, 200);
+  };
+
   const maxVal = Math.max(...array);
   return (
     <div>
-      <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: 0.5, color: "#86868b", textTransform: "uppercase", marginBottom: 20 }}>Bubble Sort — Adjacent Comparisons</div>
+      <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: 0.5, color: "#86868b", textTransform: "uppercase", marginBottom: 20 }}>{type} — Visualization</div>
       <div style={{ display: "flex", gap: 8, alignItems: "flex-end", marginBottom: 28, height: 160 }}>
         {array.map((num, i) => (
           <motion.div key={i} layout transition={{ type: "spring", stiffness: 350, damping: 28 }}
-            style={{ flex: 1, height: `${(num / maxVal) * 140}px`, background: active[0] === i || active[1] === i ? color : `${color}20`, borderRadius: "10px 10px 0 0", display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: 6, color: active[0] === i || active[1] === i ? "white" : color, fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: 13, transition: "background 0.15s,color 0.15s", boxShadow: active[0] === i || active[1] === i ? `0 4px 16px ${color}44` : "none" }}>
+            style={{ flex: 1, height: `${(num / maxVal) * 140}px`, background: (active[0] === i || active[1] === i) ? color : `${color}20`, borderRadius: "10px 10px 0 0", display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: 6, color: (active[0] === i || active[1] === i) ? "white" : color, fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: 13, transition: "background 0.15s,color 0.15s", boxShadow: (active[0] === i || active[1] === i) ? `0 4px 16px ${color}44` : "none" }}>
             {num}
           </motion.div>
         ))}
       </div>
       <VizBtn onClick={sort} color={color}>▶ Sort</VizBtn>
       <VizBtn onClick={reset} color={color}>↺ Reset</VizBtn>
+    </div>
+  );
+}
+
+function BinarySearchVisual({ color }) {
+  const [array] = useState([1, 4, 7, 12, 18, 25, 33, 40, 50, 65, 80, 99]);
+  const [range, setRange] = useState({ lo: 0, hi: array.length - 1, mid: -1 });
+  const [found, setFound] = useState(-1);
+  const [target] = useState(33);
+  const running = useRef(false);
+
+  const search = () => {
+    if (running.current) return;
+    running.current = true;
+    setFound(-1);
+    let lo = 0, hi = array.length - 1;
+
+    const nextStep = () => {
+      if (lo > hi) {
+        setRange({ lo, hi, mid: -1 });
+        running.current = false;
+        return;
+      }
+      let mid = Math.floor((lo + hi) / 2);
+      setRange({ lo, hi, mid });
+
+      setTimeout(() => {
+        if (array[mid] === target) {
+          setFound(mid);
+          running.current = false;
+        } else if (array[mid] < target) {
+          lo = mid + 1;
+          nextStep();
+        } else {
+          hi = mid - 1;
+          nextStep();
+        }
+      }, 1000);
+    };
+    nextStep();
+  };
+
+  return (
+    <div>
+      <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: 0.5, color: "#86868b", textTransform: "uppercase", marginBottom: 20 }}>Binary Search — Target: {target}</div>
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 32, justifyContent: "center" }}>
+        {array.map((num, i) => {
+          const isMid = range.mid === i;
+          const inRange = i >= range.lo && i <= range.hi;
+          const isFound = found === i;
+          return (
+            <motion.div key={i} animate={{
+              scale: isMid ? 1.2 : 1,
+              y: isMid ? -8 : 0,
+              opacity: inRange ? 1 : 0.2
+            }}
+              style={{
+                width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center",
+                background: isFound ? "#34c759" : isMid ? `${color}18` : "#f5f5f7",
+                color: isFound ? "white" : isMid ? color : "#424245",
+                fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: 13, borderRadius: 10,
+                border: `1.5px solid ${isFound ? "#34c759" : isMid ? color : "transparent"}`,
+                boxShadow: isFound ? `0 4px 16px rgba(52,199,89,0.3)` : "none",
+                position: "relative"
+              }}>
+              {num}
+              {isMid && <div style={{ position: "absolute", bottom: -18, fontSize: 9, color, fontWeight: 800 }}>MID</div>}
+              {range.lo === i && i !== range.mid && <div style={{ position: "absolute", top: -14, fontSize: 8, color: "#0071e3", fontWeight: 800 }}>LO</div>}
+              {range.hi === i && i !== range.mid && <div style={{ position: "absolute", top: -14, fontSize: 8, color: "#ff3b30", fontWeight: 800 }}>HI</div>}
+            </motion.div>
+          );
+        })}
+      </div>
+      <VizBtn onClick={search} color={color}>▶ Start Search</VizBtn>
+    </div>
+  );
+}
+
+function LinkedListVisual({ color }) {
+  const [list, setList] = useState([10, 20, 30, 40]);
+  const [inputVal, setInputVal] = useState("");
+  const addNode = () => {
+    const v = parseInt(inputVal);
+    if (!isNaN(v)) { setList(p => [...p, v]); setInputVal(""); }
+  };
+  return (
+    <div>
+      <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.5, color: "#86868b", textTransform: "uppercase", marginBottom: 20 }}>Linked List — Sequence of Nodes</div>
+      <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: 40, flexWrap: "wrap", justifyContent: "center" }}>
+        <AnimatePresence>
+          {list.map((item, i) => (
+            <div key={`${item}-${i}`} style={{ display: "flex", alignItems: "center" }}>
+              <motion.div initial={{ opacity: 0, scale: 0.8, x: -20 }} animate={{ opacity: 1, scale: 1, x: 0 }} exit={{ opacity: 0, scale: 0.8, x: 20 }}
+                style={{ width: 64, height: 60, borderRadius: 12, background: "white", border: `2px solid ${color}`, display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "var(--shadow-sm)" }}>
+                <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "#1d1d1f", fontWeight: 800, fontSize: 15, fontFamily: "var(--font-mono)" }}>{item}</div>
+                <div style={{ height: 18, background: `${color}15`, borderTop: `1px solid ${color}30`, fontSize: 9, fontWeight: 700, color, display: "flex", alignItems: "center", justifyContent: "center" }}>NEXT</div>
+              </motion.div>
+              {i < list.length - 1 ? (
+                <motion.div initial={{ width: 0 }} animate={{ width: 40 }} style={{ height: 2, background: color, position: "relative" }}>
+                  <div style={{ position: "absolute", right: -2, top: -4, borderStyle: "solid", borderWidth: "5px 0 5px 8px", borderColor: `transparent transparent transparent ${color}` }} />
+                </motion.div>
+              ) : (
+                <div style={{ marginLeft: 8, display: "flex", alignItems: "center", gap: 4 }}>
+                  <div style={{ height: 2, width: 20, background: "#d2d2d7", position: "relative" }}>
+                    <div style={{ position: "absolute", right: -2, top: -4, borderStyle: "solid", borderWidth: "5px 0 5px 8px", borderColor: `transparent transparent transparent #d2d2d7` }} />
+                  </div>
+                  <span style={{ fontSize: 10, fontWeight: 800, color: "#d2d2d7", fontFamily: "var(--font-mono)" }}>NULL</span>
+                </div>
+              )}
+            </div>
+          ))}
+        </AnimatePresence>
+      </div>
+      <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+        <input type="number" value={inputVal} onChange={e => setInputVal(e.target.value)} placeholder="Value"
+          style={{ width: 90, padding: "10px 14px", border: `1.5px solid ${color}30`, borderRadius: 10, outline: "none", fontSize: 14 }} />
+        <VizBtn onClick={addNode} color={color}>Add Node +</VizBtn>
+        <VizBtn onClick={() => setList(p => p.slice(1))} color={color}>Delete Head -</VizBtn>
+      </div>
+    </div>
+  );
+}
+
+function RecursionVisual({ color }) {
+  const [calls, setCalls] = useState([]);
+  const [result, setResult] = useState(null);
+  const running = useRef(false);
+
+  const startFact = async (n) => {
+    if (running.current) return;
+    running.current = true;
+    setCalls([]);
+    setResult(null);
+
+    const fact = async (num) => {
+      const id = Date.now() + Math.random();
+      setCalls(p => [...p, { id, num, state: 'calling' }]);
+      await new Promise(r => setTimeout(r, 800));
+
+      if (num <= 1) {
+        setCalls(p => p.map(c => c.id === id ? { ...c, state: 'returning', val: 1 } : c));
+        return 1;
+      }
+
+      const subRes = await fact(num - 1);
+      const res = num * subRes;
+      await new Promise(r => setTimeout(r, 600));
+
+      setCalls(p => p.map(c => c.id === id ? { ...c, state: 'returning', val: res } : c));
+      return res;
+    };
+
+    const final = await fact(n);
+    setResult(final);
+    running.current = false;
+  };
+
+  return (
+    <div>
+      <div style={{ fontSize: 12, fontWeight: 700, color: "#86868b", textTransform: "uppercase", marginBottom: 20 }}>Recursion Stack Frames — fact(5)</div>
+      <div style={{ display: "flex", flexDirection: "column-reverse", gap: 10, alignItems: "center", minHeight: 320, marginBottom: 32 }}>
+        <AnimatePresence>
+          {calls.map((c, i) => (
+            <motion.div key={c.id} initial={{ opacity: 0, y: 20, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}
+              style={{
+                width: "100%", maxWidth: 320, padding: "14px 20px", borderRadius: 12, border: `1.5px solid ${c.state === 'returning' ? '#34c759' : color}`,
+                background: c.state === 'returning' ? '#34c75910' : 'white', display: "flex", justifyContent: "space-between", alignItems: "center",
+                boxShadow: "var(--shadow-sm)"
+              }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{ width: 8, height: 8, borderRadius: "50%", background: c.state === 'returning' ? '#34c759' : color, animation: c.state === 'calling' ? 'pulse 1.5s infinite' : 'none' }} />
+                <span style={{ fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: 14, color: c.state === 'returning' ? '#34c759' : color }}>factorial({c.num})</span>
+              </div>
+              <span style={{ fontSize: 12, fontWeight: 800, color: c.state === 'returning' ? '#34c759' : '#86868b' }}>
+                {c.state === 'returning' ? `RESULT: ${c.val}` : 'EXECUTING...'}
+              </span>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+        {calls.length === 0 && <div style={{ color: "#d2d2d7", fontSize: 14, fontFamily: "var(--font-mono)" }}>No active frames</div>}
+      </div>
+      <div style={{ textAlign: "center" }}>
+        {result !== null && (
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} style={{ marginBottom: 20, fontSize: 20, fontWeight: 800, color: "#1d1d1f" }}>
+            Final Result: <span style={{ color }}>{result}</span>
+          </motion.div>
+        )}
+        <VizBtn onClick={() => startFact(5)} color={color}>▶ Call fact(5)</VizBtn>
+        <VizBtn onClick={() => { setCalls([]); setResult(null); }} color={color}>↺ Clear</VizBtn>
+      </div>
+    </div>
+  );
+}
+
+function TreeVisual({ color, isBST }) {
+  const [active, setActive] = useState(null);
+  const tree = {
+    val: isBST ? 50 : 1,
+    left: {
+      val: isBST ? 30 : 2,
+      left: { val: isBST ? 20 : 4, left: null, right: null },
+      right: { val: isBST ? 40 : 5, left: null, right: null }
+    },
+    right: {
+      val: isBST ? 70 : 3,
+      left: { val: isBST ? 60 : 6, left: null, right: null },
+      right: { val: isBST ? 80 : 7, left: null, right: null }
+    }
+  };
+
+  const traverse = async (node, path = "") => {
+    if (!node) return;
+    setActive(path);
+    await new Promise(r => setTimeout(r, 800));
+    await traverse(node.left, path + "L");
+    await traverse(node.right, path + "R");
+  };
+
+  const renderNode = (node, path = "") => {
+    if (!node) return null;
+    const isActive = active === path;
+    return (
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", position: "relative" }}>
+        <motion.div animate={{ scale: isActive ? 1.25 : 1, y: isActive ? -5 : 0, backgroundColor: isActive ? color : "white", color: isActive ? "white" : color }}
+          style={{
+            width: 48, height: 48, borderRadius: "50%", border: `2.5px solid ${color}`,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontWeight: 800, fontSize: 16, boxShadow: isActive ? `0 0 25px ${color}66` : "var(--shadow-sm)", zIndex: 10, position: "relative"
+          }}>
+          {node.val}
+        </motion.div>
+        {(node.left || node.right) && (
+          <div style={{ display: "flex", gap: 40, marginTop: 24, position: "relative" }}>
+            {node.left && (
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <div style={{ position: "absolute", top: -24, left: "25%", width: 2, height: 30, background: color, transform: "rotate(35deg)", transformOrigin: "top", opacity: 0.4 }} />
+                {renderNode(node.left, path + "L")}
+              </div>
+            )}
+            {node.right && (
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <div style={{ position: "absolute", top: -24, right: "25%", width: 2, height: 30, background: color, transform: "rotate(-35deg)", transformOrigin: "top", opacity: 0.4 }} />
+                {renderNode(node.right, path + "R")}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div>
+      <div style={{ fontSize: 12, fontWeight: 700, color: "#86868b", textTransform: "uppercase", marginBottom: 40 }}>{isBST ? 'Binary Search Tree (Ordered)' : 'Binary Tree Structure'}</div>
+      <div style={{ display: "flex", justifyContent: "center", minHeight: 300, padding: "0 20px" }}>
+        {renderNode(tree)}
+      </div>
+      <div style={{ marginTop: 40 }}>
+        <VizBtn onClick={() => traverse(tree)} color={color}>▶ Visualize DFS Traversal</VizBtn>
+        <VizBtn onClick={() => setActive(null)} color={color}>↺ Reset</VizBtn>
+      </div>
+    </div>
+  );
+}
+
+function GraphVisual({ color }) {
+  const [activeNode, setActiveNode] = useState(null);
+  const nodes = [
+    { id: 0, x: 150, y: 50 },
+    { id: 1, x: 50, y: 150 },
+    { id: 2, x: 250, y: 150 },
+    { id: 3, x: 100, y: 250 },
+    { id: 4, x: 200, y: 250 }
+  ];
+  const edges = [[0, 1], [0, 2], [1, 3], [1, 4], [2, 4], [3, 4]];
+
+  const traverse = async () => {
+    const visited = new Set();
+    const queue = [0];
+    visited.add(0);
+
+    while (queue.length > 0) {
+      const curr = queue.shift();
+      setActiveNode(curr);
+      await new Promise(r => setTimeout(r, 800));
+
+      const neighbors = edges.filter(e => e.includes(curr)).map(e => e[0] === curr ? e[1] : e[0]);
+      for (const n of neighbors) {
+        if (!visited.has(n)) {
+          visited.add(n);
+          queue.push(n);
+        }
+      }
+    }
+    setActiveNode(null);
+  };
+
+  return (
+    <div>
+      <div style={{ fontSize: 12, fontWeight: 700, color: "#86868b", textTransform: "uppercase", marginBottom: 30 }}>Graph Topology — BFS Discovery</div>
+      <div style={{ position: "relative", width: 300, height: 300, margin: "0 auto", background: "#f9f9fb", borderRadius: 20, border: "1px solid #eee" }}>
+        <svg width="300" height="300">
+          {edges.map(([u, v], i) => (
+            <line key={i} x1={nodes[u].x} y1={nodes[u].y} x2={nodes[v].x} y2={nodes[v].y} stroke={color} strokeWidth="2" opacity="0.2" />
+          ))}
+        </svg>
+        {nodes.map(n => (
+          <motion.div key={n.id} animate={{ scale: activeNode === n.id ? 1.3 : 1, backgroundColor: activeNode === n.id ? color : "white" }}
+            style={{
+              position: "absolute", left: n.x - 20, top: n.y - 20, width: 40, height: 40, borderRadius: "50%", border: `2px solid ${color}`,
+              display: "flex", alignItems: "center", justifyContent: "center", color: activeNode === n.id ? "white" : color, fontWeight: 800,
+              fontSize: 14, boxShadow: activeNode === n.id ? `0 0 15px ${color}55` : "var(--shadow-sm)", zIndex: 5
+            }}>
+            {n.id}
+          </motion.div>
+        ))}
+      </div>
+      <div style={{ marginTop: 30 }}>
+        <VizBtn onClick={traverse} color={color}>▶ Run BFS</VizBtn>
+      </div>
     </div>
   );
 }
