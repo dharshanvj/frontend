@@ -1,3 +1,4 @@
+// Version 1.0.1 - Deploying Login, Settings & Quest System
 import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
