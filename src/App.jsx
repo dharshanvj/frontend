@@ -1328,6 +1328,83 @@ export const HomeScreen = ({ onEnter, user, onLogout }) => {
                   </motion.button>
                 </div>
               </div>
+
+              {/* NEW SECTION: Learning Experience Showcase */}
+              <div style={{ background: "#FDFDFB", padding: "120px 40px", borderTop: "1px solid #F0F0F0" }}>
+                <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+                  <div style={{ textAlign: "center", marginBottom: 80 }}>
+                    <div style={{ display: "inline-block", padding: "6px 14px", background: "rgba(0,184,163,0.1)", borderRadius: 10, marginBottom: 20 }}>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: "var(--teal)", textTransform: "uppercase", letterSpacing: 1.5 }}>The Experience</span>
+                    </div>
+                    <h2 style={{ fontSize: "clamp(2rem, 4vw, 3.5rem)", fontWeight: 800, letterSpacing: -1.5, marginBottom: 20 }}>Beyond Conventional Learning</h2>
+                    <p style={{ fontSize: 18, color: "var(--text-muted)", maxWidth: 700, margin: "0 auto", lineHeight: 1.7 }}>
+                      Traditional platforms focus on memorization. We focus on intuition, visualization, and real-world implementation patterns.
+                    </p>
+                  </div>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 32 }}>
+                    {[
+                      { title: "Dynamic Visualizers", desc: "Step through complex logic like Recursion and DP with our custom animation engine that highlights state changes in real-time.", icon: "🎞️", color: "#0071E3" },
+                      { title: "Interview Blueprints", desc: "Access high-yield questions curated by FITA Academy experts who have analyzed 10,000+ real interview experiences.", icon: "🗺️", color: "#AF52DE" },
+                      { title: "Theory & Code Separation", desc: "Master the structure through theory tests, then master the logic in our Code Arena. A dual-threat approach to technical mastery.", icon: "⚔️", color: "#34C759" }
+                    ].map((item, i) => (
+                      <motion.div key={i} whileHover={{ y: -10 }} style={{ background: "white", padding: 48, borderRadius: 40, boxShadow: "0 20px 48px rgba(0,0,0,0.05)", border: "1.5px solid #F6F6F6" }}>
+                        <div style={{ width: 72, height: 72, borderRadius: 24, background: item.color + "12", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, marginBottom: 32 }}>{item.icon}</div>
+                        <h4 style={{ fontSize: 24, fontWeight: 800, marginBottom: 16 }}>{item.title}</h4>
+                        <p style={{ color: "var(--text-muted)", fontSize: 16, lineHeight: 1.8 }}>{item.desc}</p>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* NEW SECTION: The Success Path */}
+              <div style={{ background: "var(--dark)", color: "white", padding: "140px 40px", overflow: "hidden", position: "relative" }}>
+                <div style={{ position: "absolute", top: -100, right: -100, width: 400, height: 400, background: "radial-gradient(circle, rgba(212, 175, 55, 0.1), transparent 70%)" }} />
+                <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 5 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 100, alignItems: "center" }}>
+                    <div>
+                      <h2 style={{ fontSize: "clamp(2.5rem, 4vw, 4rem)", fontWeight: 800, letterSpacing: -2, marginBottom: 32, lineHeight: 1 }}>How you become <span style={{ color: "var(--gold)" }}>Interview Ready</span></h2>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 40 }}>
+                        {[
+                          { step: "01", label: "Fundamental Core", sub: "Start with Arrays, Strings, and basic sorting to build a solid foundation of memory and complexity." },
+                          { step: "02", label: "Non-Linear Mastery", sub: "Level up to Trees, Graphs, and Heaps. Understand hierarchical data and relational optimization." },
+                          { step: "03", label: "Algorithmic Precision", sub: "Master DP, Backtracking, and Greedy strategies to solve complex optimization problems." }
+                        ].map((s, i) => (
+                          <div key={i} style={{ display: "flex", gap: 24 }}>
+                            <div style={{ fontSize: 32, fontWeight: 900, color: "rgba(255,255,255,0.1)", fontFamily: "var(--font-mono)", lineHeight: 1 }}>{s.step}</div>
+                            <div>
+                              <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>{s.label}</div>
+                              <p style={{ fontSize: 16, color: "rgba(255,255,255,0.5)", lineHeight: 1.6 }}>{s.sub}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div style={{ position: "relative" }}>
+                      <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 32, padding: 40, border: "1px solid rgba(255,255,255,0.05)", backdropFilter: "blur(10px)" }}>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: "var(--gold)", marginBottom: 24 }}>PLATFORM STATS</div>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32 }}>
+                          {[["25+", "Advanced Modules"], ["1000+", "Interview Qs"], ["500+", "Code Challenges"], ["100%", "FAANG Coverage"]].map(([val, lbl]) => (
+                            <div key={lbl}>
+                              <div style={{ fontSize: 36, fontWeight: 900, marginBottom: 4 }}>{val}</div>
+                              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", fontWeight: 700, letterSpacing: 1 }}>{lbl.toUpperCase()}</div>
+                            </div>
+                          ))}
+                        </div>
+                        <motion.button
+                          whileHover={{ background: "white", color: "black" }}
+                          onClick={handleExplore}
+                          style={{ width: "100%", marginTop: 40, padding: "20px", borderRadius: 16, border: "1.5px solid white", background: "transparent", color: "white", fontWeight: 800, cursor: "pointer", transition: "0.2s" }}
+                        >
+                          Explore Full Curriculum
+                        </motion.button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             </div>
 
             {/* Bottom Modules Section - Revealed on handleExplore */}
@@ -1364,6 +1441,57 @@ export const HomeScreen = ({ onEnter, user, onLogout }) => {
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {/* Footer Section */}
+            <div style={{ background: "#F5F5F7", padding: "80px 40px 40px", borderTop: "1px solid #E6E6E6" }}>
+              <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1.5fr", gap: 60, marginBottom: 80 }}>
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24 }}>
+                      <div style={{ width: 32, height: 32, borderRadius: 10, background: "var(--dark)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <span style={{ fontSize: 16, fontWeight: 800, color: "white", fontFamily: "var(--font-mono)" }}>C</span>
+                      </div>
+                      <span style={{ fontSize: 20, fontWeight: 700, color: "var(--dark)", letterSpacing: -0.5 }}>CodeLoom</span>
+                    </div>
+                    <p style={{ color: "var(--text-muted)", fontSize: 14, lineHeight: 1.8, maxWidth: 320 }}>
+                      The gold standard for technical interview preparation. Powered by FITA Academy's expert mentorship and placement ecosystem.
+                    </p>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 800, marginBottom: 20, color: "var(--dark)" }}>RESOURCES</div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                      {["DSA Modules", "Interview Prep", "Code Arena", "Visualizers"].map(link => (
+                        <a key={link} href="#" style={{ textDecoration: "none", color: "var(--text-muted)", fontSize: 14 }}>{link}</a>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 800, marginBottom: 20, color: "var(--dark)" }}>FITA ACADEMY</div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                      {["Full Stack Web", "Python ML", "UI/UX Design", "Cloud Computing"].map(link => (
+                        <a key={link} href="https://www.fita.in" target="_blank" style={{ textDecoration: "none", color: "var(--text-muted)", fontSize: 14 }}>{link}</a>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 800, marginBottom: 20, color: "var(--dark)" }}>NEWSLETTER</div>
+                    <p style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 16 }}>Get weekly interview tips and coding challenges.</p>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <input type="email" placeholder="Email" style={{ flex: 1, padding: "10px 16px", borderRadius: 12, border: "1px solid #D2D2D7", fontSize: 14, background: "white" }} />
+                      <button style={{ width: 44, height: 44, borderRadius: 12, background: "var(--dark)", color: "white", border: "none", display: "flex", alignItems: "center", justifyContent: "center" }}>→</button>
+                    </div>
+                  </div>
+                </div>
+                <div style={{ borderTop: "1px solid #D2D2D7", paddingTop: 40, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div style={{ fontSize: 13, color: "var(--text-muted)" }}>© 2026 CodeLoom by FITA Academy. All rights reserved.</div>
+                  <div style={{ display: "flex", gap: 24 }}>
+                    {["Copyright", "Privacy Policy", "Terms of Service", "Cookie Policy"].map(link => (
+                      <a key={link} href="#" style={{ textDecoration: "none", color: "var(--text-muted)", fontSize: 12 }}>{link}</a>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
           </motion.div>
         )}
         {tab === "company" && (
