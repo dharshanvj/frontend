@@ -1267,8 +1267,30 @@ export const HomeScreen = ({ onEnter, user, onLogout }) => {
                     <a href="#" style={{ color: "var(--teal)", fontWeight: 800, fontSize: 15 }}>View Modules ›</a>
                   </motion.div>
                   <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} style={{ position: "relative" }}>
-                    <div style={{ height: 300, background: "#F5F5F7", borderRadius: 24, border: "1.5px solid #E6E6E6", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <span style={{ fontSize: 80, opacity: 0.05 }}>📊</span>
+                    <div style={{
+                      height: 320, background: "white", borderRadius: 32, border: "1.5px solid #F0F0F0",
+                      boxShadow: "0 20px 48px rgba(0,0,0,0.04)", overflow: "hidden", padding: 32
+                    }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: "var(--teal)", marginBottom: 20 }}>LIVE CONTEST LEADERBOARD</div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                        {[
+                          { name: "Rahul S.", score: "2840", icon: "🥇", color: "var(--gold)" },
+                          { name: "Priya V.", score: "2710", icon: "🥈", color: "#A1A1A6" },
+                          { name: "Arjun K.", score: "2650", icon: "🥉", color: "#B87333" },
+                        ].map((user, i) => (
+                          <motion.div
+                            key={i} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + i * 0.1 }}
+                            style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: "#F9F9FB", borderRadius: 16 }}
+                          >
+                            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                              <span style={{ fontSize: 20 }}>{user.icon}</span>
+                              <span style={{ fontWeight: 700, color: "var(--dark)" }}>{user.name}</span>
+                            </div>
+                            <span style={{ fontFamily: "var(--font-mono)", fontWeight: 800, color: user.color }}>{user.score} pts</span>
+                          </motion.div>
+                        ))}
+                      </div>
+                      <div style={{ marginTop: 20, textAlign: "center", fontSize: 12, color: "var(--text-muted)", fontWeight: 600 }}>+ 1,420 others participating now</div>
                     </div>
                   </motion.div>
                 </div>
@@ -1287,8 +1309,37 @@ export const HomeScreen = ({ onEnter, user, onLogout }) => {
                     <a href="#" style={{ color: "var(--teal)", fontWeight: 800, fontSize: 15 }}>Interview Prep ›</a>
                   </motion.div>
                   <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} style={{ position: "relative", order: 1 }}>
-                    <div style={{ height: 300, background: "#F5F5F7", borderRadius: 24, border: "1.5px solid #E6E6E6", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <span style={{ fontSize: 80, opacity: 0.1 }}>☕</span>
+                    <div style={{
+                      height: 320, background: "var(--dark)", borderRadius: 32,
+                      boxShadow: "0 30px 60px rgba(0,0,0,0.12)", overflow: "hidden",
+                      display: "flex", flexDirection: "column", justifyContent: "center", padding: 40, color: "white"
+                    }}>
+                      <div style={{ fontSize: 12, fontWeight: 800, color: "var(--gold)", letterSpacing: 2, marginBottom: 24 }}>HIRING INSIGHTS</div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+                        <div>
+                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                            <span style={{ fontSize: 14, fontWeight: 600, opacity: 0.8 }}>Technical Assessment</span>
+                            <span style={{ fontSize: 14, fontWeight: 800 }}>88% PASS RATE</span>
+                          </div>
+                          <div style={{ height: 6, background: "rgba(255,255,255,0.1)", borderRadius: 3 }}>
+                            <motion.div initial={{ width: 0 }} whileInView={{ width: "88%" }} transition={{ duration: 1 }} style={{ height: "100%", background: "var(--teal)", borderRadius: 3 }} />
+                          </div>
+                        </div>
+                        <div>
+                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                            <span style={{ fontSize: 14, fontWeight: 600, opacity: 0.8 }}>System Design Flow</span>
+                            <span style={{ fontSize: 14, fontWeight: 800 }}>92% SUCCESS</span>
+                          </div>
+                          <div style={{ height: 6, background: "rgba(255,255,255,0.1)", borderRadius: 3 }}>
+                            <motion.div initial={{ width: 0 }} whileInView={{ width: "92%" }} transition={{ duration: 1, delay: 0.2 }} style={{ height: "100%", background: "var(--gold)", borderRadius: 3 }} />
+                          </div>
+                        </div>
+                        <div style={{ marginTop: 12, display: "flex", gap: 12 }}>
+                          {["FAANG", "Startups", "FinTech"].map(tag => (
+                            <span key={tag} style={{ padding: "6px 14px", borderRadius: 10, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", fontSize: 12, fontWeight: 700 }}>{tag}</span>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   </motion.div>
                 </div>
