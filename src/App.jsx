@@ -78,6 +78,7 @@ const GLOBAL_CSS = `
   
   @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
   @keyframes drift { 0%, 100% { transform: translateX(0px); } 50% { transform: translateX(20px); } }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   .sky-gradient { background: linear-gradient(180deg, #AEE2FF 0%, #F5F9FF 100%); }
 
   .login-input {
@@ -1372,39 +1373,45 @@ const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress }) => {
     <div style={{ minHeight: "100vh", background: "var(--bg)" }}>
       {/* Analytics Trigger */}
       <motion.button onClick={() => setShowReport(true)}
-        initial={{ scale: 0 }} animate={{ scale: 1 }} whileHover={{ scale: 1.1, rotate: 5, boxShadow: "0 14px 40px rgba(0,113,227,0.5)" }} whileTap={{ scale: 0.9 }}
-        style={{ position: "fixed", bottom: 32, right: 32, width: 68, height: 68, borderRadius: "50%", background: "#0071e3", color: "white", fontSize: 28, boxShadow: "0 12px 32px rgba(0,113,227,0.4)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", border: "4px solid white" }}>
+        initial={{ scale: 0 }} animate={{ scale: 1 }} whileHover={{ scale: 1.1, rotate: 5, boxShadow: "0 20px 40px rgba(0,255,140,0.3)" }} whileTap={{ scale: 0.9 }}
+        style={{ position: "fixed", bottom: 48, right: 48, width: 80, height: 80, borderRadius: "50%", background: "var(--teal)", color: "white", fontSize: 32, boxShadow: "0 12px 32px rgba(0,0,0,0.15)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", border: "5px solid white" }}>
         📊
       </motion.button>
       {showReport && <PerformanceReport analytics={analytics} onClose={() => setShowReport(false)} />}
-      <div style={{ position: "sticky", top: 0, zIndex: 50, backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", background: "rgba(245,245,247,0.85)", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
-        <div style={{ maxWidth: 960, margin: "0 auto", padding: "0 32px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <button onClick={onBack} style={{ display: "flex", alignItems: "center", gap: 6, color: "#0071e3", fontSize: 14, fontWeight: 500, cursor: "pointer" }}>‹ Home</button>
-            <span style={{ color: "#d2d2d7" }}>|</span>
-            <span style={{ fontSize: 15, fontWeight: 600, color: "#1d1d1f" }}>Choose Your Path</span>
+      <div style={{ position: "fixed", top: 32, left: "50%", transform: "translateX(-50%)", zIndex: 1000, width: "90%", maxWidth: 1100 }}>
+        <div style={{
+          background: "rgba(255, 255, 255, 0.9)", backdropFilter: "blur(24px)", borderRadius: 40,
+          padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between",
+          boxShadow: "0 20px 60px rgba(0,0,0,0.1)", border: "1px solid rgba(255,255,255,0.6)"
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+            <motion.button onClick={onBack} whileHover={{ x: -6 }} style={{ background: "none", border: "none", display: "flex", alignItems: "center", gap: 8, color: "var(--teal)", fontSize: 16, fontWeight: 900, cursor: "pointer", paddingLeft: 20 }}>
+              ‹ HOME
+            </motion.button>
+            <div style={{ height: 28, width: 1.5, background: "#F0F0F0" }} />
+            <span style={{ fontSize: 18, fontWeight: 900, letterSpacing: -1, color: "#1D1D1F" }}>THE KNOWLEDGE ENGINE</span>
           </div>
-          <div style={{ display: "flex", gap: 4, background: "rgba(0,0,0,0.06)", borderRadius: 12, padding: 3 }}>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#F5F5F7", padding: 6, borderRadius: 32 }}>
             {tabs.map(([t, l]) => (
-              <button key={t} onClick={() => setActiveTab(t)}
-                style={{
-                  padding: "6px 16px", fontSize: 13, fontWeight: 600, borderRadius: 9, border: "none", cursor: "pointer", transition: "all 0.2s",
-                  background: activeTab === t ? "white" : "transparent",
-                  color: activeTab === t ? "#1d1d1f" : "#86868b",
-                  boxShadow: activeTab === t ? "var(--shadow-sm)" : "none"
-                }}>{l}
-              </button>
+              <button key={t} onClick={() => setActiveTab(t)} style={{
+                padding: "10px 24px", borderRadius: 28, fontSize: 14, fontWeight: 800,
+                background: activeTab === t ? "white" : "transparent",
+                color: activeTab === t ? "#1D1D1F" : "var(--text-muted)",
+                border: "none", transition: "0.3s cubic-bezier(0.22, 1, 0.36, 1)",
+                boxShadow: activeTab === t ? "0 4px 16px rgba(0,0,0,0.06)" : "none",
+                cursor: "pointer"
+              }}>{l.split(" ")[1].toUpperCase()}</button>
             ))}
           </div>
-        </div>
-        {/* Tab indicator bar */}
-        <div style={{ maxWidth: 960, margin: "0 auto", padding: "0 32px", display: "flex", gap: 0 }}>
-          {tabs.map(([t]) => (
-            <div key={t} style={{ flex: 1, height: 2, background: activeTab === t ? "#0071e3" : "transparent", transition: "background 0.2s", borderRadius: 2 }} />
-          ))}
+
+          <div style={{ width: 140, display: "flex", justifyContent: "flex-end", paddingRight: 16 }}>
+            <motion.div whileHover={{ scale: 1.1 }} style={{ width: 44, height: 44, borderRadius: "50%", background: "var(--teal)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 22, border: "3px solid white", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>🧑‍💻</motion.div>
+          </div>
         </div>
       </div>
-      <div style={{ maxWidth: 960, margin: "0 auto", padding: "40px 32px" }}>
+
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "140px 40px 100px" }}>
         <AnimatePresence mode="wait">
           {activeTab === "learn" && (
             <motion.div key="learn" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
@@ -1428,10 +1435,10 @@ const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress }) => {
 };
 
 const LearnTab = ({ level, setLevel, onSelectModule, progress }) => (
-  <div>
-    <div style={{ marginBottom: 28 }}>
-      <h2 style={{ fontSize: 32, fontWeight: 700, letterSpacing: -1, color: "#1d1d1f", marginBottom: 6 }}>Modules</h2>
-      <p style={{ color: "#86868b", fontSize: 15 }}>Pick a topic below — explore concepts, visualize, and code challenges all in one place</p>
+  <div style={{ animation: "fadeIn 0.6s ease-out" }}>
+    <div style={{ marginBottom: 48, textAlign: "center" }}>
+      <h2 style={{ fontSize: 48, fontWeight: 900, letterSpacing: -2, color: "#1D1D1F", marginBottom: 16 }}>The Knowledge Map</h2>
+      <p style={{ color: "var(--text-muted)", fontSize: 20, maxWidth: 600, margin: "0 auto" }}>Explore modules, visualize concepts, and master logic—all curated for peak understanding.</p>
     </div>
     {/* Difficulty filter */}
     <div style={{ display: "flex", gap: 6, marginBottom: 28, alignItems: "center" }}>
@@ -1637,13 +1644,13 @@ const InterviewTab = () => {
 
     const actualQ = Math.min(numQuestions, INTERVIEW_DATA[selMod]?.length || 0);
     return (
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-        <div style={{ marginBottom: 24 }}>
-          <h2 style={{ fontSize: 32, fontWeight: 700, letterSpacing: -1, color: "#1d1d1f", marginBottom: 6 }}>🎤 Mock Interview</h2>
-          <p style={{ color: "#86868b", fontSize: 15 }}>Configure your session and hit Start — takes under 30 seconds to set up</p>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} style={{ animation: "fadeIn 0.6s ease-out" }}>
+        <div style={{ marginBottom: 48, textAlign: "center" }}>
+          <h2 style={{ fontSize: 48, fontWeight: 900, letterSpacing: -2, color: "#1D1D1F", marginBottom: 16 }}>Verification Hub</h2>
+          <p style={{ color: "var(--text-muted)", fontSize: 20, maxWidth: 600, margin: "0 auto" }}>Generate a tailored technical assessment to verify your mastery of {selMod}.</p>
         </div>
 
-        <div style={{ background: "white", borderRadius: 24, padding: 28, boxShadow: "var(--shadow-lg)", border: "1.5px solid var(--border)", marginBottom: 20 }}>
+        <div style={{ background: "white", borderRadius: 40, border: "1.5px solid #F0F0F0", padding: 48, boxShadow: "0 40px 80px rgba(0,0,0,0.05)", maxWidth: 960, margin: "0 auto" }}>
           {/* Topic Selection Area */}
           <div style={{ marginBottom: 32 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 16 }}>
@@ -1728,7 +1735,7 @@ const InterviewTab = () => {
           </div>
 
           {/* Summary + CTA inline */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16, background: `${color}0a`, borderRadius: 16, padding: "16px 20px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16, background: "var(--bg)", borderRadius: 32, padding: "24px 32px", border: "1px solid #EEE" }}>
             <div style={{ display: "flex", gap: 28, flexWrap: "wrap" }}>
               {[["📋", actualQ + " Qs"], ["⏱", formatTime(timePerQ * actualQ + (includeCoding ? 300 : 0))], ["🎯", selMod]].map(([icon, val]) => (
                 <div key={val} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -1981,14 +1988,14 @@ const PerformanceReport = ({ analytics, onClose }) => {
 
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 3000, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.5)", backdropFilter: "blur(12px)" }}>
-      <motion.div initial={{ opacity: 0, scale: 0.9, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }}
-        style={{ width: "95%", maxWidth: 880, maxHeight: "90vh", background: "#f5f5f7", borderRadius: 32, overflow: "hidden", position: "relative", boxShadow: "0 40px 120px rgba(0,0,0,0.4)" }}>
-        <div style={{ padding: "32px 40px", background: "white", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <motion.div initial={{ opacity: 0, scale: 0.95, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+        style={{ width: "95%", maxWidth: 900, maxHeight: "90vh", background: "#FFFFFF", borderRadius: 40, overflow: "hidden", position: "relative", boxShadow: "0 60px 120px rgba(0,0,0,0.15)", border: "1px solid #F0F0F0" }}>
+        <div style={{ padding: "40px 48px", background: "white", borderBottom: "1px solid #F5F5F7", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
-            <h2 style={{ fontSize: 28, fontWeight: 800, letterSpacing: -1 }}>Efficiency & Performance Report</h2>
-            <p style={{ color: "#86868b", fontSize: 14 }}>Real-time analysis of your DSA journey</p>
+            <h2 style={{ fontSize: 32, fontWeight: 900, letterSpacing: -1.5, color: "#1D1D1F" }}>Learning Intelligence</h2>
+            <p style={{ color: "var(--text-muted)", fontSize: 16, fontWeight: 600 }}>A deep dive into your DSA journey and proficiency</p>
           </div>
-          <button onClick={onClose} style={{ width: 44, height: 44, borderRadius: "50%", background: "#f5f5f7", fontSize: 22, color: "#424245", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", transition: "all 0.2s" }}>×</button>
+          <button onClick={onClose} style={{ width: 48, height: 48, borderRadius: "50%", background: "#F5F5F7", fontSize: 24, color: "#1D1D1F", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", transition: "all 0.2s", border: "none" }}>×</button>
         </div>
         <div style={{ padding: 40, overflowY: "auto", maxHeight: "calc(90vh - 110px)" }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 20 }}>
@@ -2028,19 +2035,33 @@ const CodeArenaTab = ({ logSession }) => {
   const [selLevel, setSelLevel] = useState("Beginner");
   const [selChallenge, setSelChallenge] = useState(null);
   const challenges = CODING_CHALLENGES[selMod]?.[selLevel] || [];
-  if (selChallenge) return <CodeEditor challenge={selChallenge} progress={progress} saveProgress={saveProgress} module={selMod} onBack={() => setSelChallenge(null)} logSession={logSession} />;
+
+  if (selChallenge) return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 20000, background: "white", animation: "fadeIn 0.3s ease-out" }}>
+      <CodingChallengeScreen
+        challenge={selChallenge}
+        progress={progress}
+        saveProgress={saveProgress}
+        module={selMod}
+        level={selLevel}
+        onBack={() => setSelChallenge(null)}
+        logSession={logSession}
+      />
+    </div>
+  );
   const color = MOD_COLORS[selMod];
   return (
-    <div>
-      <div style={{ marginBottom: 28 }}>
-        <h2 style={{ fontSize: 32, fontWeight: 700, letterSpacing: -1, color: "#1d1d1f", marginBottom: 6 }}>Code Arena</h2>
-        <p style={{ color: "#86868b", fontSize: 15 }}>9 challenges per module, 3 levels from Beginner to Advanced</p>
+    <div style={{ animation: "fadeIn 0.6s ease-out" }}>
+      <div style={{ marginBottom: 48, textAlign: "center" }}>
+        <h2 style={{ fontSize: 48, fontWeight: 900, letterSpacing: -2, color: "#1D1D1F", marginBottom: 16 }}>Battle Arena</h2>
+        <p style={{ color: "var(--text-muted)", fontSize: 20, maxWidth: 600, margin: "0 auto" }}>Hone your implementation skills with real-world problems from top companies.</p>
       </div>
-      <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
+
+      <div style={{ display: "flex", gap: 10, marginBottom: 20, flexWrap: "wrap", justifyContent: "center" }}>
         {MODULES.map(m => { const c = MOD_COLORS[m]; return <PillBtn key={m} active={selMod === m} onClick={() => setSelMod(m)} color={c}>{MOD_ICONS[m]} {m}</PillBtn>; })}
       </div>
-      <div style={{ display: "flex", gap: 8, marginBottom: 28 }}>
-        {LEVELS.map(l => <PillBtn key={l} active={selLevel === l} onClick={() => setSelLevel(l)} color="#424245">{l}</PillBtn>)}
+      <div style={{ display: "flex", gap: 8, marginBottom: 48, justifyContent: "center" }}>
+        {LEVELS.map(l => <PillBtn key={l} active={selLevel === l} onClick={() => setSelLevel(l)} color="#1D1D1F">{l}</PillBtn>)}
       </div>
       <ProgressCard module={selMod} progress={progress} total={9} type="code" />
       <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 24 }}>
@@ -2049,7 +2070,7 @@ const CodeArenaTab = ({ logSession }) => {
           const status = progress[key];
           return (
             <motion.div key={ch.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07, ease: [0.22, 1, 0.36, 1] }}
-              whileHover={{ scale: 1.01, y: -1, boxShadow: "var(--shadow-lg)" }} style={{ background: "white", border: "1.5px solid", borderColor: status === "solved" ? `${color}44` : "var(--border)", borderRadius: 18, padding: 24, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "var(--shadow-sm)", transition: "box-shadow 0.3s" }}
+              whileHover={{ scale: 1.01, y: -2, boxShadow: "0 20px 40px rgba(0,0,0,0.06)" }} style={{ background: "white", border: "1.5px solid", borderColor: status === "solved" ? "var(--teal)" : "#F0F0F0", borderRadius: 24, padding: "28px 32px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", transition: "all 0.3s" }}
               onClick={() => setSelChallenge(ch)}>
               <div>
                 <div style={{ display: "flex", gap: 8, marginBottom: 10, alignItems: "center" }}>
@@ -2071,146 +2092,215 @@ const CodeArenaTab = ({ logSession }) => {
   );
 };
 
-const CodeEditor = ({ challenge, progress, saveProgress, module: mod, onBack, logSession }) => {
+const CodingChallengeScreen = ({ challenge, progress, saveProgress, module: mod, level, onBack, logSession }) => {
   const [code, setCode] = useState(challenge.starter);
   const [analysis, setAnalysis] = useState(null);
-  const [tab, setTab] = useState("editor");
-  const color = MOD_COLORS[mod];
+  const [activeTab, setActiveTab] = useState("desc"); // desc, solution
+  const [terminalOpen, setTerminalOpen] = useState(true);
+  const [running, setRunning] = useState(false);
+  const [output, setOutput] = useState(null);
+
+  const color = MOD_COLORS[mod] || "#0071e3";
   const key = `code_${mod}_${challenge.id}`;
   const isSolved = progress[key] === "solved";
+
+  const handleRun = () => {
+    setRunning(true);
+    setTerminalOpen(true);
+    setTimeout(() => {
+      const res = analyzeCode(code);
+      setAnalysis(res);
+      setOutput(res.errors.length > 0 ? "Compilation failed. Check errors below." : "Test Cases Passed! ✓\nAll hidden test cases cleared.");
+      setRunning(false);
+    }, 800);
+  };
+
+  const handleSubmit = () => {
+    setRunning(true);
+    setTimeout(() => {
+      const res = analyzeCode(code);
+      if (res.errors.length === 0) {
+        saveProgress(key, "solved");
+        logSession({ type: "code", topic: mod, score: 100, difficulty: level, id: challenge.id });
+        setOutput("Success! Submission accepted.\nDifficulty: " + level + "\nPoints: +100 XP");
+      } else {
+        setOutput("Submission failed. Please fix compilation errors.");
+      }
+      setRunning(false);
+      setTerminalOpen(true);
+    }, 1200);
+  };
+
   return (
-    <div>
-      <button onClick={onBack} style={{ display: "flex", alignItems: "center", gap: 6, color: "#0071e3", fontSize: 14, fontWeight: 500, cursor: "pointer", marginBottom: 24 }}>‹ Back to Challenges</button>
-      <div style={{ display: "flex", gap: 8, marginBottom: 16, alignItems: "center", flexWrap: "wrap" }}>
-        <span style={{ fontSize: 11, fontWeight: 600, color, background: `${color}12`, padding: "3px 10px", borderRadius: 20 }}>{mod}</span>
-        <span style={{ fontSize: 11, fontWeight: 500, color: "#86868b", background: "#f5f5f7", padding: "3px 10px", borderRadius: 20 }}>{challenge.company}</span>
-        {isSolved && <span style={{ fontSize: 11, fontWeight: 600, color: "#34c759", background: "#e8f9ee", padding: "3px 10px", borderRadius: 20 }}>✓ Solved</span>}
-      </div>
-      <h2 style={{ fontSize: 28, fontWeight: 700, letterSpacing: -0.5, color: "#1d1d1f", marginBottom: 10 }}>{challenge.title}</h2>
-      <p style={{ color: "#424245", fontSize: 15, lineHeight: 1.7, marginBottom: 24 }}>{challenge.desc}</p>
-      <div style={{ background: "#f5f5f7", border: "1.5px solid var(--border)", borderRadius: 14, padding: "16px 20px", marginBottom: 24 }}>
-        <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.5, color: "#0071e3", textTransform: "uppercase", marginBottom: 10 }}>Test Cases</div>
-        <pre style={{ fontSize: 13, color: "#1d1d1f", lineHeight: 1.8, whiteSpace: "pre-wrap", fontFamily: "var(--font-mono)" }}>{challenge.testCases}</pre>
-      </div>
-      <div style={{ display: "flex", gap: 8, marginBottom: 16, background: "rgba(0,0,0,0.05)", borderRadius: 12, padding: 3, width: "fit-content" }}>
-        {[["editor", "✏️ Your Code"], ["solution", "💡 Solution"]].map(([t, l]) => (
-          <button key={t} onClick={() => setTab(t)} style={{ padding: "8px 20px", fontSize: 13, fontWeight: 500, borderRadius: 9, border: "none", cursor: "pointer", transition: "all 0.2s", background: tab === t ? "white" : "transparent", color: tab === t ? "#1d1d1f" : "#86868b", boxShadow: tab === t ? "var(--shadow-sm)" : "none" }}>{l}</button>
-        ))}
-      </div>
-      {tab === "editor" && (
-        <div>
-          <div style={{ background: "#1d2126", borderRadius: 18, overflow: "hidden", marginBottom: 16, boxShadow: "var(--shadow-lg)" }}>
-            <div style={{ padding: "12px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <div style={{ display: "flex", gap: 7 }}>{["#ff5f56", "#ffbd2e", "#27c93f"].map(c => <div key={c} style={{ width: 12, height: 12, borderRadius: "50%", background: c }} />)}</div>
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "rgba(255,255,255,0.35)" }}>{challenge.title}.java</span>
-              <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", color: "rgba(255,255,255,0.25)" }}>{code.split('\n').length} lines</span>
-            </div>
-            <textarea value={code} onChange={e => { setCode(e.target.value); setAnalysis(null); }} spellCheck={false}
-              style={{ width: "100%", minHeight: 320, padding: "24px", background: "transparent", border: "none", color: "#abb2bf", fontSize: 13, lineHeight: 1.9, outline: "none", caretColor: "#e8ff5a" }} />
+    <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "#FFFFFF", color: "#1D1D1F", fontFamily: "var(--font)" }}>
+      {/* Top Nav */}
+      <div style={{ height: 60, borderBottom: "1px solid #F0F0F0", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px", flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <button onClick={onBack} style={{ background: "none", border: "none", color: "var(--teal)", fontWeight: 800, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
+            ‹ DASHBOARD
+          </button>
+          <div style={{ height: 20, width: 1, background: "#EEE" }} />
+          <div style={{ fontSize: 14, fontWeight: 700, color: "#1D1D1F" }}>
+            {mod} / {challenge.title}
           </div>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 20 }}>
-            <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => setAnalysis(analyzeCode(code))}
-              style={{ padding: "10px 22px", fontSize: 13, fontWeight: 600, background: `${color}12`, color, border: `1.5px solid ${color}30`, borderRadius: 12, cursor: "pointer" }}>
-              🔍 Analyze Code
-            </motion.button>
-            <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => setCode(challenge.starter)}
-              style={{ padding: "10px 22px", fontSize: 13, fontWeight: 600, background: "#f5f5f7", color: "#424245", border: "1.5px solid var(--border)", borderRadius: 12, cursor: "pointer" }}>
-              ↺ Reset
-            </motion.button>
-            {!isSolved && (
-              <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => {
-                saveProgress(key, "solved");
-                logSession({ type: "code", topic: mod, score: 100, difficulty: challenge.level, id: challenge.id });
-              }}
-                style={{ padding: "10px 22px", fontSize: 13, fontWeight: 600, background: "#34c75918", color: "#34c759", border: "1.5px solid #34c75944", borderRadius: 12, cursor: "pointer" }}>
-                ✓ Mark as Solved
-              </motion.button>
-            )}
-          </div>
-          <AnimatePresence>
-            {analysis && (
-              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                style={{ background: "white", border: "1.5px solid var(--border)", borderRadius: 18, padding: "20px 24px", boxShadow: "var(--shadow)" }}>
-                <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.5, color: "#0071e3", textTransform: "uppercase", marginBottom: 16 }}>Code Analysis</div>
-                {analysis.errors.length === 0 && analysis.warnings.length === 0 &&
-                  <div style={{ color: "#34c759", fontSize: 14, fontWeight: 500 }}>✓ No issues found — code looks structurally clean.</div>}
-                {analysis.errors.map((e, i) => (
-                  <div key={i} style={{ display: "flex", gap: 12, padding: "10px 14px", background: "#fff1f0", border: "1.5px solid rgba(255,59,48,0.2)", borderRadius: 10, marginBottom: 8 }}>
-                    <span style={{ color: "#ff3b30", flexShrink: 0 }}>✗</span>
-                    <span style={{ color: "#ff3b30", fontSize: 13, lineHeight: 1.6 }}>{e.msg}</span>
-                  </div>
-                ))}
-                {analysis.warnings.map((w, i) => {
-                  const isInfo = w.type === "info";
-                  const wStyle = isInfo ? { bg: "#e8f2ff", border: "rgba(0,113,227,0.2)", color: "#0071e3" } : { bg: "#fff4e6", border: "rgba(255,149,0,0.2)", color: "#ff9500" };
-                  return (
-                    <div key={i} style={{ display: "flex", gap: 12, padding: "10px 14px", background: wStyle.bg, border: `1.5px solid ${wStyle.border}`, borderRadius: 10, marginBottom: 8 }}>
-                      <span style={{ color: wStyle.color, flexShrink: 0 }}>{isInfo ? "ℹ" : "⚠"}</span>
-                      <span style={{ color: wStyle.color, fontSize: 13, lineHeight: 1.6 }}>{w.msg}</span>
-                    </div>
-                  );
-                })}
-                <div style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid var(--border)", display: "flex", gap: 20 }}>
-                  <span style={{ fontSize: 12, color: "#ff3b30", fontFamily: "var(--font-mono)", fontWeight: 500 }}>Errors: {analysis.errors.length}</span>
-                  <span style={{ fontSize: 12, color: "#ff9500", fontFamily: "var(--font-mono)", fontWeight: 500 }}>Warnings: {analysis.warnings.filter(w => w.type === "warning").length}</span>
-                  <span style={{ fontSize: 12, color: "#0071e3", fontFamily: "var(--font-mono)", fontWeight: 500 }}>Info: {analysis.warnings.filter(w => w.type === "info").length}</span>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
-      )}
-      {tab === "solution" && (
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-          <div style={{ background: "#1d2126", borderRadius: 20, overflow: "hidden", boxShadow: "var(--shadow-lg)" }}>
-            <div style={{ padding: "12px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", gap: 7, alignItems: "center" }}>
-              {["#ff5f56", "#ffbd2e", "#27c93f"].map(c => <div key={c} style={{ width: 12, height: 12, borderRadius: "50%", background: c }} />)}
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "rgba(255,255,255,0.35)", marginLeft: 8 }}>Solution — {challenge.title}.java</span>
-            </div>
-            <pre style={{ padding: 28, fontSize: 13, lineHeight: 1.9, color: "#abb2bf", overflowX: "auto", maxHeight: 520 }}><code>{challenge.solution}</code></pre>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <button onClick={handleRun} disabled={running} style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid #D2D2D7", background: "white", color: "#1D1D1F", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+            {running ? "Running..." : "Run Code"}
+          </button>
+          <button onClick={handleSubmit} disabled={running} style={{ padding: "8px 20px", borderRadius: 8, border: "none", background: "var(--teal)", color: "white", fontSize: 13, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
+            Submit
+          </button>
+          <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#F5F5F7", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>🧑‍💻</div>
+        </div>
+      </div>
+
+      {/* Main Body */}
+      <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
+        {/* Left Side: Description */}
+        <div style={{ width: "40%", borderRight: "1px solid #F0F0F0", display: "flex", flexDirection: "column", background: "#FDFDFD" }}>
+          <div style={{ display: "flex", borderBottom: "1px solid #F0F0F0", background: "white" }}>
+            {[["desc", "Description"], ["sol", "Solution"]].map(([t, l]) => (
+              <button key={t} onClick={() => setActiveTab(t)} style={{
+                padding: "16px 24px", fontSize: 13, fontWeight: 700, border: "none", background: "none",
+                color: activeTab === t ? "var(--teal)" : "#86868B",
+                borderBottom: activeTab === t ? "2px solid var(--teal)" : "none",
+                cursor: "pointer"
+              }}>{l.toUpperCase()}</button>
+            ))}
           </div>
-        </motion.div>
-      )}
+
+          <div style={{ flex: 1, overflowY: "auto", padding: "40px" }}>
+            {activeTab === "desc" ? (
+              <div style={{ animation: "fadeIn 0.3s ease-out" }}>
+                <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
+                  <span style={{ fontSize: 11, fontWeight: 900, color: "white", background: level === "Beginner" ? "#34C759" : level === "Intermediate" ? "#FF9500" : "#FF3B30", padding: "4px 10px", borderRadius: 6 }}>{level.toUpperCase()}</span>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: "#86868B", background: "#F5F5F7", padding: "4px 10px", borderRadius: 6 }}>{challenge.company.toUpperCase()}</span>
+                  {isSolved && <span style={{ fontSize: 11, fontWeight: 900, color: "#34C759" }}>✓ SOLVED</span>}
+                </div>
+
+                <h1 style={{ fontSize: 24, fontWeight: 900, letterSpacing: -1, marginBottom: 16 }}>{challenge.title}</h1>
+                <p style={{ fontSize: 16, lineHeight: 1.7, color: "#424245", marginBottom: 32 }}>{challenge.desc}</p>
+
+                <h3 style={{ fontSize: 14, fontWeight: 800, color: "#1D1D1F", marginBottom: 12 }}>EXAMPLES</h3>
+                <div style={{ background: "#F8F8F8", borderRadius: 12, padding: 20, border: "1.5px solid #F0F0F0", marginBottom: 24 }}>
+                  <pre style={{ margin: 0, whiteSpace: "pre-wrap", fontSize: 14, fontFamily: "var(--font-mono)", color: "#1D1D1F", fontWeight: 600 }}>{challenge.testCases}</pre>
+                </div>
+
+                <h3 style={{ fontSize: 14, fontWeight: 800, color: "#1D1D1F", marginBottom: 12 }}>CONSTRAINTS</h3>
+                <ul style={{ paddingLeft: 20, color: "var(--text-muted)", fontSize: 14, lineHeight: 1.8 }}>
+                  <li>Time Limit: 1.0s</li>
+                  <li>Memory Limit: 256MB</li>
+                  <li>Valid Java 11+ syntax required</li>
+                </ul>
+              </div>
+            ) : (
+              <div style={{ animation: "fadeIn 0.3s ease-out" }}>
+                <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 16 }}>Official Solution</h2>
+                <div style={{ background: "#1D2126", borderRadius: 16, padding: 20, color: "#ABB2BF", overflow: "hidden" }}>
+                  <pre style={{ margin: 0, fontSize: 13, lineHeight: 1.6 }}><code>{challenge.solution}</code></pre>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right Side: Editor & Terminal */}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "#f8f9fa" }}>
+          {/* Toolbar */}
+          <div style={{ height: 48, background: "white", borderBottom: "1px solid #F0F0F0", padding: "0 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <span style={{ fontSize: 12, fontWeight: 800, color: "var(--teal)" }}>JAVA (OPENJDK 11)</span>
+            </div>
+            <button onClick={() => setCode(challenge.starter)} style={{ border: "none", background: "none", fontSize: 11, fontWeight: 800, color: "#86868B", cursor: "pointer" }}>RESET TO STARTER</button>
+          </div>
+
+          <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
+            <textarea
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              spellCheck={false}
+              style={{
+                width: "100%", height: "100%", padding: "40px",
+                background: "#1D2126", color: "#ABB2BF",
+                fontSize: 15, fontFamily: "var(--font-mono)",
+                border: "none", outline: "none", resize: "none",
+                lineHeight: 1.8, caretColor: "var(--teal)"
+              }}
+            />
+          </div>
+
+          {/* Terminal Drawer */}
+          <div style={{
+            height: terminalOpen ? 240 : 40, background: "#1D2126", borderTop: "4px solid #333",
+            transition: "height 0.3s cubic-bezier(0.22, 1, 0.36, 1)", overflow: "hidden", display: "flex", flexDirection: "column"
+          }}>
+            <div onClick={() => setTerminalOpen(!terminalOpen)} style={{ height: 40, display: "flex", alignItems: "center", padding: "0 20px", cursor: "pointer", background: "#2D2D2D" }}>
+              <span style={{ fontSize: 11, fontWeight: 800, color: "white", flex: 1 }}>{terminalOpen ? "▼ TERMINAL" : "▲ CONSOLE OUT"}</span>
+              {running && <div style={{ width: 12, height: 12, border: "2px solid rgba(255,255,255,0.2)", borderTopColor: "white", borderRadius: "50%", animation: "spin 0.6s linear infinite" }} />}
+            </div>
+
+            <div style={{ flex: 1, padding: 24, overflowY: "auto", fontFamily: "var(--font-mono)" }}>
+              {output ? (
+                <div style={{ animation: "fadeIn 0.2s" }}>
+                  <div style={{ color: output.includes("failed") ? "#FF3B30" : "#34C759", fontWeight: 800, marginBottom: 8, fontSize: 13 }}>
+                    {output.split('\n')[0]}
+                  </div>
+                  <pre style={{ margin: 0, color: "#AAA", fontSize: 12, whiteSpace: "pre-wrap" }}>{output.split('\n').slice(1).join('\n')}</pre>
+
+                  {analysis && analysis.errors.length > 0 && (
+                    <div style={{ marginTop: 16 }}>
+                      {analysis.errors.map((e, i) => (
+                        <div key={i} style={{ color: "#FF3B30", fontSize: 12, marginBottom: 4 }}>Error: {e.msg}</div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <span style={{ color: "#666", fontSize: 12 }}>Run your code to see results here...</span>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
 
 const ProgressCard = ({ module: mod, progress, total, type }) => {
-  const color = MOD_COLORS[mod];
+  const color = MOD_COLORS[mod] || "#0071e3";
   let done, correct, wrong;
   if (type === "interview") {
     const keys = INTERVIEW_DATA[mod]?.map((_, i) => `interview_${mod}_q${i}`) || [];
     done = keys.filter(k => progress[k] !== undefined).length;
     correct = keys.filter(k => progress[k] === "correct").length;
     wrong = keys.filter(k => progress[k] === "wrong").length;
+    total = keys.length;
   } else {
     const allChallenges = Object.values(CODING_CHALLENGES[mod] || {}).flat();
     done = allChallenges.filter(ch => progress[`code_${mod}_${ch.id}`] === "solved").length;
     correct = done; wrong = 0;
-    total = allChallenges.length;
+    total = allChallenges.length || 9;
   }
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
   return (
-    <div style={{ background: "white", border: "1.5px solid var(--border)", borderRadius: 18, padding: "20px 24px", marginBottom: 24, boxShadow: "var(--shadow-sm)" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+    <motion.div whileHover={{ y: -5 }} style={{ background: "white", border: "1.5px solid #F0F0F0", borderRadius: 32, padding: "32px 40px", marginBottom: 32, boxShadow: "0 20px 40px rgba(0,0,0,0.03)" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
         <div>
-          <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.5, color: "#86868b", textTransform: "uppercase", marginBottom: 4 }}>{mod} Progress</div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: "#1d1d1f", letterSpacing: -1 }}>{pct}%</div>
+          <div style={{ fontSize: 13, fontWeight: 900, color: "var(--teal)", background: "#E5F1FF", padding: "6px 14px", borderRadius: 8, display: "inline-block", marginBottom: 12 }}>{mod.toUpperCase()} PROGRESS</div>
+          <div style={{ fontSize: 44, fontWeight: 900, color: "#1D1D1F", letterSpacing: -2 }}>{pct}% <span style={{ fontSize: 18, color: "var(--text-muted)", fontWeight: 700, letterSpacing: 0 }}>COMPLETED</span></div>
         </div>
         <div style={{ textAlign: "right" }}>
-          <div style={{ fontSize: 13, color: "#86868b", fontWeight: 500 }}>{done} / {total} completed</div>
-          {type === "interview" && <>
-            <div style={{ fontSize: 12, color: "#34c759", fontWeight: 600 }}>✓ {correct} correct</div>
-            {wrong > 0 && <div style={{ fontSize: 12, color: "#ff3b30", fontWeight: 600 }}>✗ {wrong} needs review</div>}
-          </>}
+          <div style={{ fontSize: 16, color: "var(--text-muted)", fontWeight: 800 }}>{done} / {total} Units</div>
+          {type === "interview" && <div style={{ fontSize: 13, color: "#34C759", fontWeight: 700, marginTop: 4 }}>✓ {correct} Correct</div>}
         </div>
       </div>
-      <div style={{ height: 6, background: "#f5f5f7", borderRadius: 10, overflow: "hidden" }}>
-        <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-          style={{ height: "100%", background: `linear-gradient(90deg,${color},${color}bb)`, borderRadius: 10 }} />
+      <div style={{ height: 12, background: "#F5F5F7", borderRadius: 10, overflow: "hidden" }}>
+        <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+          style={{ height: "100%", background: "var(--teal)", borderRadius: 10 }} />
       </div>
-      {pct === 100 && <div style={{ marginTop: 10, fontSize: 13, color: "#34c759", fontWeight: 600 }}>🎉 Module Complete! MNC-ready.</div>}
-    </div>
+    </motion.div>
   );
 };
 
