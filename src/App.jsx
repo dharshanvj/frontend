@@ -1144,6 +1144,83 @@ const EduTabCard = ({ title, badge, children, img }) => (
   </motion.div>
 );
 
+const ExperienceSection = () => (
+  <div style={{ padding: "120px 0", textAlign: "center" }}>
+    <span style={{ fontSize: 13, fontWeight: 900, color: "#0071E3", background: "#E5F1FF", padding: "6px 14px", borderRadius: 8, letterSpacing: 1 }}>THE EXPERIENCE</span>
+    <h2 style={{ fontSize: 62, fontWeight: 900, color: "#1D1D1F", letterSpacing: -2, marginTop: 24, marginBottom: 20 }}>Beyond Conventional Learning</h2>
+    <p style={{ fontSize: 22, color: "var(--text-muted)", maxWidth: 800, margin: "0 auto 80px", lineHeight: 1.6 }}>
+      Traditional platforms focus on memorization. We focus on intuition, visualization, and real-world implementation patterns.
+    </p>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: 32 }}>
+      {[
+        { title: "Dynamic Visualizers", desc: "Step through complex logic like Recursion and DP with our custom animation engine.", icon: "🎬", bg: "#F5F5F7" },
+        { title: "Interview Blueprints", desc: "Access high-yield questions curated by FITA Academy experts from 10,000+ real experiences.", icon: "🗺️", bg: "#F5F5F7" },
+        { title: "Theory & Code Separation", desc: "Master the structure through theory tests, then master the logic in our Code Arena.", icon: "⚔️", bg: "#F5F5F7" }
+      ].map((f, i) => (
+        <motion.div key={i} whileHover={{ y: -10 }} style={{ padding: 48, background: f.bg, borderRadius: 32, textAlign: "left" }}>
+          <div style={{ width: 64, height: 64, borderRadius: 20, background: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, marginBottom: 32, boxShadow: "0 10px 30px rgba(0,0,0,0.05)" }}>{f.icon}</div>
+          <h3 style={{ fontSize: 28, fontWeight: 800, marginBottom: 16 }}>{f.title}</h3>
+          <p style={{ fontSize: 18, color: "var(--text-muted)", lineHeight: 1.6 }}>{f.desc}</p>
+        </motion.div>
+      ))}
+    </div>
+  </div>
+);
+
+const StatsSection = () => (
+  <div style={{ background: "#000", borderRadius: 48, padding: "100px 80px", color: "white", margin: "120px 0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center", position: "relative", overflow: "hidden" }}>
+    <div style={{ position: "absolute", top: 0, right: 0, width: "60%", height: "100%", background: "radial-gradient(circle at 70% 30%, rgba(255,149,0,0.15), transparent 70%)" }} />
+    <div>
+      <h2 style={{ fontSize: 62, fontWeight: 900, letterSpacing: -2, marginBottom: 60, lineHeight: 1.1 }}>How you become <br /> <span style={{ color: "#FF9500" }}>Interview Ready</span></h2>
+      <div style={{ display: "flex", flexDirection: "column", gap: 48 }}>
+        {[
+          { num: "01", title: "Fundamental Core", desc: "Start with Arrays, Strings, and basic sorting to build a solid foundation." },
+          { num: "02", title: "Non-Linear Mastery", desc: "Level up to Trees, Graphs, and Heaps. Understand hierarchical data." },
+          { num: "03", title: "Algorithmic Precision", desc: "Master DP, Backtracking, and Greedy strategies to solve complex problems." }
+        ].map((item, i) => (
+          <div key={i} style={{ display: "flex", gap: 24 }}>
+            <span style={{ fontSize: 24, fontWeight: 900, color: "rgba(255,255,255,0.2)" }}>{item.num}</span>
+            <div>
+              <h4 style={{ fontSize: 24, fontWeight: 800, marginBottom: 8 }}>{item.title}</h4>
+              <p style={{ fontSize: 18, color: "rgba(255,255,255,0.6)", lineHeight: 1.6 }}>{item.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+    <div style={{ background: "rgba(255,255,255,0.05)", backdropFilter: "blur(20px)", borderRadius: 40, padding: 60, border: "1px solid rgba(255,255,255,0.1)" }}>
+      <span style={{ fontSize: 12, fontWeight: 900, color: "#FF9500", letterSpacing: 1, textTransform: "uppercase" }}>Platform Stats</span>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, marginTop: 40, marginBottom: 60 }}>
+        {[["25+", "Advanced Modules"], ["1000+", "Interview Qs"], ["500+", "Code Challenges"], ["100%", "FAANG Coverage"]].map(([val, lbl]) => (
+          <div key={lbl}>
+            <div style={{ fontSize: 48, fontWeight: 900, marginBottom: 4 }}>{val}</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.4)", textTransform: "uppercase" }}>{lbl}</div>
+          </div>
+        ))}
+      </div>
+      <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} style={{ width: "100%", padding: "20px", borderRadius: 16, background: "transparent", border: "1px solid white", color: "white", fontSize: 16, fontWeight: 800, cursor: "pointer" }}>
+        Explore Full Curriculum
+      </motion.button>
+    </div>
+  </div>
+);
+
+const ChennaiSection = () => (
+  <div style={{ padding: "100px 0", textAlign: "center" }}>
+    <div style={{ width: 44, height: 44, borderRadius: "50%", background: "#FFE5E5", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px", fontSize: 20 }}>🍎</div>
+    <h2 style={{ fontSize: 24, fontWeight: 800, color: "#FF3B30", marginBottom: 24 }}>Made with ❤️ in Chennai</h2>
+    <p style={{ fontSize: 18, color: "var(--text-muted)", maxWidth: 800, margin: "0 auto 60px", lineHeight: 1.6 }}>
+      At FITA Academy, our mission is to help you improve yourself and land your dream job. We have a sizable repository of interview resources for many companies.
+    </p>
+    <div style={{ display: "flex", justifyContent: "center", gap: 40, flexWrap: "wrap", opacity: 0.3, filter: "grayscale(100%)", marginBottom: 60 }}>
+      {["FACEBOOK", "APPLE", "UBER", "CISCO", "AMAZON", "INTEL", "IBM"].map(c => (
+        <span key={c} style={{ fontSize: 18, fontWeight: 900, letterSpacing: 1 }}>{c}</span>
+      ))}
+    </div>
+    <motion.a href="#" style={{ fontSize: 18, fontWeight: 800, color: "#0071E3", textDecoration: "none" }}>Join Our Team →</motion.a>
+  </div>
+);
+
 /* ============================================================
    HOME SCREEN REDESIGN
 ============================================================ */
@@ -1241,6 +1318,9 @@ export const HomeScreen = ({ onEnter, user, onLogout, progress }) => {
                     </div>
                   </EduTabCard>
                 </div>
+
+                <ExperienceSection />
+
                 <EduDivider label="Our Origin" />
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))", gap: 40 }}>
                   <EduTabCard title="Teacher's Note" img="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2670&auto=format&fit=crop">
@@ -1250,6 +1330,10 @@ export const HomeScreen = ({ onEnter, user, onLogout, progress }) => {
                     <p style={{ fontSize: 16, lineHeight: 1.8, color: "var(--text-muted)" }}> Building at the heart of <b>Chennai</b>. Our ship never stops. </p>
                   </EduTabCard>
                 </div>
+
+                <StatsSection />
+
+                <ChennaiSection />
               </div>
             </div>
           </motion.div>
