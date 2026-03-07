@@ -1218,7 +1218,7 @@ const ChennaiSection = () => (
         <span key={c} style={{ fontSize: 18, fontWeight: 900, letterSpacing: 1 }}>{c}</span>
       ))}
     </div>
-    <motion.a href="#" style={{ fontSize: 18, fontWeight: 800, color: "#0071E3", textDecoration: "none" }}>Join Our Team →</motion.a>
+    <motion.a href="https://www.fita.in/job-openings-in-chennai/" target="_blank" rel="noopener noreferrer" style={{ fontSize: 18, fontWeight: 800, color: "#0071E3", textDecoration: "none" }}>Join Our Team →</motion.a>
   </div>
 );
 
@@ -1226,7 +1226,7 @@ const ChennaiSection = () => (
    HOME SCREEN REDESIGN
 ============================================================ */
 export const HomeScreen = ({ onEnter, user, onLogout, progress }) => {
-  const [tab, setTab] = useState("home");
+  const [tab, setTab] = useState("company");
   const displayName = user?.name || user?.user_metadata?.display_name || "User";
   const initial = displayName?.[0]?.toUpperCase() || "U";
 
@@ -1247,7 +1247,7 @@ export const HomeScreen = ({ onEnter, user, onLogout, progress }) => {
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            {[["home", "My Path"], ["origin", "Our Story"], ["company", "FITA Academy"]].map(([t, l]) => (
+            {[["company", "FITA Academy"]].map(([t, l]) => (
               <button key={t} onClick={() => setTab(t)} style={{
                 padding: "10px 24px", borderRadius: 24, fontSize: 14, fontWeight: 700,
                 background: tab === t ? "var(--teal)" : "transparent",
@@ -2031,63 +2031,106 @@ const PerformanceReport = ({ analytics, onClose }) => {
 
 const CodeArenaTab = ({ logSession }) => {
   const [progress, saveProgress] = useProgress();
-  const [selMod, setSelMod] = useState("Stack");
+  const [selMod, setSelMod] = useState(null);
   const [selLevel, setSelLevel] = useState("Beginner");
   const [selChallenge, setSelChallenge] = useState(null);
-  const challenges = CODING_CHALLENGES[selMod]?.[selLevel] || [];
 
   if (selChallenge) return (
     <div style={{ position: "fixed", inset: 0, zIndex: 20000, background: "white", animation: "fadeIn 0.3s ease-out" }}>
-      <CodingChallengeScreen
-        challenge={selChallenge}
-        progress={progress}
-        saveProgress={saveProgress}
-        module={selMod}
-        level={selLevel}
-        onBack={() => setSelChallenge(null)}
-        logSession={logSession}
-      />
+      <CodingChallengeScreen challenge={selChallenge} progress={progress} saveProgress={saveProgress} module={selMod} level={selLevel} onBack={() => setSelChallenge(null)} logSession={logSession} />
     </div>
   );
-  const color = MOD_COLORS[selMod];
+
+  const challenges = selMod ? (CODING_CHALLENGES[selMod]?.[selLevel] || []) : [];
+  const color = selMod ? (MOD_COLORS[selMod] || "#0071e3") : "#0071e3";
+
   return (
     <div style={{ animation: "fadeIn 0.6s ease-out" }}>
-      <div style={{ marginBottom: 48, textAlign: "center" }}>
-        <h2 style={{ fontSize: 48, fontWeight: 900, letterSpacing: -2, color: "#1D1D1F", marginBottom: 16 }}>Battle Arena</h2>
-        <p style={{ color: "var(--text-muted)", fontSize: 20, maxWidth: 600, margin: "0 auto" }}>Hone your implementation skills with real-world problems from top companies.</p>
-      </div>
+      {!selMod ? (
+        <div style={{ animation: "fadeIn 0.5s ease-out" }}>
+          <div style={{ marginBottom: 60, textAlign: "center" }}>
+            <h2 style={{ fontSize: 56, fontWeight: 900, letterSpacing: -2, color: "#1D1D1F", marginBottom: 20 }}>Battle Arena</h2>
+            <p style={{ color: "var(--text-muted)", fontSize: 22, maxWidth: 640, margin: "0 auto", fontWeight: 500 }}>Choose a domain to start your implementation journey.</p>
+          </div>
 
-      <div style={{ display: "flex", gap: 10, marginBottom: 20, flexWrap: "wrap", justifyContent: "center" }}>
-        {MODULES.map(m => { const c = MOD_COLORS[m]; return <PillBtn key={m} active={selMod === m} onClick={() => setSelMod(m)} color={c}>{MOD_ICONS[m]} {m}</PillBtn>; })}
-      </div>
-      <div style={{ display: "flex", gap: 8, marginBottom: 48, justifyContent: "center" }}>
-        {LEVELS.map(l => <PillBtn key={l} active={selLevel === l} onClick={() => setSelLevel(l)} color="#1D1D1F">{l}</PillBtn>)}
-      </div>
-      <ProgressCard module={selMod} progress={progress} total={9} type="code" />
-      <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 24 }}>
-        {challenges.map((ch, i) => {
-          const key = `code_${selMod}_${ch.id}`;
-          const status = progress[key];
-          return (
-            <motion.div key={ch.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07, ease: [0.22, 1, 0.36, 1] }}
-              whileHover={{ scale: 1.01, y: -2, boxShadow: "0 20px 40px rgba(0,0,0,0.06)" }} style={{ background: "white", border: "1.5px solid", borderColor: status === "solved" ? "var(--teal)" : "#F0F0F0", borderRadius: 24, padding: "28px 32px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", transition: "all 0.3s" }}
-              onClick={() => setSelChallenge(ch)}>
-              <div>
-                <div style={{ display: "flex", gap: 8, marginBottom: 10, alignItems: "center" }}>
-                  <span style={{ fontSize: 11, fontWeight: 600, color, background: `${color}12`, padding: "3px 10px", borderRadius: 20 }}>{selLevel}</span>
-                  <span style={{ fontSize: 11, fontWeight: 500, color: "#86868b", background: "#f5f5f7", padding: "3px 10px", borderRadius: 20 }}>{ch.company}</span>
-                  {status === "solved" && <span style={{ fontSize: 11, fontWeight: 600, color: "#34c759", background: "#e8f9ee", padding: "3px 10px", borderRadius: 20 }}>✓ Solved</span>}
-                </div>
-                <div style={{ fontSize: 18, fontWeight: 700, color: "#1d1d1f", marginBottom: 6 }}>{ch.title}</div>
-                <div style={{ fontSize: 13, color: "#86868b", lineHeight: 1.6 }}>{ch.desc}</div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 24 }}>
+            {MODULES.map((m, i) => {
+              const c = MOD_COLORS[m];
+              const desc = MOD_DESCS[m];
+              return (
+                <motion.div
+                  key={m} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
+                  whileHover={{ y: -8, boxShadow: "0 30px 60px rgba(0,0,0,0.12)" }}
+                  onClick={() => setSelMod(m)}
+                  style={{ background: "white", borderRadius: 32, padding: "32px", border: "1.5px solid #F0F0F0", cursor: "pointer", transition: "all 0.3s" }}
+                >
+                  <div style={{ width: 56, height: 56, borderRadius: 16, background: `${c}12`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, marginBottom: 24 }}>{MOD_ICONS[m]}</div>
+                  <h3 style={{ fontSize: 20, fontWeight: 900, color: "#1D1D1F", marginBottom: 8, letterSpacing: -0.5 }}>{m}</h3>
+                  <p style={{ fontSize: 13, color: "var(--text-muted)", fontWeight: 600, lineHeight: 1.5 }}>{desc}</p>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      ) : (
+        <div style={{ animation: "fadeIn 0.4s ease-out" }}>
+          <button onClick={() => setSelMod(null)} style={{ background: "none", border: "none", color: "var(--teal)", fontWeight: 900, fontSize: 15, cursor: "pointer", marginBottom: 32, display: "flex", alignItems: "center", gap: 8 }}>
+            ‹ BACK TO MODULES
+          </button>
+
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 48, gap: 40 }}>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 12 }}>
+                <div style={{ width: 48, height: 48, borderRadius: 12, background: `${color}12`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24 }}>{MOD_ICONS[selMod]}</div>
+                <h2 style={{ fontSize: 40, fontWeight: 900, color: "#1D1D1F", letterSpacing: -1.5 }}>{selMod} Challenges</h2>
               </div>
-              <div style={{ width: 40, height: 40, borderRadius: 12, background: `${color}12`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginLeft: 20 }}>
-                <span style={{ color, fontSize: 18 }}>→</span>
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
+              <p style={{ color: "var(--text-muted)", fontSize: 18, fontWeight: 600 }}>Solve production-grade problems from companies like Google, Meta, and Amazon.</p>
+            </div>
+
+            <div style={{ display: "flex", gap: 8, background: "#F5F5F7", padding: 6, borderRadius: 28 }}>
+              {LEVELS.map(l => (
+                <button key={l} onClick={() => setSelLevel(l)} style={{
+                  padding: "10px 24px", borderRadius: 24, fontSize: 13, fontWeight: 800,
+                  background: selLevel === l ? "white" : "transparent",
+                  color: selLevel === l ? "#1D1D1F" : "#86868B",
+                  border: "none", transition: "0.2s",
+                  boxShadow: selLevel === l ? "0 4px 12px rgba(0,0,0,0.06)" : "none",
+                  cursor: "pointer"
+                }}>{l.toUpperCase()}</button>
+              ))}
+            </div>
+          </div>
+
+          <ProgressCard module={selMod} progress={progress} total={challenges.length || 9} type="code" />
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 40 }}>
+            {challenges.length > 0 ? challenges.map((ch, i) => {
+              const key = `code_${selMod}_${ch.id}`;
+              const status = progress[key];
+              return (
+                <motion.div key={ch.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08 }}
+                  whileHover={{ x: 6, boxShadow: "0 20px 40px rgba(0,0,0,0.05)" }} style={{ background: "white", border: "1.5px solid", borderColor: status === "solved" ? "var(--teal)" : "#F0F0F0", borderRadius: 28, padding: "32px 40px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", transition: "all 0.3s" }}
+                  onClick={() => setSelChallenge(ch)}>
+                  <div>
+                    <div style={{ display: "flex", gap: 10, marginBottom: 16, alignItems: "center" }}>
+                      <span style={{ fontSize: 11, fontWeight: 900, color: "var(--teal)", background: "#E5F1FF", padding: "4px 12px", borderRadius: 8 }}>{selLevel.toUpperCase()}</span>
+                      <span style={{ fontSize: 11, fontWeight: 800, color: "#86868B", background: "#F5F5F7", padding: "4px 12px", borderRadius: 8 }}>{ch.company.toUpperCase()}</span>
+                      {status === "solved" && <span style={{ fontSize: 11, fontWeight: 900, color: "#34C759" }}>✓ SOLVED</span>}
+                    </div>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: "#1D1D1F", marginBottom: 8, letterSpacing: -0.5 }}>{ch.title}</div>
+                    <p style={{ fontSize: 14, color: "var(--text-muted)", lineHeight: 1.6, maxWidth: 700 }}>{ch.desc}</p>
+                  </div>
+                  <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#F5F5F7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginLeft: 40, border: "2px solid white", boxShadow: "0 10px 20px rgba(0,0,0,0.05)" }}>
+                    <span style={{ color: "#1D1D1F", fontSize: 24, fontWeight: 900 }}>→</span>
+                  </div>
+                </motion.div>
+              );
+            }) : (
+              <div style={{ padding: 100, textAlign: "center", color: "#86868B", fontWeight: 600 }}>No {selLevel} challenges found for this module yet.</div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
