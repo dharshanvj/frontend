@@ -56,7 +56,7 @@ const GLOBAL_CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg: #F5F9FF;
+    --bg: #F5F7FA;
     --dark: #1D1D1F;
     --teal: #0071E3;
     --gold: #FF9500;
@@ -66,7 +66,10 @@ const GLOBAL_CSS = `
     --font: 'Inter', -apple-system, sans-serif;
     --font-serif: 'Instrument Serif', serif;
     --radius: 32px;
-    --shadow: 0 4px 20px rgba(0,0,0,0.04);
+    --shadow-sm: 0 4px 20px rgba(0,0,0,0.03);
+    --shadow-md: 0 12px 40px rgba(0,0,0,0.06);
+    --shadow-lg: 0 25px 60px rgba(0,0,0,0.08);
+    --border: 1.5px solid rgba(0,0,0,0.06);
   }
   html { scroll-behavior: smooth; }
   body {
@@ -78,8 +81,18 @@ const GLOBAL_CSS = `
   
   @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
   @keyframes drift { 0%, 100% { transform: translateX(0px); } 50% { transform: translateX(20px); } }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   .sky-gradient { background: linear-gradient(180deg, #AEE2FF 0%, #F5F9FF 100%); }
+
+  .premium-card {
+    background: white;
+    border: var(--border);
+    box-shadow: var(--shadow-md);
+    border-radius: 40px;
+    transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .premium-card:hover { border-color: rgba(0,113,227,0.3); transform: translateY(-8px); boxShadow: var(--shadow-lg); }
 
   .login-input {
     width: 100%;
@@ -116,7 +129,7 @@ const isSupabaseConfigured = () =>
 /* ============================================================
    LOGIN SCREEN — Real Supabase Auth
 ============================================================ */
-const LoginScreen = ({ onLogin }) => {
+const LoginScreen = ({ onLogin, onBack }) => {
   const [mode, setMode] = useState("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -200,6 +213,11 @@ const LoginScreen = ({ onLogin }) => {
           </div>
         </div>
       ))}
+      {onBack && (
+        <motion.button onClick={onBack} whileHover={{ x: -4 }} style={{ position: "fixed", top: 40, left: 40, background: "rgba(255,255,255,0.8)", backdropFilter: "blur(12px)", border: "1.5px solid #EEE", color: "#1D1D1F", padding: "10px 20px", borderRadius: 24, fontSize: 13, fontWeight: 800, cursor: "pointer", zIndex: 100, display: "flex", alignItems: "center", gap: 8, boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}>
+          ‹ BACK TO HOME
+        </motion.button>
+      )}
 
       {/* Login Card */}
       <motion.div
@@ -1027,12 +1045,15 @@ const FitaAcademyProfile = () => {
 };
 
 const PillBtn = ({ onClick, active, children, color, style: s }) => (
-  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={onClick}
+  <motion.button whileHover={{ y: -4, scale: 1.02 }} whileTap={{ scale: 0.96 }} onClick={onClick}
     style={{
-      padding: "9px 20px", fontSize: 13, fontWeight: 600, borderRadius: 50, border: "none", cursor: "pointer", transition: "all 0.2s",
+      padding: "12px 28px", fontSize: 14, fontWeight: 800, borderRadius: 100, border: "none", cursor: "pointer", transition: "all 0.3s cubic-bezier(0.22, 1, 0.36, 1)",
       background: active ? (color || "#0071e3") : "white",
-      color: active ? "white" : "#424245",
-      boxShadow: active ? `0 4px 12px ${(color || "#0071e3")}44` : "var(--shadow-sm)",
+      color: active ? "white" : "#1d1d1f",
+      boxShadow: active
+        ? `0 12px 24px ${(color || "#0071e3")}44, 0 4px 8px ${(color || "#0071e3")}22, inset 0 1px rgba(255,255,255,0.3)`
+        : "0 4px 12px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1), inset 0 1px white",
+      border: active ? "none" : "1.5px solid #F0F0F0",
       ...s
     }}>
     {children}
@@ -1141,9 +1162,79 @@ const EduTabCard = ({ title, badge, children, img }) => (
     {img && <div style={{ height: 260, overflow: "hidden", background: "#f8f9fa", position: "relative" }}>
       <img src={img} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
     </div>}
-    <div style={{ padding: 40, flex: 1 }}>{children}</div>
+    <div style={{ padding: "80px 40px 40px", flex: 1 }}>{children}</div>
   </motion.div>
 );
+
+const UserDashboard = ({ user, onLogout, onClose, onSettings }) => {
+  if (!user) return null;
+  const displayName = user?.name || user?.user_metadata?.display_name || user?.email?.split("@")[0] || "Dharshan";
+  const initial = displayName?.[0]?.toUpperCase() || "D";
+
+  const gridItems = [
+    { label: "My Lists", icon: "📋", color: "#34C759" },
+    { label: "Notebook", icon: "📓", color: "#0071E3" },
+    { label: "Progress", icon: "📈", color: "#FF9500" },
+    { label: "Points", icon: "🪙", color: "#FFCC00" }
+  ];
+
+  const listItems = [
+    { label: "Try New Features", icon: "🔬" },
+    { label: "Orders", icon: "🛒" },
+    { label: "My Playgrounds", icon: "🧪", highlight: true },
+    { label: "Settings", icon: "⚙️", highlight: true, onClick: () => { onClose(); onSettings(); } },
+    { label: "Appearance", icon: "🌗", hasSub: true }
+  ];
+
+  return (
+    <motion.div initial={{ opacity: 0, scale: 0.9, y: -20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: -20 }} transition={{ type: "spring", damping: 20, stiffness: 300 }}
+      style={{
+        position: "absolute", top: 70, right: 0, width: 320, background: "#1D1D1F", borderRadius: 32, padding: 24, zIndex: 5000,
+        boxShadow: "0 30px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1)", color: "white", textAlign: "left"
+      }}>
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
+        <div style={{ width: 56, height: 56, borderRadius: "50%", background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, fontWeight: 900 }}>{initial}</div>
+        <div>
+          <div style={{ fontSize: 20, fontWeight: 900, marginBottom: 4 }}>{displayName}</div>
+          <div style={{ fontSize: 13, color: "#FF9500", fontWeight: 700 }}>Access all features with our Premium subscription!</div>
+        </div>
+      </div>
+
+      {/* Grid */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
+        {gridItems.map(item => (
+          <motion.div key={item.label} whileHover={{ background: "rgba(255,255,255,0.05)" }} style={{ background: "rgba(255,255,255,0.03)", borderRadius: 20, padding: 16, cursor: "pointer", border: "1px solid rgba(255,255,255,0.05)" }}>
+            <div style={{ width: 36, height: 36, borderRadius: 12, background: `${item.color}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, marginBottom: 8 }}>{item.icon}</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.6)" }}>{item.label}</div>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* List */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 24 }}>
+        {listItems.map(item => (
+          <motion.div key={item.label} onClick={item.onClick} whileHover={{ background: "rgba(255,255,255,0.05)" }} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", borderRadius: 16, cursor: "pointer", transition: "0.2s" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <span style={{ fontSize: 18, opacity: 0.7 }}>{item.icon}</span>
+              <span style={{ fontSize: 14, fontWeight: item.highlight ? 800 : 500, color: item.highlight ? "white" : "rgba(255,255,255,0.7)" }}>{item.label}</span>
+            </div>
+            {item.hasSub && <span style={{ fontSize: 12, opacity: 0.3 }}>›</span>}
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Footer Sign Out */}
+      <motion.button onClick={onLogout} whileHover={{ background: "rgba(255,59,48,0.15)" }}
+        style={{ width: "100%", padding: "14px", borderRadius: 16, background: "rgba(255,255,255,0.03)", border: "none", color: "#FF3B30", fontSize: 14, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", gap: 12, justifyContent: "center" }}>
+        <span>🚪</span> Sign Out
+      </motion.button>
+
+      {/* Click-away overlay */}
+      <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: -1 }} />
+    </motion.div>
+  );
+};
 
 const ExperienceSection = () => (
   <div style={{ padding: "120px 0", textAlign: "center" }}>
@@ -1225,8 +1316,8 @@ const ChennaiSection = () => (
 /* ============================================================
    HOME SCREEN REDESIGN
 ============================================================ */
-export const HomeScreen = ({ onEnter, user, onLogout, progress }) => {
-  const [tab, setTab] = useState("home");
+export const HomeScreen = ({ onEnter, user, onLogout, progress, onLoginClick, onSettings }) => {
+  const [showProfile, setShowProfile] = useState(false);
   const displayName = user?.name || user?.user_metadata?.display_name || "User";
   const initial = displayName?.[0]?.toUpperCase() || "U";
 
@@ -1256,14 +1347,25 @@ export const HomeScreen = ({ onEnter, user, onLogout, progress }) => {
             ))}
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, position: "relative" }}>
             <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
               style={{ background: "#E5F1FF", color: "#0071E3", padding: "10px 24px", borderRadius: 24, fontSize: 14, fontWeight: 800, border: "none" }}>
               📄 Syllabus
             </motion.button>
             <div style={{ display: "flex", alignItems: "center", gap: 12, borderLeft: "1px solid #EEE", paddingLeft: 16 }}>
-              <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#FF9500", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700 }}>{initial}</div>
-              <button onClick={onLogout} style={{ fontSize: 13, fontWeight: 700, color: "#ff3b30", border: "none", background: "none", cursor: "pointer" }}>Sign Out</button>
+              {user ? (
+                <>
+                  <motion.div onClick={() => setShowProfile(!showProfile)} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+                    style={{ width: 40, height: 40, borderRadius: "50%", background: "linear-gradient(135deg, #FF9500, #FFCC00)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 18, cursor: "pointer", border: "2px solid white", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
+                    {initial}
+                  </motion.div>
+                  <AnimatePresence>
+                    {showProfile && <UserDashboard user={user} onLogout={onLogout} onClose={() => setShowProfile(false)} onSettings={onSettings} />}
+                  </AnimatePresence>
+                </>
+              ) : (
+                <PillBtn onClick={onLoginClick} color="#0071E3" active>Sign In</PillBtn>
+              )}
             </div>
           </div>
         </div>
@@ -1305,17 +1407,32 @@ export const HomeScreen = ({ onEnter, user, onLogout, progress }) => {
                     </motion.button>
                   </EduTabCard>
                   <EduTabCard title="Stats" badge="Active Progress">
-                    <div style={{ display: "flex", flexDirection: "column", gap: 24, marginTop: 40 }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+                        <div style={{ background: "#F5F5F7", padding: "20px", borderRadius: 24 }}>
+                          <div style={{ fontSize: 11, fontWeight: 800, color: "var(--teal)", marginBottom: 4 }}>SOLVED</div>
+                          <div style={{ fontSize: 32, fontWeight: 900 }}>12</div>
+                        </div>
+                        <div style={{ background: "#F5F5F7", padding: "20px", borderRadius: 24 }}>
+                          <div style={{ fontSize: 11, fontWeight: 800, color: "var(--teal)", marginBottom: 4 }}>RANK</div>
+                          <div style={{ fontSize: 32, fontWeight: 900 }}>#42</div>
+                        </div>
+                      </div>
+
                       <div>
-                        <div style={{ fontSize: 12, fontWeight: 800, color: "var(--teal)", marginBottom: 8 }}>CONTINUING MODULE</div>
-                        <div style={{ fontSize: 32, fontWeight: 900 }}>{lastMod}</div>
+                        <div style={{ fontSize: 12, fontWeight: 800, color: "var(--teal)", marginBottom: 8, textTransform: "uppercase" }}>Current Focus: {lastMod}</div>
+                        <div style={{ height: 14, background: "#F5F5F7", borderRadius: 12, overflow: "hidden", border: "3px solid #F5F5F7" }}>
+                          <motion.div initial={{ width: 0 }} whileInView={{ width: "64%" }} transition={{ duration: 1 }} style={{ height: "100%", background: "var(--teal)", borderRadius: 8 }} />
+                        </div>
                       </div>
-                      <div style={{ height: 12, background: "#F5F5F7", borderRadius: 10, overflow: "hidden" }}>
-                        <motion.div initial={{ width: 0 }} whileInView={{ width: "64%" }} transition={{ duration: 1 }} style={{ height: "100%", background: "var(--teal)", borderRadius: 10 }} />
+
+                      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                        <div style={{ width: 44, height: 44, background: "#0071E312", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>🏆</div>
+                        <div>
+                          <div style={{ fontSize: 14, fontWeight: 800, color: "#1D1D1F" }}>Mastery Level 4</div>
+                          <div style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 600 }}>Top 5% in Chennai region</div>
+                        </div>
                       </div>
-                      <p style={{ fontSize: 14, color: "var(--text-muted)", fontWeight: 500 }}>
-                        You are currently in the top 5% of learners in Chennai. Keep going!
-                      </p>
                     </div>
                   </EduTabCard>
                 </div>
@@ -1353,7 +1470,7 @@ export const HomeScreen = ({ onEnter, user, onLogout, progress }) => {
         )}
       </AnimatePresence>
       <motion.div initial={{ y: 100 }} animate={{ y: 0 }} style={{ position: "fixed", bottom: 40, left: "50%", transform: "translateX(-50%)", zIndex: 1000 }}>
-        <motion.button onClick={onEnter} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} style={{ background: "#0071E3", color: "white", padding: "18px 52px", borderRadius: 40, fontSize: 18, fontWeight: 900, border: "none", boxShadow: "0 20px 40px rgba(0,113,227,0.3)", cursor: "pointer" }}>
+        <motion.button onClick={user ? onEnter : onLoginClick} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} style={{ background: "#0071E3", color: "white", padding: "18px 52px", borderRadius: 40, fontSize: 18, fontWeight: 900, border: "none", boxShadow: "0 20px 40px rgba(0,113,227,0.3)", cursor: "pointer" }}>
           Start Learning Now 🚀
         </motion.button>
       </motion.div>
@@ -1364,11 +1481,14 @@ export const HomeScreen = ({ onEnter, user, onLogout, progress }) => {
 /* ============================================================
    DSA SCREEN
 ============================================================ */
-const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress }) => {
+const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress, user, onSettings }) => {
   const { analytics, logSession } = useAnalytics();
+  const [showProfile, setShowProfile] = useState(false);
   const [activeTab, setActiveTab] = useState("learn");
   const [showReport, setShowReport] = useState(false);
   const tabs = [["learn", "📚 Learn"], ["interview", "🎤 Interview"], ["code", "💻 Code"]];
+  const initial = user?.name?.[0]?.toUpperCase() || "D";
+
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg)" }}>
       {/* Analytics Trigger */}
@@ -1405,8 +1525,14 @@ const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress }) => {
             ))}
           </div>
 
-          <div style={{ width: 140, display: "flex", justifyContent: "flex-end", paddingRight: 16 }}>
-            <motion.div whileHover={{ scale: 1.1 }} style={{ width: 44, height: 44, borderRadius: "50%", background: "var(--teal)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 22, border: "3px solid white", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>🧑‍💻</motion.div>
+          <div style={{ position: "relative", width: 140, display: "flex", justifyContent: "flex-end", paddingRight: 16 }}>
+            <motion.div onClick={() => setShowProfile(!showProfile)} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+              style={{ width: 44, height: 44, borderRadius: "50%", background: "var(--teal)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 22, border: "3px solid white", boxShadow: "0 4px 12px rgba(0,0,0,0.1)", cursor: "pointer" }}>
+              {initial}
+            </motion.div>
+            <AnimatePresence>
+              {showProfile && <UserDashboard user={user} onLogout={() => { onBack(); window.location.reload(); }} onClose={() => setShowProfile(false)} onSettings={onSettings} />}
+            </AnimatePresence>
           </div>
         </div>
       </div>
@@ -1434,66 +1560,240 @@ const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress }) => {
   );
 };
 
-const LearnTab = ({ level, setLevel, onSelectModule, progress }) => (
-  <div style={{ animation: "fadeIn 0.6s ease-out" }}>
-    <div style={{ marginBottom: 48, textAlign: "center" }}>
-      <h2 style={{ fontSize: 48, fontWeight: 900, letterSpacing: -2, color: "#1D1D1F", marginBottom: 16 }}>The Knowledge Map</h2>
-      <p style={{ color: "var(--text-muted)", fontSize: 20, maxWidth: 600, margin: "0 auto" }}>Explore modules, visualize concepts, and master logic—all curated for peak understanding.</p>
-    </div>
-    {/* Difficulty filter */}
-    <div style={{ display: "flex", gap: 6, marginBottom: 28, alignItems: "center" }}>
-      <span style={{ fontSize: 12, fontWeight: 600, color: "#86868b", marginRight: 4 }}>Difficulty:</span>
-      {LEVELS.map(l => <PillBtn key={l} active={level === l} onClick={() => setLevel(l)} color="#0071e3">{l}</PillBtn>)}
-    </div>
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(320px,1fr))", gap: 16 }}>
-      {MODULES.map((mod, i) => {
-        const color = MOD_COLORS[mod];
-        const qaTotal = (INTERVIEW_DATA[mod] || []).length;
-        const codeTotal = Object.values(CODING_CHALLENGES[mod] || {}).flat().length;
-        const done = Object.keys(progress).filter(k => k.startsWith(`interview_${mod}`)).length;
-        const codeDone = Object.keys(progress).filter(k => k.startsWith(`code_${mod}`)).length;
-        const totalItems = qaTotal + codeTotal;
-        const totalPct = totalItems > 0 ? Math.round(((done + codeDone) / totalItems) * 100) : 0;
-        return (
-          <motion.button key={mod} initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07, ease: [0.22, 1, 0.36, 1] }}
-            whileHover={{ scale: 1.02, y: -3, boxShadow: `0 16px 48px ${color}22` }} whileTap={{ scale: 0.98 }}
-            onClick={() => onSelectModule(mod)}
-            style={{ textAlign: "left", padding: 24, background: "white", border: `1.5px solid ${color}22`, borderRadius: 20, boxShadow: "var(--shadow)", cursor: "pointer", transition: "box-shadow 0.3s", position: "relative", overflow: "hidden" }}>
-            {/* Subtle color splash */}
-            <div style={{ position: "absolute", top: -30, right: -30, width: 120, height: 120, borderRadius: "50%", background: `radial-gradient(circle, ${color}18, transparent 70%)`, pointerEvents: "none" }} />
-            <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}>
-              <div style={{ width: 52, height: 52, borderRadius: 16, background: `${color}15`, display: "flex", alignItems: "center", justifyContent: "center", border: `1.5px solid ${color}25`, flexShrink: 0 }}>
-                <span style={{ fontSize: 24 }}>{MOD_ICONS[mod]}</span>
-              </div>
-              <div>
-                <div style={{ fontSize: 18, fontWeight: 700, color: "#1d1d1f", marginBottom: 2 }}>{mod}</div>
-                <div style={{ fontSize: 12, color: "#86868b" }}>{MOD_DESCS[mod] || mod}</div>
-              </div>
+const SettingsScreen = ({ user, onBack, onLogout }) => {
+  const [activeTab, setActiveTab] = useState("Account");
+  const displayName = user?.name || user?.user_metadata?.display_name || user?.email?.split("@")[0] || "User";
+
+  const tabs = ["Account", "Privacy", "Billing", "Points", "Orders", "Notifications"];
+
+  const renderContent = () => {
+    if (activeTab === "Notifications") {
+      return (
+        <div style={{ color: "white" }}>
+          <div style={{ marginBottom: 40 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Site Notification</h3>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginBottom: 20 }}>Receive Website / Browser Notifications</p>
+            <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(255,255,255,0.05)" }}>
+              {[
+                { label: "Ranking Updates", icon: "📊" },
+                { label: "Post Comments", icon: "💬" },
+                { label: "Awards Received", icon: "🥇" }
+              ].map((item, i) => (
+                <div key={item.label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px", borderBottom: i < 2 ? "1px solid rgba(255,255,255,0.05)" : "none" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                    <span style={{ fontSize: 18, opacity: 0.7 }}>{item.icon}</span>
+                    <span style={{ fontSize: 14, fontWeight: 600 }}>{item.label}</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div style={{ width: 44, height: 24, background: "#0071E3", borderRadius: 12, position: "relative", cursor: "pointer" }}>
+                      <div style={{ position: "absolute", right: 2, top: 2, width: 20, height: 20, background: "white", borderRadius: "50%" }} />
+                    </div>
+                    <span style={{ fontSize: 13, fontWeight: 600 }}>On</span>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div style={{ display: "flex", gap: 8, marginBottom: 14, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 11, fontWeight: 600, color, background: `${color}12`, padding: "3px 10px", borderRadius: 20 }}>🎤 {done}/{qaTotal} Q&A</span>
-              <span style={{ fontSize: 11, fontWeight: 600, color: "#34c759", background: "#e8f9ee", padding: "3px 10px", borderRadius: 20 }}>💻 {codeDone}/{codeTotal} Solved</span>
-              {totalPct === 100 && <span style={{ fontSize: 11, fontWeight: 600, color: "#ff9500", background: "#fff4e6", padding: "3px 10px", borderRadius: 20 }}>🏆 Complete</span>}
+          </div>
+
+          <div>
+            <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Email</h3>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginBottom: 20 }}>Receive notifications via your primary email.</p>
+            <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(255,255,255,0.05)" }}>
+              {[
+                { label: "Important Announcements", icon: "📢" },
+                { label: "Weekly Newsletter", icon: "📰" },
+                { label: "Promotion Events", icon: "🎁" }
+              ].map((item, i) => (
+                <div key={item.label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px", borderBottom: i < 2 ? "1px solid rgba(255,255,255,0.05)" : "none" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                    <span style={{ fontSize: 18, opacity: 0.7 }}>{item.icon}</span>
+                    <span style={{ fontSize: 14, fontWeight: 600 }}>{item.label}</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div style={{ width: 44, height: 24, background: "#0071E3", borderRadius: 12, position: "relative", cursor: "pointer" }}>
+                      <div style={{ position: "absolute", right: 2, top: 2, width: 20, height: 20, background: "white", borderRadius: "50%" }} />
+                    </div>
+                    <span style={{ fontSize: 13, fontWeight: 600 }}>On</span>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div style={{ height: 5, background: "#f5f5f7", borderRadius: 4, overflow: "hidden", marginBottom: 12 }}>
-              <motion.div initial={{ width: 0 }} animate={{ width: `${totalPct}%` }} transition={{ duration: 0.9, ease: "easeOut" }}
-                style={{ height: "100%", background: `linear-gradient(90deg,${color},${color}88)`, borderRadius: 4 }} />
+          </div>
+        </div>
+      );
+    }
+
+    if (activeTab === "Account") {
+      return (
+        <div style={{ color: "white" }}>
+          <div style={{ marginBottom: 40 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>General</h3>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginBottom: 20 }}>Manage your core account details and identifiers.</p>
+            <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(255,255,255,0.05)" }}>
+              {[
+                { label: "CodeLoom ID", value: displayName, icon: "👤" },
+                { label: "Email", value: user?.email || "user@example.com", icon: "✉️" },
+                { label: "Phone Number", value: "Not linked", icon: "📞" },
+                { label: "Password", value: "••••••••", icon: "🔑" }
+              ].map((item, i) => (
+                <div key={item.label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px", cursor: "pointer", borderBottom: i < 3 ? "1px solid rgba(255,255,255,0.05)" : "none" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                    <span style={{ fontSize: 18, opacity: 0.7 }}>{item.icon}</span>
+                    <div>
+                      <span style={{ fontSize: 14, fontWeight: 800 }}>{item.label}</span>
+                      <span style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginLeft: 12 }}>{item.value}</span>
+                    </div>
+                  </div>
+                  <span style={{ fontSize: 18, opacity: 0.3 }}>›</span>
+                </div>
+              ))}
             </div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <span style={{ fontSize: 12, color: "#86868b", fontWeight: 500 }}>{totalPct}% complete</span>
-              <span style={{ fontSize: 12, fontWeight: 700, color, background: `${color}12`, padding: "5px 14px", borderRadius: 20, display: "flex", alignItems: "center", gap: 4 }}>Explore →</span>
+          </div>
+
+          <div>
+            <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Social Accounts</h3>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginBottom: 20 }}>Connect social accounts to sign in to CodeLoom.</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {["Google", "Github", "Apple"].map(social => (
+                <div key={social} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 24px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                    <span style={{ fontSize: 18 }}>{social === "Google" ? "G" : social === "Github" ? "🐙" : "🍎"}</span>
+                    <span style={{ fontSize: 14, fontWeight: 600 }}>{social}</span>
+                  </div>
+                  <button style={{ padding: "8px 24px", borderRadius: 8, background: "white", color: "#1D1D1F", border: "none", fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Connect</button>
+                </div>
+              ))}
             </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div style={{ color: "white", textAlign: "center", padding: "80px 0" }}>
+        <div style={{ fontSize: 40, marginBottom: 20 }}>🏗️</div>
+        <h3 style={{ fontSize: 20, fontWeight: 800 }}>{activeTab} Settings</h3>
+        <p style={{ color: "rgba(255,255,255,0.4)", marginTop: 8 }}>This section is currently under development.</p>
+      </div>
+    );
+  };
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ minHeight: "100vh", background: "#0D0D0E", color: "white" }}>
+      {/* Settings Header */}
+      <div style={{ borderBottom: "1px solid rgba(255,255,255,0.05)", padding: "20px 48px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+          <motion.button onClick={onBack} whileHover={{ x: -4 }} style={{ background: "none", border: "none", color: "#0071E3", fontSize: 15, fontWeight: 900, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}>
+            ‹ BACK
           </motion.button>
-        );
-      })}
+          <div style={{ fontSize: 20, fontWeight: 900 }}>Settings</div>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: "rgba(255,255,255,0.6)" }}>{displayName}</div>
+          <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900 }}>{displayName[0]}</div>
+        </div>
+      </div>
+
+      <div style={{ display: "flex", maxWidth: 1200, margin: "0 auto", padding: "48px 24px" }}>
+        {/* Sidebar */}
+        <div style={{ width: 240, display: "flex", flexDirection: "column", gap: 4 }}>
+          {tabs.map(t => (
+            <motion.div key={t} onClick={() => setActiveTab(t)}
+              whileHover={{ background: activeTab === t ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.03)" }}
+              style={{
+                padding: "12px 20px", borderRadius: 12, cursor: "pointer", transition: "0.2s",
+                background: activeTab === t ? "rgba(255,255,255,0.05)" : "transparent",
+                color: activeTab === t ? "white" : "rgba(255,255,255,0.5)",
+                fontWeight: activeTab === t ? 800 : 500
+              }}>
+              {t}
+            </motion.div>
+          ))}
+          <div style={{ marginTop: 20, paddingTop: 20, borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+            <div style={{ padding: "12px 20px", color: "rgba(255,255,255,0.4)", fontSize: 13, cursor: "pointer" }}>Profile Settings ↗</div>
+          </div>
+        </div>
+
+        {/* Content Area */}
+        <div style={{ flex: 1, paddingLeft: 80 }}>
+          <h2 style={{ fontSize: 24, fontWeight: 900, marginBottom: 32 }}>{activeTab}</h2>
+          {renderContent()}
+        </div>
+      </div>
+
+      <div style={{ position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)", width: "100%", textAlign: "center" }}>
+        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.2)" }}>Copyright © 2026 CodeLoom • Help Center • Jobs • Privacy Policy</div>
+      </div>
+    </motion.div>
+  );
+};
+
+const LearnTab = ({ level, setLevel, onSelectModule, progress }) => {
+  const modProgress = (m) => {
+    const solved = Object.keys(progress).filter(k => k.startsWith(`learn_${m}_`) && progress[k] === "solved").length;
+    return (solved / 3) * 100;
+  };
+
+  return (
+    <div style={{ animation: "fadeIn 0.6s ease-out" }}>
+      <div style={{ marginBottom: 60, textAlign: "center" }}>
+        <h2 style={{ fontSize: 56, fontWeight: 900, letterSpacing: -2, color: "#1D1D1F", marginBottom: 20 }}>The Knowledge Map</h2>
+        <p style={{ color: "var(--text-muted)", fontSize: 22, maxWidth: 640, margin: "0 auto", fontWeight: 500 }}>
+          Master foundational structures through immersive reading and detailed theory.
+        </p>
+      </div>
+
+      <div style={{ display: "flex", gap: 12, marginBottom: 52, justifyContent: "center" }}>
+        {LEVELS.map(l => (
+          <PillBtn key={l} active={level === l} onClick={() => setLevel(l)} color="#1D1D1F">
+            {l.toUpperCase()}
+          </PillBtn>
+        ))}
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))", gap: 32 }}>
+        {MODULES.map((m, i) => {
+          const color = MOD_COLORS[m];
+          const p = modProgress(m);
+          return (
+            <motion.div
+              key={m} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.05 }}
+              whileHover={{ y: -12, boxShadow: "var(--shadow-lg)" }}
+              onClick={() => onSelectModule(m)}
+              style={{
+                background: "white", borderRadius: 40, padding: 0, overflow: "hidden", cursor: "pointer", border: "1.5px solid #F0F0F0", transition: "all 0.4s cubic-bezier(0.22, 1, 0.36, 1)"
+              }}
+            >
+              <div style={{ height: 180, background: `${color}12`, position: "relative", overflow: "hidden" }}>
+                <motion.div initial={{ x: -20, opacity: 0 }} whileInView={{ x: 0, opacity: 1 }} style={{ position: "absolute", top: 40, left: 40, width: 64, height: 64, borderRadius: 20, background: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, boxShadow: "0 10px 20px rgba(0,0,0,0.05)", border: "1.5px solid #F0F0F0" }}>{MOD_ICONS[m]}</motion.div>
+                <div style={{ position: "absolute", bottom: 32, left: 40 }}>
+                  <div style={{ fontSize: 11, fontWeight: 900, color: color, textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 4 }}>Curriculum</div>
+                  <div style={{ fontSize: 24, fontWeight: 900, color: "#1D1D1F", letterSpacing: -0.5 }}>{m}</div>
+                </div>
+              </div>
+
+              <div style={{ padding: 40 }}>
+                <p style={{ fontSize: 14, color: "var(--text-muted)", fontWeight: 600, lineHeight: 1.6, marginBottom: 32 }}>Build deep architectural intuition for {m} with practical examples.</p>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                  <span style={{ fontSize: 11, fontWeight: 900, color: "#1D1D1F" }}>{p < 100 ? "IN PROGRESS" : " COMPLETED"}</span>
+                  <span style={{ fontSize: 11, fontWeight: 900, color: color }}>{Math.round(p)}%</span>
+                </div>
+                <div style={{ height: 8, background: "#F5F5F7", borderRadius: 10, overflow: "hidden" }}>
+                  <motion.div initial={{ width: 0 }} animate={{ width: `${p}%` }} style={{ height: "100%", background: color, borderRadius: 10 }} />
+                </div>
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const InterviewTab = () => {
   const timerRef = useRef(null);
   const startTimeRef = useRef(null);
-  const [examState, setExamState] = useState("setup");
+  const [examState, setExamState] = useState("landing"); // landing -> path -> setup -> exam -> results
   const [selMod, setSelMod] = useState("Stack");
   const [search, setSearch] = useState("");
   const [numQuestions, setNumQuestions] = useState(10);
@@ -1634,121 +1934,148 @@ const InterviewTab = () => {
     return { grade: "F", label: "Keep Practicing 🔄", color: "#ff3b30" };
   };
 
+  /* ── LANDING SCREEN ── */
+  if (examState === "landing") {
+    return (
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} style={{ textAlign: "center", padding: "40px 0" }}>
+        <div style={{ marginBottom: 48 }}>
+          <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 4, repeat: Infinity }} style={{ fontSize: 80, marginBottom: 20 }}>🏔️</motion.div>
+          <h2 style={{ fontSize: 48, fontWeight: 900, letterSpacing: -2, color: "#1D1D1F", marginBottom: 12 }}>LeetCode Quest</h2>
+          <p style={{ color: "var(--text-muted)", fontSize: 20, fontWeight: 500 }}>Turn practice into progress</p>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))", gap: 24, maxWidth: 1000, margin: "0 auto" }}>
+          <motion.div whileHover={{ y: -8, boxShadow: "var(--shadow-lg)" }} onClick={() => setExamState("path")}
+            style={{ background: "#1D1D1F", color: "white", borderRadius: 40, padding: 40, textAlign: "left", cursor: "pointer", border: "1px solid rgba(255,255,255,0.1)", position: "relative", overflow: "hidden" }}>
+            <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 8 }}>Data Structures and Algorithms</div>
+            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginBottom: 24 }}>0/35 Levels</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, opacity: 0.3 }}>
+              {[1, 2, 3, 4, 5, 6, 7].map(i => <div key={i} style={{ width: 10, height: 10, borderRadius: "50%", background: "white" }} />)}
+            </div>
+            <div style={{ position: "absolute", bottom: 40, right: 40, fontSize: 40 }}>⚡</div>
+          </motion.div>
+
+          <motion.div style={{ background: "#1D1D1F", color: "white", borderRadius: 40, padding: 40, textAlign: "left", opacity: 0.6, border: "1px solid rgba(255,255,255,0.1)" }}>
+            <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 8 }}>Database</div>
+            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginBottom: 24 }}>5 Levels</div>
+            <div style={{ background: "rgba(255,255,255,0.1)", padding: "10px 24px", borderRadius: 20, display: "inline-block", fontSize: 13, fontWeight: 700 }}>🔒 Locked</div>
+          </motion.div>
+        </div>
+      </motion.div>
+    );
+  }
+
+  /* ── PATH SCREEN ── */
+  if (examState === "path") {
+    const modules = ["Arrays", "Strings", "Linked Lists", "Stack", "Queue", "Trees", "Graphs", "DP"];
+    return (
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ padding: "40px 0" }}>
+        <button onClick={() => setExamState("landing")} style={{ background: "none", border: "none", color: "var(--teal)", fontWeight: 900, fontSize: 15, cursor: "pointer", marginBottom: 32, display: "flex", alignItems: "center", gap: 8 }}>
+          ‹ BACK TO QUEST
+        </button>
+
+        <div style={{ textAlign: "center", marginBottom: 60 }}>
+          <h2 style={{ fontSize: 32, fontWeight: 900 }}>The Linear Shoal</h2>
+          <p style={{ color: "var(--text-muted)", fontWeight: 600 }}>Ascend through the levels of hierarchy</p>
+        </div>
+
+        <div style={{ position: "relative", maxWidth: 600, margin: "0 auto", display: "flex", flexDirection: "column", alignItems: "center", gap: 60 }}>
+          {/* Vertical path line */}
+          <div style={{ position: "absolute", top: 0, bottom: 0, width: 4, background: "rgba(0,0,0,0.05)", borderLeft: "2px dashed #DDD", zIndex: 0 }} />
+
+          {modules.map((m, i) => (
+            <motion.div key={m} initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 }}
+              style={{ position: "relative", zIndex: 1, width: "100%", display: "flex", justifyContent: i % 2 === 0 ? "flex-start" : "flex-end" }}>
+              <motion.button
+                whileHover={{ scale: 1.1, rotation: 2 }}
+                onClick={() => { setSelMod(m); setExamState("setup"); }}
+                style={{
+                  background: selMod === m ? "var(--teal)" : "white", color: selMod === m ? "white" : "#1D1D1F",
+                  padding: "16px 32px", borderRadius: 24, border: "2px solid #F0F0F0", fontSize: 15, fontWeight: 800,
+                  boxShadow: "var(--shadow-lg)", cursor: "pointer", display: "flex", alignItems: "center", gap: 12
+                }}>
+                <span style={{ fontSize: 20 }}>{MOD_ICONS[m] || "📦"}</span>
+                {m}
+              </motion.button>
+              {i === 2 && <div style={{ position: "absolute", left: -60, top: "50%", transform: "translateY(-50%)", fontSize: 24 }}>🧳</div>}
+              {i === 5 && <div style={{ position: "absolute", right: -60, top: "50%", transform: "translateY(-50%)", fontSize: 24 }}>🪙</div>}
+            </motion.div>
+          ))}
+
+          <div style={{ fontSize: 40, marginTop: 40, opacity: 0.3 }}>❓</div>
+        </div>
+      </motion.div>
+    );
+  }
+
   /* ── SETUP SCREEN ── */
   if (examState === "setup") {
-    const categories = {
-      "Core Data Structures": ["Arrays", "Strings", "Linked Lists", "Stack", "Queue"],
-      "Non-Linear": ["Trees", "Binary Search Trees", "Heap / Priority Queue", "Hashing", "Graphs", "Tries", "Segment Trees", "Disjoint Set (Union Find)", "Advanced Graph Algorithms"],
-      "Algorithms": ["Recursion", "Backtracking", "Linear Search", "Bubble Sort", "Greedy Algorithms", "Dynamic Programming", "Bit Manipulation"]
-    };
-
     const actualQ = Math.min(numQuestions, INTERVIEW_DATA[selMod]?.length || 0);
     return (
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} style={{ animation: "fadeIn 0.6s ease-out" }}>
+        <button onClick={() => setExamState("path")} style={{ background: "none", border: "none", color: "var(--teal)", fontWeight: 900, fontSize: 15, cursor: "pointer", marginBottom: 32, display: "flex", alignItems: "center", gap: 8 }}>
+          ‹ BACK TO PATH
+        </button>
+
         <div style={{ marginBottom: 48, textAlign: "center" }}>
-          <h2 style={{ fontSize: 48, fontWeight: 900, letterSpacing: -2, color: "#1D1D1F", marginBottom: 16 }}>Verification Hub</h2>
-          <p style={{ color: "var(--text-muted)", fontSize: 20, maxWidth: 600, margin: "0 auto" }}>Generate a tailored technical assessment to verify your mastery of {selMod}.</p>
+          <h2 style={{ fontSize: 48, fontWeight: 900, letterSpacing: -2, color: "#1D1D1F", marginBottom: 16 }}>Mission Briefing</h2>
+          <p style={{ color: "var(--text-muted)", fontSize: 20, maxWidth: 600, margin: "0 auto" }}>Prepare for your encounter with the {selMod} domain.</p>
         </div>
 
-        <div style={{ background: "white", borderRadius: 40, border: "1.5px solid #F0F0F0", padding: 48, boxShadow: "0 40px 80px rgba(0,0,0,0.05)", maxWidth: 960, margin: "0 auto" }}>
-          {/* Topic Selection Area */}
-          <div style={{ marginBottom: 32 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 16 }}>
-              <div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: "#86868b", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>1 — Choose Topic</div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: "#1d1d1f" }}>Selected: <span style={{ color }}>{selMod}</span></div>
-              </div>
-              <div style={{ position: "relative" }}>
-                <input type="text" placeholder="Search topics..." value={search} onChange={e => setSearch(e.target.value)}
-                  style={{ padding: "8px 12px 8px 32px", fontSize: 13, borderRadius: 10, border: "1.5px solid var(--border)", outline: "none", width: 180, background: "#f5f5f7" }} />
-                <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", fontSize: 14, opacity: 0.4 }}>🔍</span>
-              </div>
-            </div>
-
-            <div style={{ maxHeight: 280, overflowY: "auto", paddingRight: 8, paddingBottom: 4, display: "flex", flexDirection: "column", gap: 20 }}>
-              {Object.entries(categories).map(([cat, mods]) => {
-                const filtered = mods.filter(m => m.toLowerCase().includes(search.toLowerCase()));
-                if (filtered.length === 0) return null;
-                return (
-                  <div key={cat}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: "#86868b", marginBottom: 10, letterSpacing: 0.3 }}>{cat}</div>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 8 }}>
-                      {filtered.map(m => {
-                        const c = MOD_COLORS[m]; const sel = selMod === m;
-                        return <button key={m} onClick={() => setSelMod(m)}
-                          style={{
-                            padding: "10px 14px", fontSize: 12.5, fontWeight: 600, borderRadius: 12, cursor: "pointer", transition: "all 0.2s",
-                            border: `1.5px solid ${sel ? c : "rgba(0,0,0,0.06)"}`,
-                            background: sel ? c : "white",
-                            color: sel ? "white" : "#424245",
-                            boxShadow: sel ? `0 4px 12px ${c}33` : "none",
-                            display: "flex", alignItems: "center", gap: 8, textAlign: "left"
-                          }}>
-                          <span style={{ fontSize: 16 }}>{MOD_ICONS[m]}</span>
-                          <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m}</span>
-                        </button>;
-                      })}
-                    </div>
-                  </div>
-                );
-              })}
+        <div style={{ background: "white", borderRadius: 40, border: "1.5px solid #F0F0F0", padding: 48, boxShadow: "0 40px 80px rgba(0,0,0,0.05)", maxWidth: 720, margin: "0 auto" }}>
+          {/* Header Info */}
+          <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 40, background: "#F5F5F7", padding: 24, borderRadius: 24 }}>
+            <div style={{ width: 64, height: 64, borderRadius: 20, background: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, boxShadow: "0 10px 20px rgba(0,0,0,0.05)" }}>{MOD_ICONS[selMod]}</div>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 900, color: "var(--teal)", textTransform: "uppercase", letterSpacing: 1 }}>Selected Domain</div>
+              <div style={{ fontSize: 28, fontWeight: 900, color: "#1D1D1F" }}>{selMod} Verification</div>
             </div>
           </div>
 
-          {/* Questions + Time Selection */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 24 }}>
-            <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "#86868b", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 10 }}>2 — Questions</div>
-              <div style={{ display: "flex", gap: 6 }}>
-                {[5, 10, 15, 20].map(n => (
-                  <button key={n} onClick={() => setNumQuestions(n)}
-                    style={{ flex: 1, padding: "10px 4px", fontSize: 14, fontWeight: 700, borderRadius: 12, border: `1.5px solid ${numQuestions === n ? color : "var(--border)"}`, cursor: "pointer", background: numQuestions === n ? color : "white", color: numQuestions === n ? "white" : "#424245", transition: "all 0.2s" }}>{n}
-                  </button>
-                ))}
-              </div>
+          {/* Questions Selection */}
+          <div style={{ marginBottom: 32 }}>
+            <div style={{ fontSize: 12, fontWeight: 900, color: "#86868b", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 16 }}>Combat Intensity (Questions)</div>
+            <div style={{ display: "flex", gap: 10 }}>
+              {[5, 10, 15, 20].map(n => (
+                <button key={n} onClick={() => setNumQuestions(n)}
+                  style={{ flex: 1, padding: "16px 4px", fontSize: 15, fontWeight: 900, borderRadius: 16, border: `2px solid ${numQuestions === n ? "var(--teal)" : "#F0F0F0"}`, cursor: "pointer", background: numQuestions === n ? "var(--teal)" : "white", color: numQuestions === n ? "white" : "#1D1D1F", transition: "0.3s" }}>{n}
+                </button>
+              ))}
             </div>
-            <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "#86868b", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 10 }}>3 — Time / Question</div>
-              <div style={{ display: "flex", gap: 6 }}>
-                {[30, 60, 90, 120].map(t => (
-                  <button key={t} onClick={() => setTimePerQ(t)}
-                    style={{ flex: 1, padding: "10px 4px", fontSize: 13, fontWeight: 700, borderRadius: 12, border: `1.5px solid ${timePerQ === t ? color : "var(--border)"}`, cursor: "pointer", background: timePerQ === t ? color : "white", color: timePerQ === t ? "white" : "#424245", transition: "all 0.2s" }}>{t}s
-                  </button>
-                ))}
-              </div>
+          </div>
+
+          {/* Time Selection */}
+          <div style={{ marginBottom: 32 }}>
+            <div style={{ fontSize: 12, fontWeight: 900, color: "#86868b", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 16 }}>Time Allowance (Per Question)</div>
+            <div style={{ display: "flex", gap: 10 }}>
+              {[30, 60, 90, 120].map(t => (
+                <button key={t} onClick={() => setTimePerQ(t)}
+                  style={{ flex: 1, padding: "16px 4px", fontSize: 14, fontWeight: 900, borderRadius: 16, border: `2px solid ${timePerQ === t ? "var(--teal)" : "#F0F0F0"}`, cursor: "pointer", background: timePerQ === t ? "var(--teal)" : "white", color: timePerQ === t ? "white" : "#1D1D1F", transition: "0.3s" }}>{t}S
+                </button>
+              ))}
             </div>
           </div>
 
           {/* Coding Challenge Toggle */}
-          <div style={{ marginBottom: 24, padding: "12px 16px", background: "#f5f5f7", borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "space-between", border: "1px solid rgba(0,0,0,0.04)" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <span style={{ fontSize: 18 }}>💻</span>
+          <div style={{ marginBottom: 40, padding: "24px", background: "#f5f5f7", borderRadius: 24, display: "flex", alignItems: "center", justifyContent: "space-between", border: "1px solid rgba(0,0,0,0.04)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+              <span style={{ fontSize: 24 }}>💻</span>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: "#1d1d1f" }}>Include Coding Challenge</div>
-                <div style={{ fontSize: 11, color: "#86868b" }}>Finish with a random coding task</div>
+                <div style={{ fontSize: 15, fontWeight: 900, color: "#1d1d1f" }}>Include Boss Battle</div>
+                <div style={{ fontSize: 12, color: "#86868b", fontWeight: 600 }}>Add a coding challenge at the end</div>
               </div>
             </div>
             <button onClick={() => setIncludeCoding(!includeCoding)}
-              style={{ padding: "6px 14px", fontSize: 11, fontWeight: 700, borderRadius: 10, border: "none", cursor: "pointer", background: includeCoding ? color : "#e5e5ea", color: includeCoding ? "white" : "#86868b", transition: "all 0.2s" }}>
-              {includeCoding ? "ON" : "OFF"}
+              style={{ width: 64, height: 32, borderRadius: 100, border: "none", cursor: "pointer", background: includeCoding ? "var(--teal)" : "#e5e5ea", position: "relative", transition: "0.3s" }}>
+              <motion.div animate={{ x: includeCoding ? 32 : 4 }} style={{ width: 24, height: 24, background: "white", borderRadius: "50%", position: "absolute", top: 4 }} />
             </button>
           </div>
 
-          {/* Summary + CTA inline */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16, background: "var(--bg)", borderRadius: 32, padding: "24px 32px", border: "1px solid #EEE" }}>
-            <div style={{ display: "flex", gap: 28, flexWrap: "wrap" }}>
-              {[["📋", actualQ + " Qs"], ["⏱", formatTime(timePerQ * actualQ + (includeCoding ? 300 : 0))], ["🎯", selMod]].map(([icon, val]) => (
-                <div key={val} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ fontSize: 14 }}>{icon}</span>
-                  <span style={{ fontSize: 14, fontWeight: 600, color: "#1d1d1f" }}>{val}</span>
-                </div>
-              ))}
-            </div>
-            <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} onClick={startExam}
-              style={{ padding: "13px 36px", fontSize: 15, fontWeight: 700, background: color, color: "white", borderRadius: 50, border: "none", cursor: "pointer", boxShadow: `0 4px 16px ${color}44`, letterSpacing: -0.3 }}>
-              🚀 Start Exam
-            </motion.button>
-          </div>
+          {/* Final CTA */}
+          <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={startExam}
+            style={{ width: "100%", padding: "20px", fontSize: 18, fontWeight: 900, background: "var(--teal)", color: "white", borderRadius: 24, border: "none", cursor: "pointer", boxShadow: "0 20px 40px rgba(0,255,140,0.2)" }}>
+            🚀 DEPLOY TO FIELD
+          </motion.button>
         </div>
       </motion.div>
     );
@@ -2059,14 +2386,14 @@ const CodeArenaTab = ({ logSession }) => {
               const desc = MOD_DESCS[m];
               return (
                 <motion.div
-                  key={m} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
-                  whileHover={{ y: -8, boxShadow: "0 30px 60px rgba(0,0,0,0.12)" }}
+                  key={m} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.03 }}
+                  whileHover={{ y: -10, boxShadow: "var(--shadow-lg)" }}
                   onClick={() => setSelMod(m)}
-                  style={{ background: "white", borderRadius: 32, padding: "32px", border: "1.5px solid #F0F0F0", cursor: "pointer", transition: "all 0.3s" }}
+                  style={{ background: "white", borderRadius: 40, padding: "40px", border: "1.5px solid #F0F0F0", cursor: "pointer", transition: "all 0.4s cubic-bezier(0.22, 1, 0.36, 1)" }}
                 >
-                  <div style={{ width: 56, height: 56, borderRadius: 16, background: `${c}12`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, marginBottom: 24 }}>{MOD_ICONS[m]}</div>
-                  <h3 style={{ fontSize: 20, fontWeight: 900, color: "#1D1D1F", marginBottom: 8, letterSpacing: -0.5 }}>{m}</h3>
-                  <p style={{ fontSize: 13, color: "var(--text-muted)", fontWeight: 600, lineHeight: 1.5 }}>{desc}</p>
+                  <div style={{ width: 64, height: 64, borderRadius: 20, background: `${c}12`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, marginBottom: 28, border: "1.5px solid #F0F0F0" }}>{MOD_ICONS[m]}</div>
+                  <h3 style={{ fontSize: 22, fontWeight: 900, color: "#1D1D1F", marginBottom: 12, letterSpacing: -0.5 }}>{m}</h3>
+                  <p style={{ fontSize: 13, color: "var(--text-muted)", fontWeight: 600, lineHeight: 1.6 }}>{desc}</p>
                 </motion.div>
               );
             })}
@@ -2087,14 +2414,14 @@ const CodeArenaTab = ({ logSession }) => {
               <p style={{ color: "var(--text-muted)", fontSize: 18, fontWeight: 600 }}>Solve production-grade problems from companies like Google, Meta, and Amazon.</p>
             </div>
 
-            <div style={{ display: "flex", gap: 8, background: "#F5F5F7", padding: 6, borderRadius: 28 }}>
+            <div style={{ display: "flex", gap: 10, background: "#F5F5F7", padding: 8, borderRadius: 100, border: "1.5px solid #EEE" }}>
               {LEVELS.map(l => (
                 <button key={l} onClick={() => setSelLevel(l)} style={{
-                  padding: "10px 24px", borderRadius: 24, fontSize: 13, fontWeight: 800,
+                  padding: "12px 28px", borderRadius: 100, fontSize: 13, fontWeight: 900,
                   background: selLevel === l ? "white" : "transparent",
                   color: selLevel === l ? "#1D1D1F" : "#86868B",
-                  border: "none", transition: "0.2s",
-                  boxShadow: selLevel === l ? "0 4px 12px rgba(0,0,0,0.06)" : "none",
+                  border: "none", transition: "all 0.3s cubic-bezier(0.22, 1, 0.36, 1)",
+                  boxShadow: selLevel === l ? "0 8px 16px rgba(0,0,0,0.08)" : "none",
                   cursor: "pointer"
                 }}>{l.toUpperCase()}</button>
               ))}
@@ -3517,6 +3844,7 @@ export default function App() {
   const [screen, setScreen] = useState("home");
   const [module, setModule] = useState(null);
   const [subScreen, setSubScreen] = useState(null);
+  const [showLogin, setShowLogin] = useState(false);
   const [level, setLevel] = useState("Beginner");
   const [data, setData] = useState(null);
 
@@ -3607,6 +3935,7 @@ export default function App() {
 
   const handleLogin = (session) => {
     setUser(session);
+    setShowLogin(false);
     setScreen("home");
   };
 
@@ -3621,12 +3950,12 @@ export default function App() {
     setSubScreen(null);
   };
 
-  if (!user) {
+  if (!user && showLogin) {
     return (
       <div style={{ background: "var(--bg)", minHeight: "100vh", color: "var(--text)" }}>
         <AnimatePresence mode="wait">
           <motion.div key="login" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }}>
-            <LoginScreen onLogin={handleLogin} />
+            <LoginScreen onLogin={handleLogin} onBack={() => setShowLogin(false)} />
           </motion.div>
         </AnimatePresence>
       </div>
@@ -3638,12 +3967,17 @@ export default function App() {
       <AnimatePresence mode="wait">
         {screen === "home" && (
           <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.4 }}>
-            <HomeScreen onEnter={() => setScreen("dsa")} user={user} onLogout={handleLogout} progress={progress} />
+            <HomeScreen onEnter={() => setScreen("dsa")} user={user} onLogout={handleLogout} progress={progress} onLoginClick={() => setShowLogin(true)} onSettings={() => setScreen("settings")} />
           </motion.div>
         )}
         {screen === "dsa" && (
           <motion.div key="dsa" initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
-            <DSAScreen level={level} setLevel={setLevel} onSelectModule={selectModule} onBack={() => setScreen("home")} progress={progress} />
+            <DSAScreen level={level} setLevel={setLevel} onSelectModule={selectModule} onBack={() => setScreen("home")} progress={progress} user={user} onSettings={() => setScreen("settings")} />
+          </motion.div>
+        )}
+        {screen === "settings" && (
+          <motion.div key="settings" initial={{ opacity: 0, scale: 1.02 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.3 }}>
+            <SettingsScreen user={user} onBack={() => setScreen("home")} onLogout={handleLogout} />
           </motion.div>
         )}
         {screen === "module" && (
