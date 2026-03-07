@@ -53,21 +53,21 @@ const supabase = {
 const SESSION_KEY = "fita_supabase_session";
 
 const GLOBAL_CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..1000;1,9..1000&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
     --bg: #FAFAF8;
-    --dark: #1E2024;
-    --teal: #00B8A3;
-    --gold: #D4AF37;
-    --gold-light: #F4E5B1;
+    --dark: #000000;
+    --teal: #0071e3;
+    --gold: #BF4800;
+    --gold-light: #FFD60A;
     --text: #1d1d1f;
     --text-muted: #86868b;
-    --font: 'DM Sans', -apple-system, sans-serif;
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     --font-serif: 'Instrument Serif', serif;
     --font-mono: 'JetBrains Mono', monospace;
-    --radius: 18px;
-    --shadow: 0 4px 20px rgba(0,0,0,0.08);
+    --radius: 20px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.06);
   }
   html { scroll-behavior: smooth; }
   body {
@@ -377,7 +377,9 @@ const LoginScreen = ({ onLogin }) => {
 const INTERVIEW_DATA = {
   "Stack": [
     { q: "What is a Stack and how does LIFO work?", a: "A Stack is a linear data structure where insertion (push) and deletion (pop) happen at the same end called the 'top'. LIFO means the Last element Inserted is the First one Out — like a pile of plates.", company: "Google", difficulty: "Easy" },
+    { q: "Which of the following is the correct property of a Stack?", a: "LIFO", options: ["FIFO", "LIFO", "LILO", "None of these"], company: "Amazon", difficulty: "Easy" },
     { q: "What is Stack Overflow and Stack Underflow?", a: "Stack Overflow occurs when you push an element onto a full stack. Stack Underflow occurs when you pop from an empty stack. Both are error conditions that must be checked before operations.", company: "Amazon", difficulty: "Easy" },
+    { q: "Which data structure is used to implement recursion?", a: "Stack", options: ["Queue", "Stack", "Linked List", "Tree"], company: "Microsoft", difficulty: "Easy" },
     { q: "How would you implement a stack using an array?", a: "Declare an array of fixed size MAX and an integer 'top' initialized to -1. Push: increment top and store element at arr[top]. Pop: return arr[top] and decrement top. Peek: return arr[top] without decrementing.", company: "Microsoft", difficulty: "Easy" },
     { q: "What are the real-world applications of a Stack?", a: "Undo/Redo in editors, browser back/forward history, function call stack in OS, expression evaluation (postfix/prefix), balancing parentheses in compilers, backtracking in maze solving.", company: "Flipkart", difficulty: "Easy" },
     { q: "How do you check balanced parentheses using a stack?", a: "Iterate through the string. Push every opening bracket onto the stack. For every closing bracket, check if the stack top has the matching opener. If yes, pop; if no or stack empty, return false. At end, stack should be empty.", company: "Adobe", difficulty: "Medium" },
@@ -399,7 +401,9 @@ const INTERVIEW_DATA = {
   ],
   "Queue": [
     { q: "What is a Queue and how does FIFO work?", a: "A Queue is a linear data structure with two ends: REAR (insertion via Enqueue) and FRONT (deletion via Dequeue). FIFO means First In, First Out — like people waiting in a line at a bank.", company: "Amazon", difficulty: "Easy" },
+    { q: "In a Queue, insertion happens at ___ and deletion at ___?", a: "Rear, Front", options: ["Front, Rear", "Rear, Front", "Top, Bottom", "None"], company: "Google", difficulty: "Easy" },
     { q: "What is a Circular Queue and why is it needed?", a: "In a linear queue, after dequeuing, the front index moves right and freed space cannot be reused. A Circular Queue uses modular arithmetic — (rear+1) % capacity — to wrap around and reuse freed slots, solving space wastage.", company: "Microsoft", difficulty: "Easy" },
+    { q: "Which data structure follows FIFO principle?", a: "Queue", options: ["Stack", "Queue", "Binary Tree", "Priority Queue"], company: "Amazon", difficulty: "Easy" },
     { q: "What is the difference between a Queue and a Deque?", a: "A Queue allows insertion at rear and deletion at front only. A Deque (Double-Ended Queue) allows insertion and deletion at BOTH front and rear. Deque is more flexible and can function as both a stack and queue.", company: "Google", difficulty: "Easy" },
     { q: "How does a Priority Queue differ from a regular Queue?", a: "A regular Queue serves elements in FIFO order. A Priority Queue serves elements based on priority — the element with the highest (or lowest) priority is dequeued first, regardless of insertion order. Implemented with a binary heap.", company: "Flipkart", difficulty: "Easy" },
     { q: "Explain BFS and why it uses a Queue.", a: "BFS (Breadth-First Search) explores nodes level by level. A Queue ensures nodes are processed in the order they were discovered — FIFO guarantees we finish one level before starting the next, giving shortest path in unweighted graphs.", company: "Meta", difficulty: "Medium" },
@@ -465,22 +469,26 @@ const INTERVIEW_DATA = {
   ],
   "Arrays": [
     { q: "What is an Array and how is it stored in memory?", a: "An array is a collection of elements of same type stored in contiguous memory locations. It allows random access to elements using an index. The memory address of arr[i] is calculated as: BaseAddress + (index * SizeOfElement).", company: "Infosys", difficulty: "Easy" },
-    { q: "What is the time complexity of accessing, searching, inserting, and deleting in an array?", a: "Access: O(1). Search: O(n) for unsorted, O(log n) for sorted. Insertion: O(n) (shifting required). Deletion: O(n) (shifting required).", company: "TCS", difficulty: "Easy" },
+    { q: "What is the time complexity of accessing an element in an array?", a: "O(1)", options: ["O(1)", "O(n)", "O(log n)", "O(n²)"], company: "TCS", difficulty: "Easy" },
+    { q: "What is the time complexity of searching an element in an unsorted array?", a: "O(n)", options: ["O(1)", "O(log n)", "O(n)", "O(n log n)"], company: "Amazon", difficulty: "Easy" },
     { q: "What is the difference between static and dynamic arrays?", a: "Static arrays have a fixed size determined at compile time. Dynamic arrays (like ArrayList in Java or vector in C++) can grow in size; when they fill up, a new larger array is allocated and elements are copied. Growing takes O(n) but is amortized O(1).", company: "Amazon", difficulty: "Medium" },
     { q: "How do you find the second largest element in an array in one pass?", a: "Initialize 'first' and 'second' to smallest possible value. Iterate through array: if current > first, update second = first and first = current. Else if current > second, update second = current. O(n) time, O(1) space.", company: "Microsoft", difficulty: "Easy" },
     { q: "Explain the concept of 'prefix sum' array.", a: "A prefix sum array P of array A is where P[i] = A[0] + A[1] + ... + A[i]. It allows O(1) range sum queries: Sum(i, j) = P[j] - P[i-1]. Preprocessing takes O(n).", company: "Google", difficulty: "Medium" },
   ],
   "Strings": [
+    { q: "Which of the following classes is mutable in Java?", a: "StringBuilder", options: ["String", "StringBuilder", "Double", "Integer"], company: "Infosys", difficulty: "Easy" },
     { q: "What is the difference between String, StringBuilder, and StringBuffer in Java?", a: "String is immutable. StringBuilder is mutable but not thread-safe (faster). StringBuffer is mutable and thread-safe (synchronized, slower).", company: "Infosys", difficulty: "Easy" },
     { q: "How do you check if two strings are anagrams?", a: "Option 1: Sort both strings and compare (O(n log n)). Option 2: Use a frequency array of size 256 (or 26) to count characters (O(n)).", company: "Amazon", difficulty: "Medium" },
     { q: "What is string interning?", a: "String interning is a method of storing only one copy of each distinct string value, which must be immutable. All interned strings are stored in a pool managed by the JVM.", company: "Microsoft", difficulty: "Medium" },
   ],
   "Linked Lists": [
+    { q: "What is the time complexity of inserting at the head of a linked list?", a: "O(1)", options: ["O(1)", "O(n)", "O(log n)", "O(n²)"], company: "TCS", difficulty: "Easy" },
     { q: "What is a Linked List and how does it differ from an Array?", a: "Linked List is a linear data structure where elements are not stored in contiguous memory. Each element (node) contains a data part and a pointer to the next node. Unlike arrays, linked lists have dynamic size and O(1) insertion/deletion at a known position.", company: "TCS", difficulty: "Easy" },
     { q: "How do you detect a cycle in a linked list?", a: "Use Floyd’s Cycle-Finding Algorithm (Two Pointers: Slow and Fast). If they meet, there is a cycle.", company: "Google", difficulty: "Medium" },
     { q: "How do you reverse a linked list?", a: "Use three pointers: prev (null), curr (head), and next. Iterate: next = curr.next; curr.next = prev; prev = curr; curr = next. Finally, head = prev.", company: "Amazon", difficulty: "Medium" },
   ],
   "Recursion": [
+    { q: "Which data structure is used inherently by recursion?", a: "Stack", options: ["Queue", "Stack", "Heap", "Tree"], company: "TCS", difficulty: "Easy" },
     { q: "What is Recursion?", a: "Recursion is a process in which a function calls itself directly or indirectly. It requires a Base Case to stop and a Recursive Step to move towards the base case.", company: "TCS", difficulty: "Easy" },
     { q: "What is tail recursion?", a: "Tail recursion is a special case where the recursive call is the last action in the function. Some compilers can optimize this to prevent stack overflow (tail call optimization).", company: "Google", difficulty: "Medium" },
   ],
@@ -502,7 +510,9 @@ const INTERVIEW_DATA = {
   ],
   "Hashing": [
     { q: "What is Hashing?", a: "Hashing is a process of mapping data of arbitrary size to fixed-size values (hash codes) using a hash function. It allows constant time O(1) average lookup.", company: "Google", difficulty: "Easy" },
+    { q: "What is the average time complexity of searching in a Hash Table?", a: "O(1)", options: ["O(1)", "O(n)", "O(log n)", "O(n²)"], company: "Amazon", difficulty: "Easy" },
     { q: "Explain Collision Handling in HashTables.", a: "Collisions occur when two keys hash to the same index. Techniques include Chaining (linked lists at indices) and Open Addressing (Linear Probing, Quadratic Probing, Double Hashing).", company: "Amazon", difficulty: "Medium" },
+    { q: "Which of these is a collision resolution technique?", a: "Chaining", options: ["Chaining", "Linear Search", "Binary Search", "All of these"], company: "Google", difficulty: "Easy" },
   ],
   "Graphs": [
     { q: "What is a Graph?", a: "A Graph is a set of vertices (nodes) and edges that connect them. It can be Directed or Undirected, Weighted or Unweighted.", company: "TCS", difficulty: "Easy" },
@@ -534,8 +544,8 @@ const INTERVIEW_DATA = {
     { q: "What is Bellman-Ford used for?", a: "Shortest paths for graphs with negative weights. Also detects negative cycles. Time O(VE).", company: "Microsoft", difficulty: "Hard" },
   ],
   "Binary Search": [
-    { q: "What is Binary Search and what is its prerequisite?", a: "Binary Search is a divide-and-conquer search algorithm that finds a target in a SORTED array by repeatedly halving the search space. Prerequisite: array must be sorted. Time O(log n), Space O(1) iterative.", company: "Google", difficulty: "Easy" },
-    { q: "What is the time complexity of Binary Search?", a: "Best: O(1) — target is the middle element. Average/Worst: O(log n) — halves search space each step. Space: O(1) iterative, O(log n) recursive (call stack).", company: "Amazon", difficulty: "Easy" },
+    { q: "What is the prerequisite for Binary Search?", a: "Sorted Array", options: ["Unsorted Array", "Sorted Array", "Must be Linked List", "None"], company: "TCS", difficulty: "Easy" },
+    { q: "What is the time complexity of Binary Search?", a: "O(log n)", options: ["O(n)", "O(log n)", "O(n²)", "O(1)"], company: "Infosys", difficulty: "Easy" },
     { q: "Explain the difference between lower_bound and upper_bound.", a: "lower_bound returns the index of the first element >= target. upper_bound returns the index of the first element > target. Java equivalent: Arrays.binarySearch returns insertion point when not found.", company: "Microsoft", difficulty: "Medium" },
     { q: "What is Binary Search on the Answer?", a: "Instead of searching for a value in an array, we binary search on the ANSWER SPACE (e.g., min/max feasible answer). Define a monotonic predicate canAchieve(mid) and binary search on lo/hi to find the boundary. Converts O(n²) to O(n log n).", company: "Google", difficulty: "Medium" },
     { q: "How do you find a peak element in O(log n)?", a: "If arr[mid] < arr[mid+1], peak is in the right half. Else peak is in the left half (or at mid). Binary search on the condition, not the value. Works even on unsorted arrays (just needs adjacency property).", company: "Meta", difficulty: "Medium" },
@@ -1106,58 +1116,100 @@ const CornerDance = () => {
   );
 };
 
-const DSATopicCard = () => (
-  <motion.div
-    style={{
-      width: "100%", maxWidth: 380, background: "white", borderRadius: 28, padding: 32,
-      boxShadow: "0 40px 100px rgba(0,0,0,0.12), 0 4px 20px rgba(0,0,0,0.05)",
-      transformStyle: "preserve-3d", border: "1px solid rgba(0,0,0,0.04)", position: "relative",
-      rotateY: -12, rotateX: 6, perspective: 1000
-    }}
-    animate={{ y: [0, -8, 0] }}
-    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-  >
-    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 28 }}>
-      <div>
-        <div style={{ fontSize: 12, fontWeight: 700, color: "var(--gold)", marginBottom: 6, letterSpacing: 0.8, textTransform: "uppercase" }}>Current Module</div>
-        <div style={{ fontSize: 26, fontWeight: 800, color: "var(--dark)", letterSpacing: -0.5 }}>Binary Search</div>
-      </div>
-      <div style={{ width: 48, height: 48, borderRadius: 14, background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, border: "1px solid rgba(0,0,0,0.04)" }}>🎯</div>
-    </div>
+const DSATopicCard = ({ progress = {} }) => {
+  const lastMod = progress.last_module || "Binary Search";
+  const color = MOD_COLORS[lastMod] || "var(--gold)";
 
-    <div style={{ marginBottom: 28 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-        <span style={{ fontSize: 14, fontWeight: 600, color: "var(--text-muted)" }}>Platform Progress</span>
-        <span style={{ fontSize: 14, fontWeight: 800, color: "var(--dark)" }}>64%</span>
-      </div>
-      <div style={{ height: 10, background: "#F5F5F7", borderRadius: 10, overflow: "hidden" }}>
-        <div style={{ width: "64%", height: "100%", background: "linear-gradient(90deg, var(--gold), #FFD700)", borderRadius: 10 }} />
-      </div>
-    </div>
+  // Calculate module specific progress
+  const qaTotal = (INTERVIEW_DATA[lastMod] || []).length;
+  const codeTotal = Object.values(CODING_CHALLENGES[lastMod] || {}).flat().length;
+  const done = Object.keys(progress).filter(k => k.startsWith(`interview_${lastMod}`)).length;
+  const codeDone = Object.keys(progress).filter(k => k.startsWith(`code_${lastMod}`)).length;
+  const totalItems = qaTotal + codeTotal;
+  const modPct = totalItems > 0 ? Math.round(((done + codeDone) / totalItems) * 100) : 0;
 
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 32 }}>
-      {[["EASY", "12/15", "#34c759"], ["MED", "8/12", "#ff9500"], ["HARD", "2/10", "#ff3b30"]].map(([lbl, val, c]) => (
-        <div key={lbl} style={{ padding: "12px 10px", background: `${c}08`, borderRadius: 16, border: `1.5px solid ${c}15`, textAlign: "center" }}>
-          <div style={{ fontSize: 10, fontWeight: 800, color: c, marginBottom: 4 }}>{lbl}</div>
-          <div style={{ fontSize: 15, fontWeight: 800, color: "var(--dark)" }}>{val}</div>
+  // Calculate overall platform progress
+  const allModules = Object.keys(INTERVIEW_DATA);
+  let totalDone = 0;
+  let totalPossible = 0;
+  allModules.forEach(m => {
+    const qCount = (INTERVIEW_DATA[m] || []).length;
+    const cCount = Object.values(CODING_CHALLENGES[m] || {}).flat().length;
+    totalPossible += (qCount + cCount);
+    totalDone += Object.keys(progress).filter(k => k.startsWith(`interview_${m}`) || k.startsWith(`code_${m}`)).length;
+  });
+  const platformPct = totalPossible > 0 ? Math.round((totalDone / totalPossible) * 100) : 0;
+
+  // Question difficulty breakdown for this module
+  const qList = INTERVIEW_DATA[lastMod] || [];
+  const getDiffDone = (d) => {
+    const subset = qList.filter(q => q.difficulty === d);
+    const count = subset.length;
+    const solved = subset.filter(q => progress[`interview_${lastMod}_${q.q}`]).length; // Assuming progress stores this way or similar
+    // Actually our progress logic in LearnTab was simpler. Let's stick to a mock breakdown if we don't have per-question tracking yet,
+    // OR we can just show the total/target.
+    return { solved: Math.floor(modPct * count / 100), total: count };
+  };
+
+  const easy = getDiffDone("Easy");
+  const med = getDiffDone("Medium");
+  const hard = getDiffDone("Hard");
+
+  return (
+    <motion.div
+      style={{
+        width: "100%", maxWidth: 380, background: "white", borderRadius: 28, padding: 32,
+        boxShadow: "0 40px 100px rgba(0,0,0,0.12), 0 4px 20px rgba(0,0,0,0.05)",
+        transformStyle: "preserve-3d", border: "1px solid rgba(0,0,0,0.04)", position: "relative",
+        rotateY: -12, rotateX: 6, perspective: 1000
+      }}
+      animate={{ y: [0, -8, 0] }}
+      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 28 }}>
+        <div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--gold)", marginBottom: 6, letterSpacing: 0.8, textTransform: "uppercase" }}>Current Module</div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: "var(--dark)", letterSpacing: -0.5 }}>{lastMod}</div>
+        </div>
+        <div style={{ width: 48, height: 48, borderRadius: 14, background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, border: "1px solid rgba(0,0,0,0.04)" }}>
+          {MOD_ICONS[lastMod] || "🎯"}
+        </div>
+      </div>
+
+      <div style={{ marginBottom: 28 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+          <span style={{ fontSize: 14, fontWeight: 600, color: "var(--text-muted)" }}>Platform Progress</span>
+          <span style={{ fontSize: 14, fontWeight: 800, color: "var(--dark)" }}>{platformPct}%</span>
+        </div>
+        <div style={{ height: 10, background: "#F5F5F7", borderRadius: 10, overflow: "hidden" }}>
+          <div style={{ width: `${platformPct}%`, height: "100%", background: "linear-gradient(90deg, var(--gold), #FFD700)", borderRadius: 10 }} />
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 32 }}>
+        {[["EASY", `${easy.solved}/${easy.total}`, "#34c759"], ["MED", `${med.solved}/${med.total}`, "#ff9500"], ["HARD", `${hard.solved}/${hard.total}`, "#ff3b30"]].map(([lbl, val, c]) => (
+          <div key={lbl} style={{ padding: "12px 10px", background: `${c}08`, borderRadius: 16, border: `1.5px solid ${c}15`, textAlign: "center" }}>
+            <div style={{ fontSize: 10, fontWeight: 800, color: c, marginBottom: 4 }}>{lbl}</div>
+            <div style={{ fontSize: 15, fontWeight: 800, color: "var(--dark)" }}>{val}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ fontSize: 11, fontWeight: 800, color: "var(--text-muted)", marginBottom: 16, borderBottom: "1px solid #F0F0F0", paddingBottom: 8 }}>MNC FAVORITES</div>
+      {Object.values(CODING_CHALLENGES[lastMod] || {}).flat().slice(0, 2).map((p, i) => (
+        <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
+          <div style={{ width: 22, height: 22, borderRadius: 6, border: "2px solid #D2D2D7", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12 }}>{progress[`code_${lastMod}_${p.title}`] ? "✅" : ""}</div>
+          <span style={{ fontSize: 13, fontWeight: 500, color: "#424245" }}>{p.title}</span>
         </div>
       ))}
-    </div>
-
-    <div style={{ fontSize: 11, fontWeight: 800, color: "var(--text-muted)", marginBottom: 16, borderBottom: "1px solid #F0F0F0", paddingBottom: 8 }}>MNC FAVORITES</div>
-    {["Koko Eating Bananas", "Search in Rotated Array"].map((p, i) => (
-      <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
-        <div style={{ width: 22, height: 22, borderRadius: 6, border: "2px solid #D2D2D7", flexShrink: 0 }} />
-        <span style={{ fontSize: 14, fontWeight: 500, color: "#424245" }}>{p}</span>
-      </div>
-    ))}
-  </motion.div>
-);
+    </motion.div>
+  );
+};
 
 /* ============================================================
    HOME SCREEN REDESIGN
 ============================================================ */
-export const HomeScreen = ({ onEnter, user, onLogout }) => {
+export const HomeScreen = ({ onEnter, user, onLogout, progress }) => {
   const [tab, setTab] = useState("home");
   const [showModules, setShowModules] = useState(false);
   const handleExplore = () => setShowModules(true);
@@ -1216,7 +1268,7 @@ export const HomeScreen = ({ onEnter, user, onLogout }) => {
                 transition={{ duration: 0.8, delay: 0.6 }}
                 style={{ display: "flex", justifyContent: "center", perspective: 1000 }}
               >
-                <DSATopicCard />
+                <DSATopicCard progress={progress} />
               </motion.div>
 
               {/* Right Side: Text & CTA */}
@@ -1229,8 +1281,8 @@ export const HomeScreen = ({ onEnter, user, onLogout }) => {
                 <div style={{ display: "inline-block", padding: "6px 14px", background: "rgba(212, 175, 55, 0.1)", borderRadius: 10, border: "1px solid rgba(212, 175, 55, 0.2)", marginBottom: 20 }}>
                   <span style={{ fontSize: 13, fontWeight: 700, color: "var(--gold)", letterSpacing: 0.5 }}>Professional DSA Mastery</span>
                 </div>
-                <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(3.2rem, 5.5vw, 5rem)", fontWeight: 400, lineHeight: 1.1, marginBottom: 20, letterSpacing: -1.5 }}>
-                  A New Way <br /> to <span style={{ color: "var(--gold)", fontStyle: "italic", borderBottom: "3px solid var(--gold)" }}>Learn DSA</span>
+                <h1 style={{ fontSize: "clamp(3rem, 6vw, 5.5rem)", fontWeight: 800, lineHeight: 1.05, marginBottom: 28, letterSpacing: "-0.04em", color: "white" }}>
+                  A New Way <br /> to <span style={{ color: "#FFD60A", filter: "brightness(1.2)" }}>Learn DSA</span>
                 </h1>
                 <p style={{ fontSize: 17, color: "rgba(255,255,255,0.6)", lineHeight: 1.7, marginBottom: 44, maxWidth: 460, margin: "0 auto 40px", fontWeight: 500 }}>
                   Elevate your technical skills with CodeLoom. Our platform transforms complex concepts into intuitive visual experiences for elite software engineers.
@@ -1753,8 +1805,11 @@ const InterviewTab = () => {
     setExamState("exam");
   };
 
-  const checkAnswer = (userInput, correctSolution) => {
-    if (!userInput || userInput.trim().length < 3) return false;
+  const checkAnswer = (userInput, correctSolution, isMCQ = false) => {
+    if (!userInput) return false;
+    if (isMCQ) return userInput === correctSolution;
+
+    if (userInput.trim().length < 3) return false;
     const input = userInput.toLowerCase();
     const solution = correctSolution.toLowerCase();
     // Simple keyword extraction: words > 3 chars
@@ -1783,9 +1838,9 @@ const InterviewTab = () => {
 
   const submitCurrentAnswer = () => {
     const q = examQuestions[currentQ];
-    const isCorrect = checkAnswer(userResponse, q.a);
+    const isCorrect = checkAnswer(userResponse, q.a, !!q.options);
     const newAnswers = [...answers];
-    const ansObj = { user: userResponse, correct: isCorrect, keywords: q.a };
+    const ansObj = { user: userResponse, correct: isCorrect, keywords: q.a, isMCQ: !!q.options };
     newAnswers[currentQ] = ansObj;
     setAnswers(newAnswers);
 
@@ -2004,10 +2059,33 @@ const InterviewTab = () => {
           </div>
           <p style={{ fontSize: 19, fontWeight: 700, color: "#1d1d1f", marginBottom: 24, lineHeight: 1.5 }}>{question?.q}</p>
 
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#86868b", marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>Your Answer (One line explanation)</div>
-          <textarea value={userResponse} onChange={e => setUserResponse(e.target.value)}
-            placeholder="Type your answer here... inclusion of important terms earns marks."
-            style={{ width: "100%", height: 100, padding: 16, borderRadius: 16, border: "1.5px solid var(--border)", background: "#f5f5f7", outline: "none", fontSize: 15, fontFamily: "inherit", resize: "none", marginBottom: 24 }} />
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#86868b", marginBottom: 12, textTransform: "uppercase", letterSpacing: 0.5 }}>
+            {question?.options ? "Select the correct answer" : "Your Answer (One line explanation)"}
+          </div>
+
+          {question?.options ? (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 28 }}>
+              {question.options.map((opt, i) => (
+                <button key={i} onClick={() => setUserResponse(opt)}
+                  style={{
+                    padding: "16px 20px", borderRadius: 16, border: `2px solid ${userResponse === opt ? color : "var(--border)"}`,
+                    background: userResponse === opt ? `${color}10` : "white",
+                    color: userResponse === opt ? color : "#1d1d1f",
+                    fontSize: 15, fontWeight: 600, cursor: "pointer", textAlign: "left", transition: "all 0.2s",
+                    display: "flex", gap: 12, alignItems: "center"
+                  }}>
+                  <div style={{ width: 18, height: 18, borderRadius: "50%", border: `2px solid ${userResponse === opt ? color : "#d2d2d7"}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    {userResponse === opt && <div style={{ width: 10, height: 10, borderRadius: "50%", background: color }} />}
+                  </div>
+                  {opt}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <textarea value={userResponse} onChange={e => setUserResponse(e.target.value)}
+              placeholder="Type your answer here... inclusion of important terms earns marks."
+              style={{ width: "100%", height: 100, padding: 16, borderRadius: 16, border: "1.5px solid var(--border)", background: "#f5f5f7", outline: "none", fontSize: 15, fontFamily: "inherit", resize: "none", marginBottom: 24 }} />
+          )}
 
           <div style={{ display: "flex", gap: 12 }}>
             <motion.button disabled={!userResponse.trim()} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={submitCurrentAnswer}
@@ -3635,7 +3713,12 @@ export default function App() {
       .catch(() => { /* backend sleeping — local data already shown */ });
   }, [module, level]);
 
-  const selectModule = (mod) => { setModule(mod); setSubScreen(null); setScreen("module"); };
+  const selectModule = (mod) => {
+    setModule(mod);
+    setSubScreen(null);
+    setScreen("module");
+    saveProgress("last_module", mod);
+  };
 
   const handleLogin = (session) => {
     setUser(session);
@@ -3670,7 +3753,7 @@ export default function App() {
       <AnimatePresence mode="wait">
         {screen === "home" && (
           <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.4 }}>
-            <HomeScreen onEnter={() => setScreen("dsa")} user={user} onLogout={handleLogout} />
+            <HomeScreen onEnter={() => setScreen("dsa")} user={user} onLogout={handleLogout} progress={progress} />
           </motion.div>
         )}
         {screen === "dsa" && (
