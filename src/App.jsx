@@ -1319,6 +1319,7 @@ const ChennaiSection = () => (
 ============================================================ */
 export const HomeScreen = ({ onEnter, user, onLogout, progress, onLoginClick, onSettings }) => {
   const [showProfile, setShowProfile] = useState(false);
+  const [tab, setTab] = useState("home");
   const displayName = user?.name || user?.user_metadata?.display_name || "User";
   const initial = displayName?.[0]?.toUpperCase() || "U";
 
