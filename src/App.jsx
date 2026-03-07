@@ -1942,7 +1942,7 @@ const InterviewTab = () => {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} style={{ textAlign: "center", padding: "40px 0" }}>
         <div style={{ marginBottom: 48 }}>
           <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 4, repeat: Infinity }} style={{ fontSize: 80, marginBottom: 20 }}>🏔️</motion.div>
-          <h2 style={{ fontSize: 48, fontWeight: 900, letterSpacing: -2, color: "#1D1D1F", marginBottom: 12 }}>LeetCode Quest</h2>
+          <h2 style={{ fontSize: 48, fontWeight: 900, letterSpacing: -2, color: "#1D1D1F", marginBottom: 12 }}>Interview Quest</h2>
           <p style={{ color: "var(--text-muted)", fontSize: 20, fontWeight: 500 }}>Turn practice into progress</p>
         </div>
 
