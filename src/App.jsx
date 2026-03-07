@@ -1169,7 +1169,7 @@ export const HomeScreen = ({ onEnter, user, onLogout, progress }) => {
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            {[["home", "My Path"], ["origin", "Our Story"]].map(([t, l]) => (
+            {[["home", "My Path"], ["origin", "Our Story"], ["company", "FITA Academy"]].map(([t, l]) => (
               <button key={t} onClick={() => setTab(t)} style={{
                 padding: "10px 24px", borderRadius: 24, fontSize: 14, fontWeight: 700,
                 background: tab === t ? "var(--teal)" : "transparent",
@@ -1258,6 +1258,12 @@ export const HomeScreen = ({ onEnter, user, onLogout, progress }) => {
           <motion.div key="origin-view" initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} style={{ padding: "160px 40px", textAlign: "center", background: "white", minHeight: "100vh" }}>
             <h2 style={{ fontSize: 48, fontWeight: 900, marginBottom: 24 }}>The CodeLoom Story</h2>
             <p style={{ fontSize: 20, color: "var(--text-muted)", maxWidth: 800, margin: "0 auto", lineHeight: 1.8 }}> Founded with a vision to make complex CS fundamentals intuitive. </p>
+          </motion.div>
+        )}
+        {tab === "company" && (
+          <motion.div key="company-profile" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.4 }}
+            style={{ display: "flex", justifyContent: "center", padding: "160px 40px", background: "white", minHeight: "100vh" }}>
+            <FitaAcademyProfile />
           </motion.div>
         )}
       </AnimatePresence>
