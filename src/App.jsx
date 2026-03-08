@@ -1743,7 +1743,7 @@ const SettingsScreen = ({ user, onBack, onLogout, onShowProgress }) => {
   );
 };
 
-const LearnTab = ({ level, setLevel, onSelectModule, progress }) => {
+const LearnTab = ({ level, setLevel, onSelectModule, progress, onExploreVisualizer }) => {
   const modProgress = (m) => {
     const solved = Object.keys(progress).filter(k => k.startsWith(`learn_${m}_`) && progress[k] === "solved").length;
     return (solved / 3) * 100;
