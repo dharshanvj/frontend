@@ -1,6 +1,7 @@
 // Version 1.0.1 - Deploying Login, Settings & Quest System
 import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { VisualPlayground } from './VisualPlayground';
 
 /* ============================================================
    SUPABASE CONFIG — Replace with your own project credentials
@@ -1167,7 +1168,7 @@ const EduTabCard = ({ title, badge, children, img }) => (
   </motion.div>
 );
 
-const UserDashboard = ({ user, onLogout, onClose, onSettings }) => {
+const UserDashboard = ({ user, onLogout, onClose, onSettings, onProgress }) => {
   if (!user) return null;
   const displayName = user?.name || user?.user_metadata?.display_name || user?.email?.split("@")[0] || "Dharshan";
   const initial = displayName?.[0]?.toUpperCase() || "D";
@@ -1175,7 +1176,7 @@ const UserDashboard = ({ user, onLogout, onClose, onSettings }) => {
   const gridItems = [
     { label: "My Lists", icon: "📋", color: "#34C759" },
     { label: "Notebook", icon: "📓", color: "#0071E3" },
-    { label: "Progress", icon: "📈", color: "#FF9500" },
+    { label: "Progress", icon: "📈", color: "#FF9500", onClick: () => { onClose(); onProgress(); } },
     { label: "Points", icon: "🪙", color: "#FFCC00" }
   ];
 
@@ -1205,7 +1206,7 @@ const UserDashboard = ({ user, onLogout, onClose, onSettings }) => {
       {/* Grid */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
         {gridItems.map(item => (
-          <motion.div key={item.label} whileHover={{ background: "rgba(255,255,255,0.05)" }} style={{ background: "rgba(255,255,255,0.03)", borderRadius: 20, padding: 16, cursor: "pointer", border: "1px solid rgba(255,255,255,0.05)" }}>
+          <motion.div key={item.label} onClick={item.onClick} whileHover={{ background: "rgba(255,255,255,0.05)" }} style={{ background: "rgba(255,255,255,0.03)", borderRadius: 20, padding: 16, cursor: "pointer", border: "1px solid rgba(255,255,255,0.05)" }}>
             <div style={{ width: 36, height: 36, borderRadius: 12, background: `${item.color}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, marginBottom: 8 }}>{item.icon}</div>
             <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.6)" }}>{item.label}</div>
           </motion.div>
@@ -1317,7 +1318,7 @@ const ChennaiSection = () => (
 /* ============================================================
    HOME SCREEN REDESIGN
 ============================================================ */
-export const HomeScreen = ({ onEnter, user, onLogout, progress, onLoginClick, onSettings }) => {
+export const HomeScreen = ({ onEnter, user, onLogout, progress, onLoginClick, onSettings, onProgress }) => {
   const [showProfile, setShowProfile] = useState(false);
   const [tab, setTab] = useState("home");
   const displayName = user?.name || user?.user_metadata?.display_name || "User";
@@ -1340,7 +1341,7 @@ export const HomeScreen = ({ onEnter, user, onLogout, progress, onLoginClick, on
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            {[["home", "My Path"], ["origin", "Our Story"], ["company", "FITA Academy"]].map(([t, l]) => (
+            {[["home", "My Path"], ["company", "FITA Academy"]].map(([t, l]) => (
               <button key={t} onClick={() => setTab(t)} style={{
                 padding: "10px 24px", borderRadius: 24, fontSize: 14, fontWeight: 700,
                 background: tab === t ? "var(--teal)" : "transparent",
@@ -1362,7 +1363,7 @@ export const HomeScreen = ({ onEnter, user, onLogout, progress, onLoginClick, on
                     {initial}
                   </motion.div>
                   <AnimatePresence>
-                    {showProfile && <UserDashboard user={user} onLogout={onLogout} onClose={() => setShowProfile(false)} onSettings={onSettings} />}
+                    {showProfile && <UserDashboard user={user} onLogout={onLogout} onClose={() => setShowProfile(false)} onSettings={onSettings} onProgress={onProgress} />}
                   </AnimatePresence>
                 </>
               ) : (
@@ -1404,7 +1405,7 @@ export const HomeScreen = ({ onEnter, user, onLogout, progress, onLoginClick, on
                         <span key={m} style={{ padding: "8px 20px", background: "#F5F5F7", borderRadius: 20, fontSize: 14, fontWeight: 700 }}>{m}</span>
                       ))}
                     </div>
-                    <motion.button onClick={onEnter} whileHover={{ x: 10 }} style={{ color: "var(--teal)", fontWeight: 900, fontSize: 20, border: "none", background: "none", cursor: "pointer" }}>
+                    <motion.button onClick={user ? onEnter : onLoginClick} whileHover={{ x: 10 }} style={{ color: "var(--teal)", fontWeight: 900, fontSize: 20, border: "none", background: "none", cursor: "pointer" }}>
                       View Full Map →
                     </motion.button>
                   </EduTabCard>
@@ -1458,12 +1459,7 @@ export const HomeScreen = ({ onEnter, user, onLogout, progress, onLoginClick, on
             </div>
           </motion.div>
         )}
-        {tab === "origin" && (
-          <motion.div key="origin-view" initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} style={{ padding: "160px 40px", textAlign: "center", background: "white", minHeight: "100vh" }}>
-            <h2 style={{ fontSize: 48, fontWeight: 900, marginBottom: 24 }}>The CodeLoom Story</h2>
-            <p style={{ fontSize: 20, color: "var(--text-muted)", maxWidth: 800, margin: "0 auto", lineHeight: 1.8 }}> Founded with a vision to make complex CS fundamentals intuitive. </p>
-          </motion.div>
-        )}
+
         {tab === "company" && (
           <motion.div key="company-profile" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.4 }}
             style={{ display: "flex", justifyContent: "center", padding: "160px 40px", background: "white", minHeight: "100vh" }}>
@@ -1483,12 +1479,12 @@ export const HomeScreen = ({ onEnter, user, onLogout, progress, onLoginClick, on
 /* ============================================================
    DSA SCREEN
 ============================================================ */
-const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress, user, onSettings }) => {
-  const { analytics, logSession } = useAnalytics();
+const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress, user, onSettings, analytics, logSession, onShowProgress }) => {
+  // const { analytics, logSession } = useAnalytics(); // Removed, handled in App
   const [showProfile, setShowProfile] = useState(false);
   const [activeTab, setActiveTab] = useState("learn");
   const [showReport, setShowReport] = useState(false);
-  const tabs = [["learn", "📚 Learn"], ["interview", "🎤 Interview"], ["code", "💻 Code"]];
+  const tabs = [["learn", "📚 Learn"], ["interview", "🎤 Interview"], ["code", "💻 Code"], ["playground", "🎨 Playground"]];
   const initial = user?.name?.[0]?.toUpperCase() || "D";
 
   return (
@@ -1533,13 +1529,19 @@ const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress, user, on
               {initial}
             </motion.div>
             <AnimatePresence>
-              {showProfile && <UserDashboard user={user} onLogout={() => { onBack(); window.location.reload(); }} onClose={() => setShowProfile(false)} onSettings={onSettings} />}
+              {showProfile && <UserDashboard user={user} onLogout={() => { onBack(); window.location.reload(); }} onClose={() => setShowProfile(false)} onSettings={onSettings} onProgress={onShowProgress} />}
             </AnimatePresence>
           </div>
         </div>
       </div>
 
-      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "140px 40px 100px" }}>
+      {/* Main Content Area */}
+      <div style={{
+        maxWidth: activeTab === "playground" ? "100%" : 1200,
+        margin: "0 auto",
+        padding: activeTab === "playground" ? "100px 0 0" : "140px 40px 100px",
+        height: activeTab === "playground" ? "calc(100vh - 100px)" : "auto"
+      }}>
         <AnimatePresence mode="wait">
           {activeTab === "learn" && (
             <motion.div key="learn" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
@@ -1556,17 +1558,22 @@ const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress, user, on
               <CodeArenaTab logSession={logSession} />
             </motion.div>
           )}
+          {activeTab === "playground" && (
+            <motion.div key="playground" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} style={{ height: "100%" }}>
+              <VisualPlayground onBack={() => setActiveTab("learn")} />
+            </motion.div>
+          )}
         </AnimatePresence>
       </div>
     </div>
   );
 };
 
-const SettingsScreen = ({ user, onBack, onLogout }) => {
+const SettingsScreen = ({ user, onBack, onLogout, onShowProgress }) => {
   const [activeTab, setActiveTab] = useState("Account");
   const displayName = user?.name || user?.user_metadata?.display_name || user?.email?.split("@")[0] || "User";
 
-  const tabs = ["Account", "Privacy", "Billing", "Points", "Orders", "Notifications"];
+  const tabs = ["Account", "Privacy", "Billing", "Points", "Progress", "Orders", "Notifications"];
 
   const renderContent = () => {
     if (activeTab === "Notifications") {
@@ -1667,6 +1674,17 @@ const SettingsScreen = ({ user, onBack, onLogout }) => {
               ))}
             </div>
           </div>
+        </div>
+      );
+    }
+
+    if (activeTab === "Progress") {
+      return (
+        <div style={{ color: "white", textAlign: "center", padding: "80px 0" }}>
+          <div style={{ fontSize: 60, marginBottom: 24 }}>📈</div>
+          <h3 style={{ fontSize: 24, fontWeight: 800, marginBottom: 16 }}>Your DSA Progress</h3>
+          <p style={{ color: "rgba(255,255,255,0.4)", marginBottom: 40, maxWidth: 400, margin: "0 auto 40px" }}>Monitor your growth, solved problems, and interview readiness from our advanced tracking dashboard.</p>
+          <button onClick={onShowProgress} style={{ padding: "14px 40px", borderRadius: 12, background: "#0071E3", color: "white", border: "none", fontSize: 16, fontWeight: 900, cursor: "pointer", boxShadow: "0 10px 30px rgba(0,113,227,0.3)" }}>Open Dashboard</button>
         </div>
       );
     }
@@ -2358,6 +2376,158 @@ const PerformanceReport = ({ analytics, onClose }) => {
   );
 };
 
+/* ============================================================
+   PROGRESS TRACKING DASHBOARD (LEETCODE STYLE)
+============================================================ */
+const ProgressTrackingDashboard = ({ analytics, onClose }) => {
+  const { sessions = [], streak = 0 } = analytics;
+
+  const totalSolved = sessions.length;
+  const difficulties = sessions.reduce((acc, s) => {
+    acc[s.difficulty || "Beginner"] = (acc[s.difficulty || "Beginner"] || 0) + 1;
+    return acc;
+  }, { "Beginner": 0, "Intermediate": 0, "Advanced": 0 });
+
+  const easy = difficulties["Beginner"];
+  const med = difficulties["Intermediate"];
+  const hard = difficulties["Advanced"];
+  const acceptance = totalSolved > 0 ? "100" : "0";
+
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 10000, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.85)", backdropFilter: "blur(12px)" }}>
+      <motion.div initial={{ opacity: 0, scale: 0.9, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+        style={{ width: "95%", maxWidth: 1100, height: "85vh", background: "#1a1a1a", border: "1.5px solid #333", borderRadius: 24, padding: 40, display: "flex", flexDirection: "column", gap: 32, boxShadow: "0 40px 100px rgba(0,0,0,0.6)", overflow: "hidden" }}>
+
+        {/* Header */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ display: "flex", gap: 32, fontSize: 18, fontWeight: 700 }}>
+            <span style={{ color: "white", paddingBottom: 12, borderBottom: "3px solid white" }}>Practice History</span>
+            <span style={{ color: "#555", paddingBottom: 12, cursor: "not-allowed" }}>Summary</span>
+          </div>
+          <button onClick={onClose} style={{ width: 44, height: 44, borderRadius: "50%", background: "#262626", border: "none", color: "#8c8c8c", fontSize: 28, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+        </div>
+
+        {/* Content Body */}
+        <div style={{ display: "grid", gridTemplateColumns: "1.3fr 0.7fr", gap: 32, flex: 1, overflow: "hidden" }}>
+
+          {/* Left Panel */}
+          <div style={{ background: "#262626", borderRadius: 20, padding: 32, position: "relative", overflowY: "auto", border: "1px solid #333" }}>
+            {sessions.length === 0 ? (
+              <div style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 32 }}>
+                <div style={{ fontSize: 120, fontWeight: 900, color: "rgba(255,255,255,0.03)", userSelect: "none" }}>Null</div>
+                <button onClick={onClose} style={{ padding: "14px 40px", background: "white", color: "black", borderRadius: 100, fontSize: 16, fontWeight: 900, border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 12, boxShadow: "0 10px 30px rgba(255,255,255,0.1)" }}>
+                  <span style={{ fontSize: 20 }}>▶</span> Practice
+                </button>
+              </div>
+            ) : (
+              <table style={{ width: "100%", textAlign: "left", borderCollapse: "separate", borderSpacing: "0 12px" }}>
+                <thead style={{ position: "sticky", top: 0, background: "#262626", zIndex: 10 }}>
+                  <tr style={{ color: "#8c8c8c", fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: 1.5 }}>
+                    <th style={{ paddingBottom: 16 }}>Last Submitted</th>
+                    <th style={{ paddingBottom: 16 }}>Problem</th>
+                    <th style={{ paddingBottom: 16 }}>Last Result</th>
+                    <th style={{ paddingBottom: 16 }}>Submissions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sessions.slice().reverse().map((s, idx) => (
+                    <tr key={idx} style={{ background: "#1a1a1a", border: "1px solid #333" }}>
+                      <td style={{ padding: "16px 20px", borderRadius: "12px 0 0 12px", fontSize: 14, color: "#8c8c8c" }}>{new Date(s.date).toLocaleDateString()}</td>
+                      <td style={{ padding: "16px 20px", fontSize: 15, fontWeight: 800, color: "white" }}>{s.topic}</td>
+                      <td style={{ padding: "16px 20px", fontSize: 14, color: "#00b8a3", fontWeight: 700 }}>Solved</td>
+                      <td style={{ padding: "16px 20px", borderRadius: "0 12px 12px 0", fontSize: 14, color: "white" }}>1</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+
+          {/* Right Panel */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 24, overflowY: "auto" }}>
+
+            {/* Summary Card */}
+            <div style={{ background: "#262626", borderRadius: 20, padding: 32, border: "1px solid #333" }}>
+              <h3 style={{ fontSize: 13, color: "#8c8c8c", marginBottom: 24, fontWeight: 800, textTransform: "uppercase" }}>Summary</h3>
+              <div style={{ display: "flex", alignItems: "center", gap: 32, marginBottom: 32 }}>
+                <div style={{ width: 100, height: 100, borderRadius: "50%", border: "10px solid #333", borderTopColor: "#ffa116", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+                  <div style={{ textAlign: "center" }}>
+                    <div style={{ fontSize: 24, fontWeight: 900, color: "white" }}>{totalSolved}</div>
+                    <div style={{ fontSize: 10, color: "#8c8c8c", textTransform: "uppercase", fontWeight: 800 }}>Solved</div>
+                  </div>
+                </div>
+                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 16 }}>
+                  <div>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                      <span style={{ fontSize: 11, fontWeight: 800, color: "#00b8a3" }}>EASY</span>
+                      <span style={{ fontSize: 12, fontWeight: 900, color: "white" }}>{easy}</span>
+                    </div>
+                    <div style={{ height: 4, background: "#333", borderRadius: 2, overflow: "hidden" }}>
+                      <div style={{ height: "100%", background: "#00b8a3", width: `${(easy / (totalSolved || 1)) * 100}%` }} />
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                      <span style={{ fontSize: 11, fontWeight: 800, color: "#ffc01e" }}>MED.</span>
+                      <span style={{ fontSize: 12, fontWeight: 900, color: "white" }}>{med}</span>
+                    </div>
+                    <div style={{ height: 4, background: "#333", borderRadius: 2, overflow: "hidden" }}>
+                      <div style={{ height: "100%", background: "#ffc01e", width: `${(med / (totalSolved || 1)) * 100}%` }} />
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                      <span style={{ fontSize: 11, fontWeight: 800, color: "#ef4743" }}>HARD</span>
+                      <span style={{ fontSize: 12, fontWeight: 900, color: "white" }}>{hard}</span>
+                    </div>
+                    <div style={{ height: 4, background: "#333", borderRadius: 2, overflow: "hidden" }}>
+                      <div style={{ height: "100%", background: "#ef4743", width: `${(hard / (totalSolved || 1)) * 100}%` }} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div style={{ fontSize: 12, color: "#ffa116", fontWeight: 900, textAlign: "right", letterSpacing: 0.5 }}>🔥 Streak: {streak} Days</div>
+            </div>
+
+            {/* Metrics Row */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+              <div style={{ background: "#262626", borderRadius: 16, padding: 24, border: "1px solid #333" }}>
+                <div style={{ fontSize: 11, color: "#8c8c8c", marginBottom: 12, fontWeight: 800 }}>SUBMISSIONS</div>
+                <div style={{ fontSize: 32, fontWeight: 900, color: "#bf5af2" }}>{totalSolved}</div>
+              </div>
+              <div style={{ background: "#262626", borderRadius: 16, padding: 24, border: "1px solid #333" }}>
+                <div style={{ fontSize: 11, color: "#8c8c8c", marginBottom: 12, fontWeight: 800 }}>ACCEPTANCE</div>
+                <div style={{ fontSize: 32, fontWeight: 900, color: "#00b8a3" }}>{acceptance}%</div>
+              </div>
+            </div>
+
+            {/* Placeholder for Analytics */}
+            <div style={{ background: "#262626", borderRadius: 20, padding: 24, flex: 1, border: "1px solid #333", minHeight: 180 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+                <div style={{ background: "#1a1a1a", padding: 6, borderRadius: 10, display: "flex", gap: 8 }}>
+                  <span style={{ background: "#333", padding: "4px 12px", borderRadius: 6, fontSize: 11, fontWeight: 800, color: "white" }}>Solved</span>
+                  <span style={{ padding: "4px 12px", fontSize: 11, fontWeight: 800, color: "#555" }}>History</span>
+                </div>
+                <div style={{ fontSize: 11, fontWeight: 800, color: "#8c8c8c" }}>2026-03 ▾</div>
+              </div>
+              <div style={{ height: 80, display: "flex", alignItems: "center", justifyContent: "center", borderBottom: "1px solid #333", marginBottom: 16 }}>
+                <div style={{ fontSize: 12, color: "#555", fontWeight: 700 }}>No activity data found</div>
+              </div>
+              <div style={{ display: "flex", gap: 16 }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: "#00b8a3" }}>Easy 0</div>
+                <div style={{ fontSize: 11, fontWeight: 800, color: "#ffc01e" }}>Med. 0</div>
+                <div style={{ fontSize: 11, fontWeight: 800, color: "#ef4743" }}>Hard 0</div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
 const CodeArenaTab = ({ logSession }) => {
   const [progress, saveProgress] = useProgress();
   const [selMod, setSelMod] = useState(null);
@@ -2681,7 +2851,7 @@ const ProgressCard = ({ module: mod, progress, total, type }) => {
 ============================================================ */
 const MODULE_TABS = [["concept", "📖 Concept"], ["visual", "🎬 Visualizer"], ["program", "💻 Code"]];
 
-const ModuleScreen = ({ module: mod, data, subScreen, setSubScreen, onBack }) => {
+const ModuleScreen = ({ module: mod, data, subScreen, setSubScreen, onBack, logSession }) => {
   const color = MOD_COLORS[mod] || "#0071e3";
 
   // Auto-open concept tab when first entering the module
@@ -3840,7 +4010,6 @@ function getLocalData(mod, level) {
   return LOCAL_MODULE_DATA?.[mod]?.[level] || null;
 }
 
-
 export default function App() {
   useGlobalStyle(GLOBAL_CSS);
   const [screen, setScreen] = useState("home");
@@ -3885,6 +4054,8 @@ export default function App() {
   });
 
   const [progress, saveProgress] = useProgress(user?.user?.id || user?.username);
+  const { analytics, logSession } = useAnalytics(user?.user?.id || user?.username);
+  const [showProgress, setShowProgress] = useState(false);
 
   // Verify stored session is still valid on mount, and grab user data if we just logged in via email link
   useEffect(() => {
@@ -3969,24 +4140,27 @@ export default function App() {
       <AnimatePresence mode="wait">
         {screen === "home" && (
           <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.4 }}>
-            <HomeScreen onEnter={() => setScreen("dsa")} user={user} onLogout={handleLogout} progress={progress} onLoginClick={() => setShowLogin(true)} onSettings={() => setScreen("settings")} />
+            <HomeScreen onEnter={() => setScreen("dsa")} user={user} onLogout={handleLogout} progress={progress} onLoginClick={() => setShowLogin(true)} onSettings={() => setScreen("settings")} onProgress={() => setShowProgress(true)} />
           </motion.div>
         )}
         {screen === "dsa" && (
           <motion.div key="dsa" initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
-            <DSAScreen level={level} setLevel={setLevel} onSelectModule={selectModule} onBack={() => setScreen("home")} progress={progress} user={user} onSettings={() => setScreen("settings")} />
+            <DSAScreen level={level} setLevel={setLevel} onSelectModule={selectModule} onBack={() => setScreen("home")} progress={progress} user={user} onSettings={() => setScreen("settings")} analytics={analytics} logSession={logSession} onShowProgress={() => setShowProgress(true)} />
           </motion.div>
         )}
         {screen === "settings" && (
           <motion.div key="settings" initial={{ opacity: 0, scale: 1.02 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.3 }}>
-            <SettingsScreen user={user} onBack={() => setScreen("home")} onLogout={handleLogout} />
+            <SettingsScreen user={user} onBack={() => setScreen("home")} onLogout={handleLogout} onShowProgress={() => setShowProgress(true)} />
           </motion.div>
         )}
         {screen === "module" && (
           <motion.div key="module" initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
-            <ModuleScreen module={module} data={data} subScreen={subScreen} setSubScreen={setSubScreen} onBack={() => { setScreen("dsa"); setSubScreen(null); }} />
+            <ModuleScreen module={module} data={data} subScreen={subScreen} setSubScreen={setSubScreen} onBack={() => { setScreen("dsa"); setSubScreen(null); }} logSession={logSession} />
           </motion.div>
         )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {showProgress && <ProgressTrackingDashboard analytics={analytics} onClose={() => setShowProgress(false)} />}
       </AnimatePresence>
     </div>
   );

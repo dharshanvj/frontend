@@ -1,0 +1,301 @@
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import Editor, { useMonaco } from '@monaco-editor/react';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const ALGORITHM_CONFIGS = {
+    bubble_sort: {
+        name: "Bubble Sort",
+        complexity: "O(n²)",
+        description: "Compare adjacent elements and swap them if they are in the wrong order.",
+        defaultCode: `void bubbleSort(int arr[], int n) {\n  bool swapped;\n  for (int i = 0; i < n; i++) {\n    swapped = false;\n    for (int j = 0; j < n - i - 1; j++) {\n      if (arr[j] > arr[j+1]) {\n        swap(&arr[j], &arr[j+1]);\n        swapped = true;\n      }\n    }\n    if (!swapped) break;\n  }\n}`,
+        defaultInput: [5, 3, 8, 1, 2]
+    },
+    insertion_sort: {
+        name: "Insertion Sort",
+        complexity: "O(n²)",
+        description: "Build the final sorted array one item at a time.",
+        defaultCode: `void insertionSort(int arr[], int n) {\n  for (int i = 1; i < n; i++) {\n    int key = arr[i];\n    int j = i - 1;\n    while (j >= 0 && arr[j] > key) {\n      arr[j + 1] = arr[j];\n      j = j - 1;\n    }\n    arr[j + 1] = key;\n  }\n}`,
+        defaultInput: [5, 2, 4, 6, 1, 3]
+    },
+    binary_search: {
+        name: "Binary Search",
+        complexity: "O(log n)",
+        description: "Find the position of a target value within a sorted array.",
+        defaultCode: `int binarySearch(int arr[], int target) {\n  int low = 0, high = n - 1;\n  while (low <= high) {\n    int mid = (low + high) / 2;\n    if (arr[mid] == target) return mid;\n    else if (arr[mid] < target) low = mid + 1;\n    else high = mid - 1;\n  }\n  return -1;\n}`,
+        defaultInput: { arr: [1, 3, 5, 8, 10, 15, 20], target: 8 }
+    },
+    factorial: {
+        name: "Factorial (Recursion)",
+        complexity: "O(n)",
+        description: "Calculates n! using recursive calls.",
+        defaultCode: `int fact(int n) {\n  if (n <= 1) return 1;\n  return n * fact(n - 1);\n}`,
+        defaultInput: 5
+    },
+    dfs: {
+        name: "Depth First Search (DFS)",
+        complexity: "O(V + E)",
+        description: "Traverses or searches tree or graph data structures.",
+        defaultCode: `void dfs(int start) {\n  visited[start] = true;\n  for (int neighbor : adj[start]) {\n    if (!visited[neighbor])\n      dfs(neighbor);\n  }\n}`,
+        defaultInput: { adj: { "0": [1, 2], "1": [2], "2": [0, 3], "3": [3] }, start: "2" }
+    },
+    bfs: {
+        name: "Breadth First Search (BFS)",
+        complexity: "O(V + E)",
+        description: "Explores all neighbor nodes at the present depth before moving to the next level.",
+        defaultCode: `void bfs(int start) {\n  queue.enqueue(start);\n  visited[start] = true;\n  while (!queue.isEmpty()) {\n    int curr = queue.dequeue();\n    for (int neighbor : adj[curr]) {\n       if (!visited[neighbor]) {\n          visited[neighbor] = true;\n          queue.enqueue(neighbor);\n       }\n    }\n  }\n}`,
+        defaultInput: { adj: { "0": [1, 2], "1": [2], "2": [0, 3], "3": [3] }, start: "2" }
+    },
+    stack: {
+        name: "Stack Operations",
+        complexity: "O(1)",
+        description: "Last-In, First-Out (LIFO) data structure operations.",
+        defaultCode: `void stackOperations() {\n  push(10);\n  push(20);\n  pop();\n  push(30);\n  pop();\n}`,
+        defaultInput: [
+            { action: "push", value: 10 },
+            { action: "push", value: 20 },
+            { action: "pop" },
+            { action: "push", value: 30 },
+            { action: "pop" }
+        ]
+    },
+    queue: {
+        name: "Queue Operations",
+        complexity: "O(1)",
+        description: "First-In, First-Out (FIFO) data structure operations.",
+        defaultCode: `void queueOperations() {\n  enqueue(10);\n  enqueue(20);\n  dequeue();\n  enqueue(30);\n  dequeue();\n}`,
+        defaultInput: [
+            { action: "enqueue", value: 10 },
+            { action: "enqueue", value: 20 },
+            { action: "dequeue" },
+            { action: "enqueue", value: 30 },
+            { action: "dequeue" }
+        ]
+    }
+};
+
+const API_BASE = window.location.hostname === "localhost" ? "http://localhost:8000" : "https://backend-vix7.onrender.com";
+
+export const VisualPlayground = ({ onBack }) => {
+    const [alg, setAlg] = useState("bubble_sort");
+    const [steps, setSteps] = useState([]);
+    const [stepIdx, setStepIdx] = useState(0);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [speed, setSpeed] = useState(1);
+    const [isLoading, setIsLoading] = useState(false);
+    const monaco = useMonaco();
+    const editorRef = useRef(null);
+    const decorationsRef = useRef([]);
+
+    const currentStep = steps[stepIdx] || null;
+
+    useEffect(() => {
+        if (isPlaying && steps.length > 0 && stepIdx < steps.length - 1) {
+            const timer = setTimeout(() => {
+                setStepIdx(s => s + 1);
+            }, 1000 / speed);
+            return () => clearTimeout(timer);
+        } else if (stepIdx === steps.length - 1) {
+            setIsPlaying(false);
+        }
+    }, [isPlaying, stepIdx, steps, speed]);
+
+    useEffect(() => {
+        if (currentStep && editorRef.current && monaco) {
+            const line = currentStep.line;
+            decorationsRef.current = editorRef.current.deltaDecorations(decorationsRef.current, [
+                {
+                    range: new monaco.Range(line, 1, line, 1),
+                    options: {
+                        isWholeLine: true,
+                        className: 'active-line-highlight',
+                        glyphMarginClassName: 'active-line-glyph'
+                    }
+                }
+            ]);
+            editorRef.current.revealLineInCenter(line);
+        }
+    }, [currentStep, monaco]);
+
+    const handleRun = async () => {
+        setIsLoading(true);
+        setIsPlaying(false);
+        setStepIdx(0);
+        try {
+            const res = await fetch(`${API_BASE}/visualize`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ algorithm: alg, input: ALGORITHM_CONFIGS[alg].defaultInput })
+            });
+            const data = await res.json();
+            if (data.steps) {
+                setSteps(data.steps);
+                setIsPlaying(true);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+        setIsLoading(false);
+    };
+
+    const handleEditorDidMount = (editor) => {
+        editorRef.current = editor;
+    };
+
+    return (
+        <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "#0e0e10", color: "#e3e3e3", overflow: "hidden" }}>
+            {/* Dynamic styles for monaco highlight */}
+            <style>{`
+        .active-line-highlight { background: rgba(0, 113, 227, 0.2) !important; width: 100% !important; }
+        .active-line-glyph { background: #0071E3 !important; width: 5px !important; }
+      `}</style>
+
+            {/* Header */}
+            <div style={{ padding: "0 24px", height: 60, display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #222", background: "#18181b" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                    <button onClick={onBack} style={{ background: "none", border: "none", color: "#0071e3", fontWeight: 700, cursor: "pointer", fontSize: 14 }}>‹ BACK</button>
+                    <div style={{ width: 1.5, height: 20, background: "#333" }} />
+                    <h1 style={{ fontSize: 18, fontWeight: 800, letterSpacing: -0.5 }}>Visual DSA Playground</h1>
+                </div>
+
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <select value={alg} onChange={(e) => { setAlg(e.target.value); setSteps([]); setStepIdx(0); }}
+                        style={{ background: "#27272a", color: "white", border: "1px solid #3f3f46", padding: "8px 16px", borderRadius: 8, fontSize: 14, fontWeight: 600 }}>
+                        {Object.keys(ALGORITHM_CONFIGS).map(k => (
+                            <option key={k} value={k}>{ALGORITHM_CONFIGS[k].name}</option>
+                        ))}
+                    </select>
+                    <button onClick={handleRun} disabled={isLoading} style={{ background: "#0071e3", color: "white", padding: "8px 20px", borderRadius: 8, border: "none", fontWeight: 700, cursor: "pointer", opacity: isLoading ? 0.5 : 1 }}>
+                        {isLoading ? "Running..." : "Run Algorithm 🚀"}
+                    </button>
+                </div>
+            </div>
+
+            {/* Main Content */}
+            <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
+                {/* Left: Editor and Info */}
+                <div style={{ width: "45%", display: "flex", flexDirection: "column", borderRight: "1px solid #222" }}>
+                    <div style={{ flex: 1 }}>
+                        <Editor
+                            height="100%"
+                            defaultLanguage="cpp"
+                            theme="vs-dark"
+                            value={ALGORITHM_CONFIGS[alg].defaultCode}
+                            onMount={handleEditorDidMount}
+                            options={{
+                                readOnly: true,
+                                minimap: { enabled: false },
+                                scrollBeyondLastLine: false,
+                                fontSize: 14,
+                                fontFamily: "var(--font-mono)",
+                                lineNumbersMinChars: 3,
+                                glyphMargin: true,
+                                padding: { top: 20 }
+                            }}
+                        />
+                    </div>
+                    <div style={{ padding: 24, background: "#111", borderTop: "1px solid #222" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                            <h2 style={{ fontSize: 16, fontWeight: 800 }}>{ALGORITHM_CONFIGS[alg].name}</h2>
+                            <span style={{ fontSize: 12, background: "#0071e322", color: "#0071e3", padding: "4px 10px", borderRadius: 20, fontWeight: 700 }}>{ALGORITHM_CONFIGS[alg].complexity}</span>
+                        </div>
+                        <p style={{ fontSize: 14, color: "#a1a1aa", lineHeight: 1.6 }}>{ALGORITHM_CONFIGS[alg].description}</p>
+                    </div>
+                </div>
+
+                {/* Right: Viz Panels */}
+                <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "#09090b" }}>
+
+                    {/* Controls Bar */}
+                    <div style={{ padding: 16, borderBottom: "1px solid #222", display: "flex", alignItems: "center", gap: 16, background: "#18181b" }}>
+                        <button onClick={() => setIsPlaying(!isPlaying)} style={{ width: 40, height: 40, borderRadius: "50%", background: "#27272a", border: "none", color: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            {isPlaying ? "⏸" : "▶"}
+                        </button>
+                        <button onClick={() => setStepIdx(s => Math.max(0, s - 1))} style={{ padding: "8px 12px", borderRadius: 8, background: "#27272a", border: "none", color: "white", cursor: "pointer" }}>Step Back</button>
+                        <button onClick={() => setStepIdx(s => Math.min(steps.length - 1, s + 1))} style={{ padding: "8px 12px", borderRadius: 8, background: "#27272a", border: "none", color: "white", cursor: "pointer" }}>Step Next</button>
+                        <button onClick={() => { setStepIdx(0); setIsPlaying(false); }} style={{ padding: "8px 12px", borderRadius: 8, background: "#27272a", border: "none", color: "white", cursor: "pointer" }}>Reset</button>
+
+                        <div style={{ flex: 1, margin: "0 20px" }}>
+                            <input type="range" min="0" max={Math.max(0, steps.length - 1)} value={stepIdx} onChange={(e) => setStepIdx(parseInt(e.target.value))}
+                                style={{ width: "100%", accentColor: "#0071e3" }} />
+                        </div>
+
+                        <div style={{ fontSize: 12, fontWeight: 700, color: "#a1a1aa" }}>{stepIdx + 1} / {steps.length || 0}</div>
+                    </div>
+
+                    <div style={{ flex: 1, overflowY: "auto", padding: 24, display: "flex", flexDirection: "column", gap: 24 }}>
+                        {!currentStep ? (
+                            <div style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", opacity: 0.3 }}>
+                                <span style={{ fontSize: 60 }}>🧊</span>
+                                <p>Run the algorithm to see visualization</p>
+                            </div>
+                        ) : (
+                            <>
+                                {/* State explanation */}
+                                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key={stepIdx}
+                                    style={{ background: "#27272a", border: "1px solid #3f3f46", borderRadius: 16, padding: 20 }}>
+                                    <div style={{ fontSize: 11, fontWeight: 800, color: "#0071e3", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Action</div>
+                                    <div style={{ fontSize: 16, fontWeight: 600 }}>{currentStep.explanation}</div>
+                                </motion.div>
+
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+                                    {/* Memory / Array Visualizer */}
+                                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                                        <h3 style={{ fontSize: 12, fontWeight: 800, color: "#a1a1aa", textTransform: "uppercase" }}>Memory State</h3>
+                                        <div style={{ background: "#18181b", borderRadius: 16, padding: 24, display: "flex", flexWrap: "wrap", gap: 8, border: "1px solid #222" }}>
+                                            {currentStep.array.map((val, idx) => {
+                                                const isPointed = Object.values(currentStep.pointers).includes(idx);
+                                                return (
+                                                    <motion.div key={idx} layout
+                                                        style={{ width: 50, height: 50, background: isPointed ? "#0071e3" : "#27272a", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 800, position: "relative" }}>
+                                                        {val}
+                                                        {Object.entries(currentStep.pointers).filter(([p, pos]) => pos === idx).map(([p], pid) => (
+                                                            <motion.div key={p} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }}
+                                                                style={{ position: "absolute", bottom: -24, left: "50%", transform: "translateX(-50%)", fontSize: 10, color: "#0071e3", whiteSpace: "nowrap", fontWeight: 900 }}>
+                                                                ↑ {p}
+                                                            </motion.div>
+                                                        ))}
+                                                    </motion.div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+
+                                    {/* Variables Panel */}
+                                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                                        <h3 style={{ fontSize: 12, fontWeight: 800, color: "#a1a1aa", textTransform: "uppercase" }}>Variables</h3>
+                                        <div style={{ background: "#18181b", borderRadius: 16, padding: 20, border: "1px solid #222", display: "flex", flexDirection: "column", gap: 8 }}>
+                                            {Object.entries(currentStep.variables).map(([k, v]) => (
+                                                <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #222" }}>
+                                                    <span style={{ fontFamily: "var(--font-mono)", color: "#a1a1aa" }}>{k}</span>
+                                                    <span style={{ fontWeight: 800, color: "#0071e3" }}>{JSON.stringify(v)}</span>
+                                                </div>
+                                            ))}
+                                            {Object.keys(currentStep.variables).length === 0 && <div style={{ opacity: 0.3 }}>No local variables</div>}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Recursion Stack Panel */}
+                                {currentStep.stack && currentStep.stack.length > 0 && (
+                                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                                        <h3 style={{ fontSize: 12, fontWeight: 800, color: "#a1a1aa", textTransform: "uppercase" }}>Recursion Stack</h3>
+                                        <div style={{ background: "#18181b", borderRadius: 16, padding: 24, border: "1px solid #222", display: "flex", flexDirection: "column-reverse", gap: 4 }}>
+                                            <AnimatePresence>
+                                                {currentStep.stack.map((frame, idx) => (
+                                                    <motion.div key={idx + frame} initial={{ height: 0, opacity: 0 }} animate={{ height: 40, opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+                                                        style={{ background: "#0071e322", border: "1px solid #0071e344", borderRadius: 8, display: "flex", alignItems: "center", padding: "0 16px", fontSize: 13, fontWeight: 700 }}>
+                                                        {frame}
+                                                    </motion.div>
+                                                ))}
+                                            </AnimatePresence>
+                                        </div>
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
