@@ -47,10 +47,10 @@ const ALGORITHM_CONFIGS = {
 
 const analyzeCode = (code) => {
     const errors = [];
+    if (!code || !code.trim()) return ["Source file is empty."];
     const openCount = (code.match(/\{/g) || []).length;
     const closeCount = (code.match(/\}/g) || []).length;
     if (openCount !== closeCount) errors.push(`Unmatched braces: {${openCount}} vs }${closeCount}}`);
-    if (code.includes("// Write your code here")) errors.push("Please remove the template comment and write your logic.");
     return errors;
 };
 
@@ -64,13 +64,12 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
     const [speed, setSpeed] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [terminalOutput, setTerminalOutput] = useState([{ msg: "Terminal ready. Write code and click 'Run' to compile.", type: "system" }]);
     const [code, setCode] = useState(ALGORITHM_CONFIGS[initialAlg || "bubble_sort"]?.defaultCode || "// Write your code here...");
+
     const monaco = useMonaco();
     const editorRef = useRef(null);
     const decorRef = useRef([]);
 
-    // Audio sounds
     const sounds = useRef({
         step: new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3'),
         success: new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3')
@@ -81,24 +80,14 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
         sounds.current.success.volume = 0.4;
     }, []);
 
-    const config = useMemo(() => {
-        return ALGORITHM_CONFIGS[alg] || {
-            name: alg.replace(/_/g, " ").toUpperCase(),
-            complexity: "O(?)",
-            description: `Visualizing ${alg.replace(/_/g, " ")}.`,
-            defaultCode: `// Implementation for ${alg.replace(/_/g, " ")}\n// Edit this code to explore!`,
-            defaultInput: {}
-        };
-    }, [alg]);
-
+    const config = useMemo(() => ALGORITHM_CONFIGS[alg] || ALGORITHM_CONFIGS.bubble_sort, [alg]);
     const currentStep = steps[stepIdx] || null;
 
     useEffect(() => {
         if (initialAlg) {
             setAlg(initialAlg);
-            const defaultCode = ALGORITHM_CONFIGS[initialAlg]?.defaultCode || `// Write logic for ${initialAlg.replace(/_/g, " ")} here...`;
+            const defaultCode = ALGORITHM_CONFIGS[initialAlg]?.defaultCode || `// Write logic for ${initialAlg} here...`;
             setCode(defaultCode);
-            // Pass code explicitly to avoid stale closure in the first run
             handleRun(initialAlg, defaultCode);
         }
     }, [initialAlg]);
@@ -125,7 +114,7 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
     useEffect(() => {
         if (currentStep && editorRef.current && monaco) {
             const line = currentStep.line;
-            decorationsRef.current = editorRef.current.deltaDecorations(decorationsRef.current, [
+            decorRef.current = editorRef.current.deltaDecorations(decorRef.current, [
                 {
                     range: new monaco.Range(line, 1, line, 1),
                     options: {
@@ -145,12 +134,9 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
         setStepIdx(0);
         setError(null);
 
-        setTerminalOutput([{ msg: `Compiling ${targetAlg.replace("_", " ")}...`, type: "system" }]);
-
         const lintErrors = analyzeCode(codeToUse);
         if (lintErrors.length > 0) {
-            setTerminalOutput(prev => [...prev, ...lintErrors.map(e => ({ msg: `❌ Compilation Error: ${e}`, type: "error" }))]);
-            setError("Compilation failed. Check terminal.");
+            setError(lintErrors[0]);
             setIsLoading(false);
             return;
         }
@@ -166,29 +152,23 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
                 })
             });
 
-            if (!res.ok) throw new Error(`Server connection failed (${res.status})`);
+            if (!res.ok) throw new Error("Simulator connection failed.");
 
             const data = await res.json();
-
-            if (data.steps) {
-                setTerminalOutput(prev => [...prev, { msg: "✅ Compilation successful. Executing simulation...", type: "success" }]);
+            if (data.steps && data.steps.length > 0) {
                 setSteps(data.steps);
                 setIsPlaying(true);
             } else {
-                setTerminalOutput(prev => [...prev, { msg: `❌ Execution Error: ${data.error || "Unknown simulator error"}`, type: "error" }]);
-                setError(data.error);
+                setError(data.error || "No visualization steps generated.");
             }
         } catch (err) {
-            setTerminalOutput(prev => [...prev, { msg: "❌ Request failed: Target environment unreachable.", type: "error" }]);
-            setError("Could not connect to the engine.");
+            setError("The visualization engine is currently offline.");
         }
         setIsLoading(false);
     };
 
     const handleEditorDidMount = (editor) => {
         editorRef.current = editor;
-
-        // Add custom theme tweaks
         monaco.editor.defineTheme('dsa-dark', {
             base: 'vs-dark',
             inherit: true,
@@ -205,217 +185,94 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
 
     return (
         <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "#0e0e10", color: "#e3e3e3", overflow: "hidden" }}>
-            {/* Dynamic styles for monaco highlight */}
-            <style>{`
-        .active-line-highlight { background: rgba(0, 113, 227, 0.2) !important; width: 100% !important; }
-        .active-line-glyph { background: #0071E3 !important; width: 5px !important; }
-      `}</style>
+            <style>{`.active-line-highlight { background: rgba(0, 113, 227, 0.2) !important; width: 100% !important; } .active-line-glyph { background: #0071E3 !important; width: 5px !important; }`}</style>
 
             {/* Header */}
-            <div style={{ padding: "0 24px", height: 60, display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #222", background: "#18181b" }}>
+            <div style={{ padding: "0 24px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #222", background: "#18181b" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                    <button onClick={onBack} style={{ background: "none", border: "none", color: "#0071e3", fontWeight: 700, cursor: "pointer", fontSize: 14 }}>‹ BACK</button>
-                    <div style={{ width: 1.5, height: 20, background: "#333" }} />
-                    <h1 style={{ fontSize: 18, fontWeight: 800, letterSpacing: -0.5 }}>Visual DSA Playground</h1>
+                    <button onClick={onBack} style={{ background: "none", border: "none", color: "#0071e3", fontWeight: 700, cursor: "pointer", fontSize: 13 }}>‹ BACK</button>
+                    <div style={{ width: 1, height: 20, background: "#333" }} />
+                    <h1 style={{ fontSize: 18, fontWeight: 900 }}>Visual Playground</h1>
                 </div>
 
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                     <select value={alg} onChange={(e) => {
-                        const newAlg = e.target.value;
-                        setAlg(newAlg);
-                        const newCode = ALGORITHM_CONFIGS[newAlg]?.defaultCode || "";
-                        setCode(newCode);
-                        setSteps([]);
-                        setStepIdx(0);
-                        handleRun(newAlg, newCode);
-                    }}
-                        style={{ background: "#27272a", color: "white", border: "1px solid #3f3f46", padding: "8px 16px", borderRadius: 8, fontSize: 14, fontWeight: 600 }}>
-                        {Object.keys(ALGORITHM_CONFIGS).map(k => (
-                            <option key={k} value={k}>{ALGORITHM_CONFIGS[k].name}</option>
-                        ))}
+                        const newAlg = e.target.value; setAlg(newAlg);
+                        const newCode = ALGORITHM_CONFIGS[newAlg]?.defaultCode || ""; setCode(newCode);
+                        setSteps([]); setStepIdx(0); handleRun(newAlg, newCode);
+                    }} style={{ background: "#27272a", color: "white", border: "1px solid #3f3f46", padding: "8px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600 }}>
+                        {Object.keys(ALGORITHM_CONFIGS).map(k => <option key={k} value={k}>{ALGORITHM_CONFIGS[k].name}</option>)}
                     </select>
-                    <button onClick={handleRun} disabled={isLoading} style={{ background: "#0071e3", color: "white", padding: "8px 20px", borderRadius: 8, border: "none", fontWeight: 700, cursor: "pointer", opacity: isLoading ? 0.5 : 1 }}>
-                        {isLoading ? "Running..." : "Run Algorithm 🚀"}
+                    <button onClick={() => handleRun()} disabled={isLoading} style={{ background: "#0071e3", color: "white", padding: "8px 24px", borderRadius: 8, border: "none", fontWeight: 700, cursor: "pointer", opacity: isLoading ? 0.6 : 1 }}>
+                        {isLoading ? "Running..." : "Visualize 🚀"}
                     </button>
                 </div>
             </div>
 
             <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
-                {/* Left: Editor and Info */}
-                <div style={{ width: "45%", display: "flex", flexDirection: "column", borderRight: "1px solid #222", position: "relative" }}>
-                    <div style={{ flex: 1, position: "relative", display: "flex", flexDirection: "column" }}>
-                        <div style={{ padding: "12px 24px", background: "#111", borderBottom: "1px solid #222", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                                <span style={{ fontSize: 10, fontWeight: 900, color: "#a1a1aa", letterSpacing: 1 }}>EDITOR</span>
-                                <div style={{ height: 12, width: 1, background: "#333" }} />
-                                <span style={{ fontSize: 11, fontWeight: 700, color: "#0071e3" }}>solution.java</span>
-                            </div>
-                            <div style={{ background: "rgba(0,113,227,0.1)", color: "#0071e3", padding: "2px 10px", borderRadius: 4, fontSize: 10, fontWeight: 800, border: "1px solid rgba(0,113,227,0.3)" }}>
-                                {alg.toUpperCase()} DEBUG MODE
-                            </div>
-                        </div>
-                        <Editor
-                            height="100%"
-                            language="java"
-                            theme="vs-dark"
-                            value={code}
-                            onChange={(v) => setCode(v)}
-                            onMount={handleEditorDidMount}
-                            options={{
-                                fontSize: 14,
-                                minimap: { enabled: false },
-                                padding: { top: 20 },
-                                fontFamily: "'JetBrains Mono', monospace",
-                                scrollBeyondLastLine: false,
-                                lineNumbers: "on",
-                                roundedSelection: true,
-                                automaticLayout: true,
-                                cursorStyle: "block",
-                                selectionHighlight: true
-                            }}
-                        />
-                    </div>
-                    <div style={{ padding: 24, background: "#111", borderTop: "1px solid #222" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                            <h2 style={{ fontSize: 16, fontWeight: 800 }}>{config.name}</h2>
-                            <span style={{ fontSize: 12, background: "#0071e322", color: "#0071e3", padding: "4px 10px", borderRadius: 20, fontWeight: 700 }}>{config.complexity}</span>
-                        </div>
-                        <p style={{ fontSize: 14, color: "#a1a1aa", lineHeight: 1.6 }}>{config.description}</p>
+                {/* Editor Panel */}
+                <div style={{ width: "35%", display: "flex", flexDirection: "column", borderRight: "1px solid #222" }}>
+                    <div style={{ flex: 1, position: "relative" }}>
+                        <Editor height="100%" language="java" theme="vs-dark" value={code} onChange={(v) => setCode(v)} onMount={handleEditorDidMount} options={{ fontSize: 14, minimap: { enabled: false }, padding: { top: 20 }, fontFamily: "'JetBrains Mono', monospace", scrollBeyondLastLine: false, lineNumbers: "on", cursorStyle: "block" }} />
                     </div>
                 </div>
 
-
-                {/* Integrated Terminal Dashboard */}
-                <div style={{ height: 260, background: "#0c0c0e", borderTop: "2px solid #222", display: "flex", flexDirection: "column" }}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 24px", background: "#111", borderBottom: "1px solid #222" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                            <div style={{ width: 8, height: 8, background: "#ef4444", borderRadius: "50%" }} />
-                            <span style={{ fontSize: 11, fontWeight: 900, color: "#a1a1aa", letterSpacing: 1.5 }}>DEBUG TERMINAL</span>
+                {/* Visualizer Panel */}
+                <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "#09090b" }}>
+                    {/* Controls Bar */}
+                    <div style={{ height: 60, padding: "0 24px", background: "#111", borderBottom: "1px solid #222", display: "flex", alignItems: "center", gap: 20 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <button onClick={() => setIsPlaying(!isPlaying)} style={{ width: 40, height: 40, borderRadius: "50%", background: "#0071e3", border: "none", color: "white", cursor: "pointer", fontSize: 14 }}>{isPlaying ? "⏸" : "▶"}</button>
+                            <button onClick={() => setStepIdx(s => Math.max(0, s - 1))} style={{ width: 32, height: 32, borderRadius: 8, background: "#27272a", border: "none", color: "white", cursor: "pointer", fontSize: 12 }}>⏮</button>
+                            <button onClick={() => setStepIdx(s => Math.min(steps.length - 1, s + 1))} style={{ width: 32, height: 32, borderRadius: 8, background: "#27272a", border: "none", color: "white", cursor: "pointer", fontSize: 12 }}>⏭</button>
                         </div>
-                        <button onClick={() => setTerminalOutput([])} style={{ background: "none", border: "none", color: "#52525b", fontSize: 10, fontWeight: 700, cursor: "pointer" }}>CLEAR</button>
+                        <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 12 }}>
+                            <span style={{ fontSize: 11, fontWeight: 800, color: "#52525b" }}>SPEED</span>
+                            <input type="range" min="0.5" max="3" step="0.5" value={speed} onChange={(e) => setSpeed(parseFloat(e.target.value))} style={{ flex: 1, accentColor: "#0071e3" }} />
+                        </div>
+                        <div style={{ fontSize: 11, fontWeight: 900, color: "#a1a1aa", background: "#18181b", padding: "6px 12px", borderRadius: 8 }}>STEP {stepIdx + 1} / {steps.length || 0}</div>
                     </div>
-                    <div style={{ flex: 1, overflowY: "auto", padding: "16px 24px", fontFamily: "'JetBrains Mono', monospace", fontSize: 12, lineHeight: 1.8 }}>
-                        {terminalOutput.map((log, i) => (
-                            <div key={i} style={{
-                                color: log.type === "error" ? "#ef4444" : log.type === "success" ? "#22c55e" : "#e4e4e7",
-                                marginBottom: 6,
-                                display: "flex",
-                                gap: 12
-                            }}>
-                                <span style={{ color: "#3f3f46", userSelect: "none" }}>[{i + 1}]</span>
-                                <span>{log.msg}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
 
-            {/* Right: Visualization and Test Cases */}
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", height: "100%" }}>
-                {/* Sub-header for Steps */}
-                <div style={{ padding: "12px 32px", background: "#111", borderBottom: "1px solid #222", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                        <span style={{ fontSize: 11, fontWeight: 900, color: "#60a5fa" }}>TEST CASE STATUS:</span>
-                        <div style={{ display: "flex", gap: 8 }}>
-                            {ALGORITHM_CONFIGS[alg]?.testCases?.map((_, idx) => (
-                                <div key={idx} style={{ padding: "4px 10px", background: steps.length > 0 && stepIdx === steps.length - 1 ? "rgba(34, 197, 94, 0.1)" : "#18181b", color: steps.length > 0 && stepIdx === steps.length - 1 ? "#22c55e" : "#52525b", borderRadius: 6, fontSize: 10, fontWeight: 900, border: "1px solid currentColor" }}>
-                                    CASE {idx + 1} {steps.length > 0 && stepIdx === steps.length - 1 ? "✅" : "⏳"}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: "#a1a1aa" }}>{stepIdx + 1} / {steps.length || 0} STEPS</div>
-                </div>
+                    <div style={{ flex: 1, overflowY: "auto", padding: 40, display: "flex", flexDirection: "column", gap: 32 }}>
+                        {error && <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid #ef4444", padding: 20, borderRadius: 12, color: "#ef4444", fontWeight: 700 }}>⚠️ {error}</div>}
 
-                <div style={{ flex: 1, overflowY: "auto", padding: "40px", display: "flex", flexDirection: "column", gap: 32, background: "#09090b" }}>
-                    {error && (
-                        <div style={{ background: "rgba(239, 68, 68, 0.1)", color: "#ef4444", padding: 24, borderRadius: 24, border: "2px solid rgba(239, 68, 68, 0.2)", fontSize: 14, fontWeight: 600, textAlign: "center" }}>
-                            <div style={{ fontSize: 32, marginBottom: 12 }}>⚠️</div>
-                            <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 8 }}>Compilation/Runtime Error</div>
-                            {error}
-                            <button onClick={() => handleRun()} style={{ marginTop: 20, display: "block", width: "100%", background: "#ef4444", color: "white", padding: "12px", borderRadius: 12, border: "none", fontWeight: 700, cursor: "pointer" }}>Retry Compilation</button>
-                        </div>
-                    )}
-                    {!currentStep && !error ? (
-                        <div style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", opacity: 0.6, textAlign: "center" }}>
-                            <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 4, ease: "linear" }} style={{ fontSize: 80, marginBottom: 20 }}>⚙️</motion.div>
-                            <h3 style={{ fontSize: 24, fontWeight: 800, color: "white", marginBottom: 8 }}>{isLoading ? "Analyzing your algorithm..." : "Ready to Visualize"}</h3>
-                            <p style={{ color: "#a1a1aa", maxWidth: 300 }}>{isLoading ? "Generating step-by-step state changes for your code." : "Click 'Run Algorithm' to see the execution flow."}</p>
-                        </div>
-                    ) : currentStep && (
-                        <>
-                            {/* State explanation - PROMINENT SINGLE BAR */}
-                            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} key={stepIdx}
-                                style={{ background: "linear-gradient(135deg, #0071e3 0%, #00458a 100%)", borderRadius: 24, padding: "32px 40px", boxShadow: "0 20px 40px rgba(0,0,0,0.3)", textAlign: "center", marginBottom: 12 }}>
-                                <div style={{ fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: 3, marginBottom: 12 }}>CURRENT EXECUTION STEP</div>
-                                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                                    style={{ fontSize: 24, fontWeight: 800, color: "white", textShadow: "0 2px 4px rgba(0,0,0,0.2)" }}>
-                                    {currentStep.explanation}
-                                </motion.div>
-                            </motion.div>
-
-                            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))", gap: 32 }}>
-                                {/* Memory Panel */}
-                                <div style={{ background: "#18181b", borderRadius: 24, padding: 32, border: "2px solid #222", minHeight: 180 }}>
-                                    <h3 style={{ fontSize: 13, fontWeight: 900, color: "#a1a1aa", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 24, display: "flex", alignItems: "center", gap: 8 }}>
-                                        <span style={{ fontSize: 18 }}>💾</span> Memory Registry
-                                    </h3>
-                                    <div style={{ display: "flex", flexWrap: "wrap", gap: 14 }}>
-                                        {currentStep.array.map((val, idx) => {
-                                            const isPointed = Object.values(currentStep.pointers).includes(idx);
-                                            return (
-                                                <motion.div key={idx} layout transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                                                    style={{ width: 64, height: 64, background: isPointed ? "linear-gradient(135deg, #0071e3 0%, #0056ad 100%)" : "#27272a", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 800, border: isPointed ? "3px solid #60a5fa" : "2px solid #333", color: "white", position: "relative", boxShadow: isPointed ? "0 10px 20px rgba(0,113,227,0.3)" : "none" }}>
-                                                    {val}
-                                                    {Object.entries(currentStep.pointers).filter(([p, pos]) => pos === idx).map(([p], pid) => (
-                                                        <div key={p} style={{ position: "absolute", bottom: -30, left: "50%", transform: "translateX(-50%)", fontSize: 11, color: "#60a5fa", whiteSpace: "nowrap", fontWeight: 900, background: "#09090b", padding: "2px 8px", borderRadius: 4, border: "1px solid #333" }}>
-                                                            ↑ {p}
-                                                        </div>
-                                                    ))}
-                                                </motion.div>
-                                            );
-                                        })}
-                                        {currentStep.array.length === 0 && <div style={{ color: "#a1a1aa", opacity: 0.3, fontStyle: "italic", padding: 20 }}>No items in memory</div>}
-                                    </div>
-                                </div>
-
-                                {/* Variables Panel */}
-                                <div style={{ background: "#18181b", borderRadius: 24, padding: 32, border: "2px solid #222", minHeight: 180 }}>
-                                    <h3 style={{ fontSize: 13, fontWeight: 900, color: "#a1a1aa", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 24, display: "flex", alignItems: "center", gap: 8 }}>
-                                        <span style={{ fontSize: 18 }}>📊</span> Execution Variables
-                                    </h3>
-                                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: 16 }}>
-                                        {Object.entries(currentStep.variables).map(([k, v]) => (
-                                            <div key={k} style={{ padding: "16px 20px", background: "#27272a", borderRadius: 16, border: "1px solid #333", boxShadow: "0 4px 6px rgba(0,0,0,0.1)" }}>
-                                                <div style={{ fontSize: 11, fontWeight: 800, color: "#a1a1aa", marginBottom: 6, opacity: 0.7 }}>{k.toUpperCase()}</div>
-                                                <div style={{ fontSize: 18, fontWeight: 900, color: "#60a5fa" }}>{JSON.stringify(v)}</div>
-                                            </div>
-                                        ))}
-                                        {Object.keys(currentStep.variables).length === 0 && <div style={{ color: "#a1a1aa", opacity: 0.3, fontStyle: "italic" }}>No active variables</div>}
-                                    </div>
-                                </div>
-
-                                {/* Recursion Stack - only if exists */}
-                                {currentStep.stack && currentStep.stack.length > 0 && (
-                                    <div style={{ background: "#18181b", borderRadius: 24, padding: 32, border: "2px solid #222", gridColumn: "1 / -1" }}>
-                                        <h3 style={{ fontSize: 13, fontWeight: 900, color: "#a1a1aa", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 24, display: "flex", alignItems: "center", gap: 8 }}>
-                                            <span style={{ fontSize: 18 }}>🥞</span> Call Stack
-                                        </h3>
-                                        <div style={{ display: "flex", flexDirection: "column-reverse", gap: 10 }}>
-                                            <AnimatePresence>
-                                                {currentStep.stack.map((frame, idx) => (
-                                                    <motion.div key={idx + frame} initial={{ height: 0, opacity: 0, x: -10 }} animate={{ height: 50, opacity: 1, x: 0 }}
-                                                        style={{ background: "rgba(96,165,250,0.1)", border: "2.5px solid rgba(96,165,250,0.2)", borderRadius: 16, display: "flex", alignItems: "center", padding: "0 24px", fontSize: 15, fontWeight: 800, color: "#60a5fa" }}>
-                                                        {idx === currentStep.stack.length - 1 ? "➡️ " : "   "} {frame}
-                                                    </motion.div>
-                                                ))}
-                                            </AnimatePresence>
+                        {currentStep ? (
+                            <>
+                                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key={stepIdx} style={{ background: "rgba(0,113,227,0.1)", border: "1px solid rgba(0,113,227,0.3)", padding: "24px 32px", borderRadius: 16, color: "white", fontSize: 20, fontWeight: 800 }}>{currentStep.explanation}</motion.div>
+                                {currentStep.array && (
+                                    <div style={{ background: "#18181b", borderRadius: 16, padding: 24, border: "1px solid #222" }}>
+                                        <h3 style={{ fontSize: 11, fontWeight: 900, color: "#52525b", marginBottom: 20, letterSpacing: 1 }}>MEMORY STATE</h3>
+                                        <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+                                            {currentStep.array.map((v, i) => {
+                                                const isPointed = currentStep.pointers && Object.values(currentStep.pointers).includes(i);
+                                                return (
+                                                    <div key={i} style={{ width: 50, height: 50, background: isPointed ? "#0071e3" : "#27272a", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 16, border: isPointed ? "2px solid #60a5fa" : "1px solid #333", position: "relative" }}>
+                                                        {v}
+                                                        {currentStep.pointers && Object.entries(currentStep.pointers).filter(([p, pos]) => pos === i).map(([p], idx) => (
+                                                            <div key={p} style={{ position: "absolute", bottom: -20, fontSize: 9, color: "#60a5fa", fontWeight: 900 }}>{p}</div>
+                                                        ))}
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 )}
-                            </div>
-                        </>
-                    )}
+                                {currentStep.variables && (
+                                    <div style={{ background: "#18181b", borderRadius: 16, padding: 24, border: "1px solid #222" }}>
+                                        <h3 style={{ fontSize: 11, fontWeight: 900, color: "#52525b", marginBottom: 20, letterSpacing: 1 }}>VARIABLES</h3>
+                                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                                            {Object.entries(currentStep.variables).map(([k, v]) => (
+                                                <div key={k} style={{ display: "flex", justifyContent: "space-between", fontSize: 13, background: "#27272a", padding: "8px 12px", borderRadius: 8 }}>
+                                                    <span style={{ color: "#a1a1aa", fontWeight: 700 }}>{k}</span>
+                                                    <span style={{ fontWeight: 800 }}>{JSON.stringify(v)}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </>
+                        ) : <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", opacity: 0.3, fontSize: 18, fontWeight: 800 }}>CLICK VISUALIZE TO START</div>}
+                    </div>
                 </div>
             </div>
         </div>
