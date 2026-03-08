@@ -83,15 +83,28 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
     const [speed, setSpeed] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [code, setCode] = useState(ALGORITHM_CONFIGS[initialAlg || "bubble_sort"]?.defaultCode || "// Write your code here...");
     const monaco = useMonaco();
     const editorRef = useRef(null);
     const decorationsRef = useRef([]);
+
+    const config = useMemo(() => {
+        return ALGORITHM_CONFIGS[alg] || {
+            name: alg.replace(/_/g, " ").toUpperCase(),
+            complexity: "O(?)",
+            description: `Visualizing ${alg.replace(/_/g, " ")}.`,
+            defaultCode: `// Implementation for ${alg.replace(/_/g, " ")}\n// Edit this code to explore!`,
+            defaultInput: {}
+        };
+    }, [alg]);
 
     const currentStep = steps[stepIdx] || null;
 
     useEffect(() => {
         if (initialAlg) {
             setAlg(initialAlg);
+            const defaultCode = ALGORITHM_CONFIGS[initialAlg]?.defaultCode || `// Write logic for ${initialAlg.replace(/_/g, " ")} here...`;
+            setCode(defaultCode);
             handleRun(initialAlg);
         }
     }, [initialAlg]);
@@ -137,7 +150,7 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     algorithm: targetAlg,
-                    input: ALGORITHM_CONFIGS[targetAlg].defaultInput
+                    input: ALGORITHM_CONFIGS[targetAlg]?.defaultInput || {}
                 })
             });
 
@@ -180,7 +193,14 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
                 </div>
 
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <select value={alg} onChange={(e) => { const newAlg = e.target.value; setAlg(newAlg); setSteps([]); setStepIdx(0); handleRun(newAlg); }}
+                    <select value={alg} onChange={(e) => {
+                        const newAlg = e.target.value;
+                        setAlg(newAlg);
+                        if (ALGORITHM_CONFIGS[newAlg]) setCode(ALGORITHM_CONFIGS[newAlg].defaultCode);
+                        setSteps([]);
+                        setStepIdx(0);
+                        handleRun(newAlg);
+                    }}
                         style={{ background: "#27272a", color: "white", border: "1px solid #3f3f46", padding: "8px 16px", borderRadius: 8, fontSize: 14, fontWeight: 600 }}>
                         {Object.keys(ALGORITHM_CONFIGS).map(k => (
                             <option key={k} value={k}>{ALGORITHM_CONFIGS[k].name}</option>
@@ -192,7 +212,6 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
                 </div>
             </div>
 
-            {/* Main Content */}
             <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
                 {/* Left: Editor and Info */}
                 <div style={{ width: "45%", display: "flex", flexDirection: "column", borderRight: "1px solid #222" }}>
@@ -201,10 +220,11 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
                             height="100%"
                             defaultLanguage="cpp"
                             theme="vs-dark"
-                            value={ALGORITHM_CONFIGS[alg].defaultCode}
+                            value={code}
+                            onChange={(val) => setCode(val)}
                             onMount={handleEditorDidMount}
                             options={{
-                                readOnly: true,
+                                readOnly: false,
                                 minimap: { enabled: false },
                                 scrollBeyondLastLine: false,
                                 fontSize: 14,
@@ -217,10 +237,10 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
                     </div>
                     <div style={{ padding: 24, background: "#111", borderTop: "1px solid #222" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                            <h2 style={{ fontSize: 16, fontWeight: 800 }}>{ALGORITHM_CONFIGS[alg].name}</h2>
-                            <span style={{ fontSize: 12, background: "#0071e322", color: "#0071e3", padding: "4px 10px", borderRadius: 20, fontWeight: 700 }}>{ALGORITHM_CONFIGS[alg].complexity}</span>
+                            <h2 style={{ fontSize: 16, fontWeight: 800 }}>{config.name}</h2>
+                            <span style={{ fontSize: 12, background: "#0071e322", color: "#0071e3", padding: "4px 10px", borderRadius: 20, fontWeight: 700 }}>{config.complexity}</span>
                         </div>
-                        <p style={{ fontSize: 14, color: "#a1a1aa", lineHeight: 1.6 }}>{ALGORITHM_CONFIGS[alg].description}</p>
+                        <p style={{ fontSize: 14, color: "#a1a1aa", lineHeight: 1.6 }}>{config.description}</p>
                     </div>
                 </div>
 

@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { VisualPlayground } from './VisualPlayground';
+import Editor from "@monaco-editor/react";
 
 /* ============================================================
    SUPABASE CONFIG — Replace with your own project credentials
@@ -887,6 +888,7 @@ const CODING_CHALLENGES = {
    CODE ANALYZER
 ============================================================ */
 function analyzeCode(code) {
+  if (!code || !code.trim()) return { errors: [], warnings: [] };
   const errors = [], warnings = [];
   const lines = code.split('\n');
   let open = 0, close = 0;
@@ -1790,14 +1792,16 @@ const LearnTab = ({ level, setLevel, onSelectModule, progress, onExploreVisualiz
               <div style={{ padding: 40 }}>
                 <p style={{ fontSize: 14, color: "var(--text-muted)", fontWeight: 600, lineHeight: 1.6, marginBottom: 32 }}>Build deep architectural intuition for {m} with practical examples.</p>
                 <div style={{ display: "flex", gap: 12, marginBottom: 24 }}>
-                  {["Stack", "Queue", "Bubble Sort", "Insertion Sort", "Binary Search", "Recursion", "Graphs"].includes(m) && (
-                    <button
-                      onClick={(e) => { e.stopPropagation(); onExploreVisualizer(m === "Recursion" ? "factorial" : m.toLowerCase().replace(" ", "_")); }}
-                      style={{ background: `${color}15`, color: color, border: `1px solid ${color}33`, padding: "8px 16px", borderRadius: 12, fontSize: 12, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
-                    >
-                      🎨 Visualize
-                    </button>
-                  )}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const algKey = m === "Recursion" ? "factorial" : m.toLowerCase().replace(/\s+\/\s+/g, "_").replace(/\s+/g, "_");
+                      onExploreVisualizer(algKey);
+                    }}
+                    style={{ background: `${color}15`, color: color, border: `1px solid ${color}33`, padding: "8px 16px", borderRadius: 12, fontSize: 12, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
+                  >
+                    🎨 Visualize
+                  </button>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
                   <span style={{ fontSize: 11, fontWeight: 900, color: "#1D1D1F" }}>{p < 100 ? "IN PROGRESS" : " COMPLETED"}</span>
@@ -2652,12 +2656,18 @@ const CodingChallengeScreen = ({ challenge, progress, saveProgress, module: mod,
   const isSolved = progress[key] === "solved";
 
   const handleRun = () => {
+    if (!code || !code.trim()) {
+      setOutput("Terminal Clear: Waiting for code...");
+      setAnalysis(null);
+      setTerminalOpen(true);
+      return;
+    }
     setRunning(true);
     setTerminalOpen(true);
     setTimeout(() => {
       const res = analyzeCode(code);
       setAnalysis(res);
-      setOutput(res.errors.length > 0 ? "Compilation failed. Check errors below." : "Test Cases Passed! ✓\nAll hidden test cases cleared.");
+      setOutput(res.errors.length > 0 ? "Compilation failed. Check errors below." : "Test Cases Passed! ✓\nAll tests cleared.");
       setRunning(false);
     }, 800);
   };
@@ -2764,16 +2774,22 @@ const CodingChallengeScreen = ({ challenge, progress, saveProgress, module: mod,
           </div>
 
           <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
-            <textarea
+            <Editor
+              height="100%"
+              defaultLanguage="java"
+              theme="vs-dark"
               value={code}
-              onChange={(e) => setCode(e.target.value)}
-              spellCheck={false}
-              style={{
-                width: "100%", height: "100%", padding: "40px",
-                background: "#1D2126", color: "#ABB2BF",
-                fontSize: 15, fontFamily: "var(--font-mono)",
-                border: "none", outline: "none", resize: "none",
-                lineHeight: 1.8, caretColor: "var(--teal)"
+              onChange={(val) => setCode(val)}
+              options={{
+                minimap: { enabled: false },
+                fontSize: 15,
+                lineNumbers: "on",
+                fontFamily: "var(--font-mono)",
+                lineHeight: 1.8,
+                padding: { top: 20 },
+                scrollBeyondLastLine: false,
+                smoothScrolling: true,
+                cursorBlinking: "smooth"
               }}
             />
           </div>
@@ -2791,8 +2807,8 @@ const CodingChallengeScreen = ({ challenge, progress, saveProgress, module: mod,
             <div style={{ flex: 1, padding: 24, overflowY: "auto", fontFamily: "var(--font-mono)" }}>
               {output ? (
                 <div style={{ animation: "fadeIn 0.2s" }}>
-                  <div style={{ color: output.includes("failed") ? "#FF3B30" : "#34C759", fontWeight: 800, marginBottom: 8, fontSize: 13 }}>
-                    {output.split('\n')[0]}
+                  <div style={{ color: output.includes("Clear") ? "#86868B" : output.includes("failed") ? "#FF3B30" : "#34C759", fontWeight: 800, marginBottom: 8, fontSize: 13, display: "flex", alignItems: "center", gap: 8 }}>
+                    {output.includes("failed") ? "❌" : output.includes("Passed") || output.includes("Success") ? "✅" : "ℹ️"} {output.split('\n')[0]}
                   </div>
                   <pre style={{ margin: 0, color: "#AAA", fontSize: 12, whiteSpace: "pre-wrap" }}>{output.split('\n').slice(1).join('\n')}</pre>
 
