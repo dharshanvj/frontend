@@ -116,7 +116,8 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
             setAlg(initialAlg);
             const defaultCode = ALGORITHM_CONFIGS[initialAlg]?.defaultCode || `// Write logic for ${initialAlg.replace(/_/g, " ")} here...`;
             setCode(defaultCode);
-            handleRun(initialAlg);
+            // Pass code explicitly to avoid stale closure in the first run
+            handleRun(initialAlg, defaultCode);
         }
     }, [initialAlg]);
 
@@ -156,12 +157,11 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
         }
     }, [currentStep, monaco]);
 
-    const handleRun = async (targetAlg = alg) => {
+    const handleRun = async (targetAlg = alg, codeToUse = code) => {
         setIsLoading(true);
         setIsPlaying(false);
         setStepIdx(0);
         setError(null);
-        setShowConfetti(false);
         console.log("Running visualization for:", targetAlg);
 
         try {
@@ -170,7 +170,7 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     algorithm: targetAlg,
-                    code: code,
+                    code: codeToUse,
                     input: ALGORITHM_CONFIGS[targetAlg]?.defaultInput || {}
                 })
             });
@@ -217,10 +217,11 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
                     <select value={alg} onChange={(e) => {
                         const newAlg = e.target.value;
                         setAlg(newAlg);
-                        if (ALGORITHM_CONFIGS[newAlg]) setCode(ALGORITHM_CONFIGS[newAlg].defaultCode);
+                        const newCode = ALGORITHM_CONFIGS[newAlg]?.defaultCode || "";
+                        setCode(newCode);
                         setSteps([]);
                         setStepIdx(0);
-                        handleRun(newAlg);
+                        handleRun(newAlg, newCode);
                     }}
                         style={{ background: "#27272a", color: "white", border: "1px solid #3f3f46", padding: "8px 16px", borderRadius: 8, fontSize: 14, fontWeight: 600 }}>
                         {Object.keys(ALGORITHM_CONFIGS).map(k => (
@@ -287,16 +288,20 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
 
                     <div style={{ flex: 1, overflowY: "auto", padding: "40px", display: "flex", flexDirection: "column", gap: 32, background: "#09090b" }}>
                         {error && (
-                            <div style={{ background: "#fef2f2", color: "#991b1b", padding: 16, borderRadius: 12, border: "1px solid #fee2e2", fontSize: 14, fontWeight: 500 }}>
-                                ⚠️ {error}
+                            <div style={{ background: "rgba(239, 68, 68, 0.1)", color: "#ef4444", padding: 24, borderRadius: 24, border: "2px solid rgba(239, 68, 68, 0.2)", fontSize: 14, fontWeight: 600, textAlign: "center", animation: "shake 0.5s cubic-bezier(.36,.07,.19,.97) both" }}>
+                                <div style={{ fontSize: 32, marginBottom: 12 }}>⚠️</div>
+                                <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 8 }}>Visualization Error</div>
+                                {error}
+                                <button onClick={() => handleRun()} style={{ marginTop: 20, display: "block", width: "100%", background: "#ef4444", color: "white", padding: "12px", borderRadius: 12, border: "none", fontWeight: 700, cursor: "pointer" }}>Try Again</button>
                             </div>
                         )}
-                        {!currentStep ? (
-                            <div style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", opacity: 0.3 }}>
-                                <span style={{ fontSize: 60 }}>🧊</span>
-                                <p>{isLoading ? "Processing algorithm..." : "Run the algorithm to see visualization"}</p>
+                        {!currentStep && !error ? (
+                            <div style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", opacity: 0.6, textAlign: "center" }}>
+                                <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 4, ease: "linear" }} style={{ fontSize: 80, marginBottom: 20 }}>⚙️</motion.div>
+                                <h3 style={{ fontSize: 24, fontWeight: 800, color: "white", marginBottom: 8 }}>{isLoading ? "Analyzing your algorithm..." : "Ready to Visualize"}</h3>
+                                <p style={{ color: "#a1a1aa", maxWidth: 300 }}>{isLoading ? "Generating step-by-step state changes for your code." : "Click 'Run Algorithm' to see the execution flow."}</p>
                             </div>
-                        ) : (
+                        ) : currentStep && (
                             <>
                                 {/* State explanation - PROMINENT SINGLE BAR */}
                                 <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} key={stepIdx}
