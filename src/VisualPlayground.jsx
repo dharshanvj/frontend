@@ -75,18 +75,26 @@ const ALGORITHM_CONFIGS = {
 
 const API_BASE = window.location.hostname === "localhost" ? "http://localhost:8000" : "https://backend-vix7.onrender.com";
 
-export const VisualPlayground = ({ onBack }) => {
-    const [alg, setAlg] = useState("bubble_sort");
+export const VisualPlayground = ({ onBack, initialAlg }) => {
+    const [alg, setAlg] = useState(initialAlg || "bubble_sort");
     const [steps, setSteps] = useState([]);
     const [stepIdx, setStepIdx] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
     const [speed, setSpeed] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
     const monaco = useMonaco();
     const editorRef = useRef(null);
     const decorationsRef = useRef([]);
 
     const currentStep = steps[stepIdx] || null;
+
+    useEffect(() => {
+        if (initialAlg) {
+            setAlg(initialAlg);
+            handleRun(initialAlg);
+        }
+    }, [initialAlg]);
 
     useEffect(() => {
         if (isPlaying && steps.length > 0 && stepIdx < steps.length - 1) {
@@ -116,23 +124,37 @@ export const VisualPlayground = ({ onBack }) => {
         }
     }, [currentStep, monaco]);
 
-    const handleRun = async () => {
+    const handleRun = async (targetAlg = alg) => {
         setIsLoading(true);
         setIsPlaying(false);
         setStepIdx(0);
+        setError(null);
+        console.log("Running visualization for:", targetAlg);
+
         try {
             const res = await fetch(`${API_BASE}/visualize`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ algorithm: alg, input: ALGORITHM_CONFIGS[alg].defaultInput })
+                body: JSON.stringify({
+                    algorithm: targetAlg,
+                    input: ALGORITHM_CONFIGS[targetAlg].defaultInput
+                })
             });
+
+            if (!res.ok) throw new Error(`Server responded with ${res.status}`);
+
             const data = await res.json();
+            console.log("Received steps:", data.steps?.length);
+
             if (data.steps) {
                 setSteps(data.steps);
                 setIsPlaying(true);
+            } else if (data.error) {
+                setError(data.error);
             }
         } catch (err) {
-            console.error(err);
+            console.error("Visualization Error:", err);
+            setError("Could not connect to the visualization engine. Please ensure the backend is running.");
         }
         setIsLoading(false);
     };
@@ -158,7 +180,7 @@ export const VisualPlayground = ({ onBack }) => {
                 </div>
 
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <select value={alg} onChange={(e) => { setAlg(e.target.value); setSteps([]); setStepIdx(0); }}
+                    <select value={alg} onChange={(e) => { const newAlg = e.target.value; setAlg(newAlg); setSteps([]); setStepIdx(0); handleRun(newAlg); }}
                         style={{ background: "#27272a", color: "white", border: "1px solid #3f3f46", padding: "8px 16px", borderRadius: 8, fontSize: 14, fontWeight: 600 }}>
                         {Object.keys(ALGORITHM_CONFIGS).map(k => (
                             <option key={k} value={k}>{ALGORITHM_CONFIGS[k].name}</option>
@@ -223,10 +245,15 @@ export const VisualPlayground = ({ onBack }) => {
                     </div>
 
                     <div style={{ flex: 1, overflowY: "auto", padding: 24, display: "flex", flexDirection: "column", gap: 24 }}>
+                        {error && (
+                            <div style={{ background: "#fef2f2", color: "#991b1b", padding: 16, borderRadius: 12, border: "1px solid #fee2e2", fontSize: 14, fontWeight: 500 }}>
+                                ⚠️ {error}
+                            </div>
+                        )}
                         {!currentStep ? (
                             <div style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", opacity: 0.3 }}>
                                 <span style={{ fontSize: 60 }}>🧊</span>
-                                <p>Run the algorithm to see visualization</p>
+                                <p>{isLoading ? "Processing algorithm..." : "Run the algorithm to see visualization"}</p>
                             </div>
                         ) : (
                             <>

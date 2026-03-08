@@ -1479,12 +1479,12 @@ export const HomeScreen = ({ onEnter, user, onLogout, progress, onLoginClick, on
 /* ============================================================
    DSA SCREEN
 ============================================================ */
-const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress, user, onSettings, analytics, logSession, onShowProgress }) => {
+const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress, user, onSettings, analytics, logSession, onShowProgress, onExploreVisualizer }) => {
   // const { analytics, logSession } = useAnalytics(); // Removed, handled in App
   const [showProfile, setShowProfile] = useState(false);
   const [activeTab, setActiveTab] = useState("learn");
   const [showReport, setShowReport] = useState(false);
-  const tabs = [["learn", "📚 Learn"], ["interview", "🎤 Interview"], ["code", "💻 Code"], ["playground", "🎨 Playground"]];
+  const tabs = [["learn", "📚 Learn"], ["interview", "🎤 Interview"], ["code", "💻 Code"]];
   const initial = user?.name?.[0]?.toUpperCase() || "D";
 
   return (
@@ -1537,15 +1537,15 @@ const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress, user, on
 
       {/* Main Content Area */}
       <div style={{
-        maxWidth: activeTab === "playground" ? "100%" : 1200,
+        maxWidth: 1200,
         margin: "0 auto",
-        padding: activeTab === "playground" ? "100px 0 0" : "140px 40px 100px",
-        height: activeTab === "playground" ? "calc(100vh - 100px)" : "auto"
+        padding: "140px 40px 100px",
+        height: "auto"
       }}>
         <AnimatePresence mode="wait">
           {activeTab === "learn" && (
             <motion.div key="learn" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-              <LearnTab level={level} setLevel={setLevel} onSelectModule={onSelectModule} progress={progress} />
+              <LearnTab level={level} setLevel={setLevel} onSelectModule={onSelectModule} progress={progress} onExploreVisualizer={onExploreVisualizer} />
             </motion.div>
           )}
           {activeTab === "interview" && (
@@ -1556,11 +1556,6 @@ const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress, user, on
           {activeTab === "code" && (
             <motion.div key="code" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
               <CodeArenaTab logSession={logSession} />
-            </motion.div>
-          )}
-          {activeTab === "playground" && (
-            <motion.div key="playground" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} style={{ height: "100%" }}>
-              <VisualPlayground onBack={() => setActiveTab("learn")} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -1794,6 +1789,16 @@ const LearnTab = ({ level, setLevel, onSelectModule, progress }) => {
 
               <div style={{ padding: 40 }}>
                 <p style={{ fontSize: 14, color: "var(--text-muted)", fontWeight: 600, lineHeight: 1.6, marginBottom: 32 }}>Build deep architectural intuition for {m} with practical examples.</p>
+                <div style={{ display: "flex", gap: 12, marginBottom: 24 }}>
+                  {["Stack", "Queue", "Bubble Sort", "Insertion Sort", "Binary Search", "Recursion", "Graphs"].includes(m) && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); onExploreVisualizer(m === "Recursion" ? "factorial" : m.toLowerCase().replace(" ", "_")); }}
+                      style={{ background: `${color}15`, color: color, border: `1px solid ${color}33`, padding: "8px 16px", borderRadius: 12, fontSize: 12, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
+                    >
+                      🎨 Visualize
+                    </button>
+                  )}
+                </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
                   <span style={{ fontSize: 11, fontWeight: 900, color: "#1D1D1F" }}>{p < 100 ? "IN PROGRESS" : " COMPLETED"}</span>
                   <span style={{ fontSize: 11, fontWeight: 900, color: color }}>{Math.round(p)}%</span>
@@ -4018,6 +4023,7 @@ export default function App() {
   const [showLogin, setShowLogin] = useState(false);
   const [level, setLevel] = useState("Beginner");
   const [data, setData] = useState(null);
+  const [selectedPlaygroundAlg, setSelectedPlaygroundAlg] = useState("bubble_sort");
 
   // Real auth state — restore from sessionStorage or URL hash (from email confirmation) on mount
   const [user, setUser] = useState(() => {
@@ -4145,7 +4151,18 @@ export default function App() {
         )}
         {screen === "dsa" && (
           <motion.div key="dsa" initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
-            <DSAScreen level={level} setLevel={setLevel} onSelectModule={selectModule} onBack={() => setScreen("home")} progress={progress} user={user} onSettings={() => setScreen("settings")} analytics={analytics} logSession={logSession} onShowProgress={() => setShowProgress(true)} />
+            <DSAScreen
+              level={level} setLevel={setLevel} onSelectModule={selectModule}
+              onBack={() => setScreen("home")} progress={progress} user={user}
+              onSettings={() => setScreen("settings")} analytics={analytics}
+              logSession={logSession} onShowProgress={() => setShowProgress(true)}
+              onExploreVisualizer={(alg) => { setSelectedPlaygroundAlg(alg); setScreen("playground"); }}
+            />
+          </motion.div>
+        )}
+        {screen === "playground" && (
+          <motion.div key="playground" initial={{ opacity: 0, scale: 1.05 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.4 }}>
+            <VisualPlayground onBack={() => setScreen("dsa")} initialAlg={selectedPlaygroundAlg} />
           </motion.div>
         )}
         {screen === "settings" && (
