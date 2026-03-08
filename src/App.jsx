@@ -47,9 +47,23 @@ const supabase = {
     if (!res.ok) return null;
     return res.json();
   },
+  async updateUser(accessToken, updates) {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${accessToken}` },
+      body: JSON.stringify(updates),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error_description || data.msg || "Update failed");
+    return data;
+  },
   signInWithGoogle() {
     const redirectTo = encodeURIComponent(window.location.origin + window.location.pathname);
     window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${redirectTo}`;
+  },
+  signInWithGithub() {
+    const redirectTo = encodeURIComponent(window.location.origin + window.location.pathname);
+    window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=github&redirect_to=${redirectTo}`;
   },
 };
 
@@ -1560,8 +1574,12 @@ const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress, user, on
   );
 };
 
-const SettingsScreen = ({ user, onBack, onLogout, onShowProgress }) => {
+const SettingsScreen = ({ user, setUser, onBack, onLogout, onShowProgress }) => {
   const [activeTab, setActiveTab] = useState("Account");
+  const [editingField, setEditingField] = useState(null);
+  const [editValue, setEditValue] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+
   const displayName = user?.name || user?.user_metadata?.display_name || user?.email?.split("@")[0] || "Student";
   const [notifications, setNotifications] = useState({
     "Ranking Updates": true,
@@ -1636,27 +1654,70 @@ const SettingsScreen = ({ user, onBack, onLogout, onShowProgress }) => {
     }
 
     if (activeTab === "Account") {
+      const providers = user?.user?.app_metadata?.providers || [];
+      const hasGoogle = providers.includes("google");
+      const hasGithub = providers.includes("github");
+      const hasApple = providers.includes("apple");
+
+      const handleSave = async (e, key) => {
+        e.stopPropagation();
+        if (!editValue && key !== "password") { setEditingField(null); return; }
+        setIsSaving(true);
+        try {
+          let updates = {};
+          if (key === "display_name") updates = { data: { display_name: editValue } };
+          else if (key === "password") updates = { password: editValue };
+          else updates = { [key]: editValue };
+
+          const data = await supabase.updateUser(user.access_token, updates);
+
+          const newSession = {
+            ...user,
+            user: data.user,
+            email: data.user.email,
+            name: data.user.user_metadata?.display_name || user.name
+          };
+          sessionStorage.setItem(SESSION_KEY, JSON.stringify(newSession));
+          if (setUser) setUser(newSession);
+          setEditingField(null);
+        } catch (err) {
+          alert("Error: " + err.message);
+        }
+        setIsSaving(false);
+      };
+
       return (
         <div style={{ color: "white" }}>
           <div style={{ marginBottom: 40 }}>
             <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>General</h3>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginBottom: 20 }}>You can log in using your email, phone number, or CodeLoom ID.</p>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginBottom: 20 }}>You can log in using your email, phone number, or CodeLoom ID. Click any row to edit.</p>
             <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(255,255,255,0.05)" }}>
               {[
-                { label: "CodeLoom ID", value: displayName, icon: "👤" },
-                { label: "Email", value: user?.email || user?.user?.email || "Not Provided", icon: "✉️" },
-                { label: "Phone Number", value: user?.phone || user?.user_metadata?.phone || "Not linked", icon: "📞" },
-                { label: "Password", value: "••••••••", icon: "🔑" }
+                { key: "display_name", label: "CodeLoom ID", value: displayName, icon: "👤" },
+                { key: "email", label: "Email", value: user?.email || user?.user?.email || "Not Provided", icon: "✉️" },
+                { key: "phone", label: "Phone Number", value: user?.phone || user?.user?.phone || user?.user_metadata?.phone || "Not linked", icon: "📞" },
+                { key: "password", label: "Password", value: "••••••••", icon: "🔑" }
               ].map((item, i) => (
-                <div key={item.label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px", cursor: "pointer", borderBottom: i < 3 ? "1px solid rgba(255,255,255,0.05)" : "none", transition: "0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.02)"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                    <span style={{ fontSize: 18, opacity: 0.7 }}>{item.icon}</span>
-                    <div>
-                      <span style={{ fontSize: 14, fontWeight: 800 }}>{item.label}</span>
-                      <span style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginLeft: 16 }}>{item.value}</span>
+                <div key={item.key} onClick={() => { if (editingField !== item.key) { setEditingField(item.key); setEditValue(item.key === 'password' ? '' : item.value === "Not Provided" || item.value === "Not linked" ? "" : item.value); } }} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px", cursor: "pointer", borderBottom: i < 3 ? "1px solid rgba(255,255,255,0.05)" : "none", transition: "0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.02)"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
+                  {editingField === item.key ? (
+                    <div style={{ display: "flex", width: "100%", gap: 12, alignItems: "center" }}>
+                      <span style={{ fontSize: 18, opacity: 0.7 }}>{item.icon}</span>
+                      <input autoFocus type={item.key === "password" ? "password" : "text"} placeholder={`Enter new ${item.label.toLowerCase()}...`} value={editValue} onChange={e => setEditValue(e.target.value)} style={{ flex: 1, background: "rgba(0,0,0,0.5)", border: "1px solid #333", color: "white", padding: "10px 14px", borderRadius: 8, fontSize: 14 }} />
+                      <button disabled={isSaving} onClick={(e) => handleSave(e, item.key)} style={{ background: "#0071E3", color: "white", border: "none", borderRadius: 8, padding: "10px 16px", fontWeight: 700, cursor: "pointer", opacity: isSaving ? 0.6 : 1 }}>{isSaving ? "Saving..." : "Save"}</button>
+                      <button disabled={isSaving} onClick={(e) => { e.stopPropagation(); setEditingField(null); }} style={{ background: "transparent", color: "rgba(255,255,255,0.5)", border: "none", cursor: "pointer", padding: "10px" }}>Cancel</button>
                     </div>
-                  </div>
-                  <span style={{ fontSize: 18, opacity: 0.3 }}>›</span>
+                  ) : (
+                    <>
+                      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                        <span style={{ fontSize: 18, opacity: 0.7 }}>{item.icon}</span>
+                        <div>
+                          <span style={{ fontSize: 14, fontWeight: 800 }}>{item.label}</span>
+                          <span style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginLeft: 16 }}>{item.value}</span>
+                        </div>
+                      </div>
+                      <span style={{ fontSize: 18, opacity: 0.3, fontWeight: 300 }}>✎</span>
+                    </>
+                  )}
                 </div>
               ))}
             </div>
@@ -1666,13 +1727,23 @@ const SettingsScreen = ({ user, onBack, onLogout, onShowProgress }) => {
             <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Social Accounts</h3>
             <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginBottom: 20 }}>Connect social accounts to sign in to CodeLoom.</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {["Google", "Github", "Apple"].map(social => (
-                <div key={social} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 24px" }}>
+              {[
+                { name: "Google", connected: hasGoogle, action: supabase.signInWithGoogle, icon: "G" },
+                { name: "Github", connected: hasGithub, action: supabase.signInWithGithub, icon: "🐙" },
+                { name: "Apple", connected: hasApple, action: null, icon: "🍎" }
+              ].map(social => (
+                <div key={social.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 24px", background: "rgba(255,255,255,0.02)", borderRadius: 16, border: "1px solid rgba(255,255,255,0.05)" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                    <span style={{ fontSize: 18 }}>{social === "Google" ? "G" : social === "Github" ? "🐙" : "🍎"}</span>
-                    <span style={{ fontSize: 14, fontWeight: 600 }}>{social}</span>
+                    <span style={{ fontSize: 18 }}>{social.icon}</span>
+                    <span style={{ fontSize: 14, fontWeight: 600 }}>{social.name}</span>
                   </div>
-                  <button style={{ padding: "8px 24px", borderRadius: 8, background: "white", color: "#1D1D1F", border: "none", fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Connect</button>
+                  {social.connected ? (
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#34C759", fontSize: 13, fontWeight: 800 }}>
+                      ✅ Connected
+                    </div>
+                  ) : (
+                    <button onClick={social.action} disabled={!social.action} style={{ padding: "8px 24px", borderRadius: 8, background: "white", color: "#1D1D1F", border: "none", fontSize: 13, fontWeight: 800, cursor: social.action ? "pointer" : "not-allowed", opacity: social.action ? 1 : 0.4 }}>Connect</button>
+                  )}
                 </div>
               ))}
             </div>
@@ -4234,7 +4305,7 @@ export default function App() {
         )}
         {screen === "settings" && (
           <motion.div key="settings" initial={{ opacity: 0, scale: 1.02 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.3 }}>
-            <SettingsScreen user={user} onBack={() => setScreen("home")} onLogout={handleLogout} onShowProgress={() => setShowProgress(true)} />
+            <SettingsScreen user={user} setUser={setUser} onBack={() => setScreen("home")} onLogout={handleLogout} onShowProgress={() => setShowProgress(true)} />
           </motion.div>
         )}
         {screen === "module" && (
