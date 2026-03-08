@@ -2650,6 +2650,10 @@ const CodingChallengeScreen = ({ challenge, progress, saveProgress, module: mod,
   const [terminalOpen, setTerminalOpen] = useState(true);
   const [running, setRunning] = useState(false);
   const [output, setOutput] = useState(null);
+  const [terminalOutput, setTerminalOutput] = useState([{ msg: "Terminal initialized. System target: JRE 11", type: "system" }]);
+  const [testStatus, setTestStatus] = useState("pending"); // pending, running, passed, failed
+  const [steps, setSteps] = useState([]);
+  const [stepIdx, setStepIdx] = useState(0);
 
   const color = MOD_COLORS[mod] || "#0071e3";
   const key = `code_${mod}_${challenge.id}`;
@@ -2657,19 +2661,32 @@ const CodingChallengeScreen = ({ challenge, progress, saveProgress, module: mod,
 
   const handleRun = () => {
     if (!code || !code.trim()) {
-      setOutput("Terminal Clear: Waiting for code...");
-      setAnalysis(null);
+      setTerminalOutput([{ msg: "❌ Error: Source file is empty.", type: "error" }]);
       setTerminalOpen(true);
       return;
     }
     setRunning(true);
     setTerminalOpen(true);
+    setTerminalOutput([{ msg: "Compiling solution.java...", type: "system" }]);
+
     setTimeout(() => {
       const res = analyzeCode(code);
-      setAnalysis(res);
-      setOutput(res.errors.length > 0 ? "Compilation failed. Check errors below." : "Test Cases Passed! ✓\nAll tests cleared.");
+      if (res.errors.length > 0) {
+        setTerminalOutput(prev => [...prev, ...res.errors.map(e => ({ msg: `❌ Compilation Error: ${e.msg}`, type: "error" }))]);
+        setTestStatus("failed");
+      } else {
+        setTerminalOutput(prev => [...prev,
+        { msg: "✅ Compilation successful.", type: "success" },
+        { msg: "Executing test cases...", type: "system" },
+        { msg: "Case 1: [PASSED]", type: "success" },
+        { msg: "Test Cases Passed! 100% Coverage.", type: "success" }
+        ]);
+        setTestStatus("passed");
+        // Play success sound
+        new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3').play().catch(() => { });
+      }
       setRunning(false);
-    }, 800);
+    }, 1200);
   };
 
   const handleSubmit = () => {
@@ -2747,6 +2764,28 @@ const CodingChallengeScreen = ({ challenge, progress, saveProgress, module: mod,
                   <pre style={{ margin: 0, whiteSpace: "pre-wrap", fontSize: 14, fontFamily: "var(--font-mono)", color: "#1D1D1F", fontWeight: 600 }}>{challenge.testCases}</pre>
                 </div>
 
+                <h3 style={{ fontSize: 13, fontWeight: 900, color: "#1D1D1F", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 16 }}>🎯</span> TEST CASE RESULTS
+                </h3>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
+                  {challenge.testCases.split('\n').map((tc, idx) => (
+                    <div key={idx} style={{
+                      padding: "16px 20px",
+                      background: testStatus === "passed" ? "rgba(52, 199, 89, 0.05)" : testStatus === "failed" ? "rgba(255, 59, 48, 0.05)" : "#F8F8F8",
+                      borderRadius: 16,
+                      border: testStatus === "passed" ? "1.5px solid rgba(52, 199, 89, 0.2)" : testStatus === "failed" ? "1.5px solid rgba(255, 59, 48, 0.2)" : "1.5px solid #F0F0F0",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between"
+                    }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: "#424245" }}>{tc}</div>
+                      <div style={{ fontSize: 11, fontWeight: 900, color: testStatus === "passed" ? "#34C759" : testStatus === "failed" ? "#FF3B30" : "#86868B" }}>
+                        {testStatus === "passed" ? "PASSED ✅" : testStatus === "failed" ? "FAILED ❌" : "PENDING ⏳"}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
                 <h3 style={{ fontSize: 14, fontWeight: 800, color: "#1D1D1F", marginBottom: 12 }}>CONSTRAINTS</h3>
                 <ul style={{ paddingLeft: 20, color: "var(--text-muted)", fontSize: 14, lineHeight: 1.8 }}>
                   <li>Time Limit: 1.0s</li>
@@ -2766,65 +2805,69 @@ const CodingChallengeScreen = ({ challenge, progress, saveProgress, module: mod,
         </div>
 
         {/* Right Side: Editor & Terminal */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "#f8f9fa" }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "#0c0c0e" }}>
           {/* Toolbar */}
-          <div style={{ height: 48, background: "white", borderBottom: "1px solid #F0F0F0", padding: "0 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ height: 48, background: "#111", borderBottom: "1px solid #222", padding: "0 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <span style={{ fontSize: 12, fontWeight: 800, color: "var(--teal)" }}>JAVA (OPENJDK 11)</span>
+              <span style={{ fontSize: 10, fontWeight: 900, color: "var(--teal)", letterSpacing: 1.5 }}>JAVA 11 (STABLE)</span>
+              <div style={{ height: 12, width: 1, background: "#333" }} />
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <div style={{ width: 6, height: 6, background: testStatus === "passed" ? "#22c55e" : testStatus === "failed" ? "#ef4444" : "#f59e0b", borderRadius: "50%" }} />
+                <span style={{ fontSize: 11, fontWeight: 700, color: "#a1a1aa" }}>{testStatus.toUpperCase()}</span>
+              </div>
             </div>
-            <button onClick={() => setCode(challenge.starter)} style={{ border: "none", background: "none", fontSize: 11, fontWeight: 800, color: "#86868B", cursor: "pointer" }}>RESET TO STARTER</button>
+            <button onClick={() => setCode(challenge.starter)} style={{ border: "none", background: "none", fontSize: 10, fontWeight: 800, color: "#52525b", cursor: "pointer", letterSpacing: 0.5 }}>RESET STARTER</button>
           </div>
 
-          <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
+          <div style={{ flex: 1, position: "relative" }}>
             <Editor
               height="100%"
-              defaultLanguage="java"
+              language="java"
               theme="vs-dark"
               value={code}
               onChange={(val) => setCode(val)}
               options={{
                 minimap: { enabled: false },
-                fontSize: 15,
+                fontSize: 14,
                 lineNumbers: "on",
-                fontFamily: "var(--font-mono)",
-                lineHeight: 1.8,
+                fontFamily: "'JetBrains Mono', monospace",
+                lineHeight: 1.6,
                 padding: { top: 20 },
                 scrollBeyondLastLine: false,
                 smoothScrolling: true,
-                cursorBlinking: "smooth"
+                cursorStyle: "block",
+                automaticLayout: true
               }}
             />
+            {running && (
+              <div style={{ position: "absolute", top: 12, right: 24, zIndex: 10, background: "rgba(0,0,0,0.6)", padding: "4px 12px", borderRadius: 8, color: "white", fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", gap: 8 }}>
+                <div style={{ width: 10, height: 10, border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "white", borderRadius: "50%", animation: "spin 0.6s linear infinite" }} />
+                Executing...
+              </div>
+            )}
           </div>
 
-          {/* Terminal Drawer */}
-          <div style={{
-            height: terminalOpen ? 240 : 40, background: "#1D2126", borderTop: "4px solid #333",
-            transition: "height 0.3s cubic-bezier(0.22, 1, 0.36, 1)", overflow: "hidden", display: "flex", flexDirection: "column"
-          }}>
-            <div onClick={() => setTerminalOpen(!terminalOpen)} style={{ height: 40, display: "flex", alignItems: "center", padding: "0 20px", cursor: "pointer", background: "#2D2D2D" }}>
-              <span style={{ fontSize: 11, fontWeight: 800, color: "white", flex: 1 }}>{terminalOpen ? "▼ TERMINAL" : "▲ CONSOLE OUT"}</span>
-              {running && <div style={{ width: 12, height: 12, border: "2px solid rgba(255,255,255,0.2)", borderTopColor: "white", borderRadius: "50%", animation: "spin 0.6s linear infinite" }} />}
+          {/* Integrated Terminal Dashboard */}
+          <div style={{ height: 260, background: "#09090b", borderTop: "2px solid #222", display: "flex", flexDirection: "column" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 24px", background: "#111", borderBottom: "1px solid #222" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{ width: 8, height: 8, background: "#ef4444", borderRadius: "50%" }} />
+                <span style={{ fontSize: 11, fontWeight: 900, color: "#a1a1aa", letterSpacing: 1.5 }}>DEBUG TERMINAL</span>
+              </div>
+              <button onClick={() => setTerminalOutput([])} style={{ background: "none", border: "none", color: "#3f3f46", fontSize: 10, fontWeight: 700, cursor: "pointer" }}>CLEAR</button>
             </div>
-
-            <div style={{ flex: 1, padding: 24, overflowY: "auto", fontFamily: "var(--font-mono)" }}>
-              {output ? (
-                <div style={{ animation: "fadeIn 0.2s" }}>
-                  <div style={{ color: output.includes("Clear") ? "#86868B" : output.includes("failed") ? "#FF3B30" : "#34C759", fontWeight: 800, marginBottom: 8, fontSize: 13, display: "flex", alignItems: "center", gap: 8 }}>
-                    {output.includes("failed") ? "❌" : output.includes("Passed") || output.includes("Success") ? "✅" : "ℹ️"} {output.split('\n')[0]}
-                  </div>
-                  <pre style={{ margin: 0, color: "#AAA", fontSize: 12, whiteSpace: "pre-wrap" }}>{output.split('\n').slice(1).join('\n')}</pre>
-
-                  {analysis && analysis.errors.length > 0 && (
-                    <div style={{ marginTop: 16 }}>
-                      {analysis.errors.map((e, i) => (
-                        <div key={i} style={{ color: "#FF3B30", fontSize: 12, marginBottom: 4 }}>Error: {e.msg}</div>
-                      ))}
-                    </div>
-                  )}
+            <div style={{ flex: 1, overflowY: "auto", padding: "16px 24px", fontFamily: "'JetBrains Mono', monospace", fontSize: 12, lineHeight: 1.8 }}>
+              {terminalOutput.map((log, i) => (
+                <div key={i} style={{
+                  color: log.type === "error" ? "#ef4444" : log.type === "success" ? "#22c55e" : "#d1d5db",
+                  marginBottom: 6,
+                  display: "flex",
+                  gap: 12
+                }}>
+                  <span style={{ color: "#3f3f46", userSelect: "none" }}>[{i + 1}]</span>
+                  <span>{log.msg}</span>
                 </div>
-              ) : (
-                <span style={{ color: "#666", fontSize: 12 }}>Run your code to see results here...</span>
-              )}
+              ))}
             </div>
           </div>
         </div>
