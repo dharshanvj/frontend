@@ -87,6 +87,18 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
     const monaco = useMonaco();
     const editorRef = useRef(null);
     const decorationsRef = useRef([]);
+    const [showConfetti, setShowConfetti] = useState(false);
+
+    // Audio sounds
+    const sounds = useRef({
+        step: new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3'),
+        success: new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3')
+    });
+
+    useEffect(() => {
+        sounds.current.step.volume = 0.2;
+        sounds.current.success.volume = 0.4;
+    }, []);
 
     const config = useMemo(() => {
         return ALGORITHM_CONFIGS[alg] || {
@@ -115,10 +127,21 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
                 setStepIdx(s => s + 1);
             }, 1000 / speed);
             return () => clearTimeout(timer);
-        } else if (stepIdx === steps.length - 1) {
+        } else if (stepIdx > 0 && stepIdx === steps.length - 1) {
             setIsPlaying(false);
+            if (!showConfetti) {
+                setShowConfetti(true);
+                sounds.current.success.play().catch(() => { });
+            }
         }
     }, [isPlaying, stepIdx, steps, speed]);
+
+    useEffect(() => {
+        if (stepIdx > 0 && isPlaying) {
+            sounds.current.step.currentTime = 0;
+            sounds.current.step.play().catch(() => { });
+        }
+    }, [stepIdx]);
 
     useEffect(() => {
         if (currentStep && editorRef.current && monaco) {
@@ -142,6 +165,7 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
         setIsPlaying(false);
         setStepIdx(0);
         setError(null);
+        setShowConfetti(false);
         console.log("Running visualization for:", targetAlg);
 
         try {
@@ -264,7 +288,14 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
                         <div style={{ fontSize: 12, fontWeight: 700, color: "#a1a1aa" }}>{stepIdx + 1} / {steps.length || 0}</div>
                     </div>
 
-                    <div style={{ flex: 1, overflowY: "auto", padding: 24, display: "flex", flexDirection: "column", gap: 24 }}>
+                    <div style={{ flex: 1, overflowY: "auto", padding: 24, display: "flex", flexDirection: "column", gap: 24, position: "relative" }}>
+                        {showConfetti && (
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, pointerEvents: "none", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,113,227,0.1)" }}>
+                                <motion.div animate={{ scale: [1, 1.2, 1], rotate: [0, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 2 }}>
+                                    <span style={{ fontSize: 100 }}>🎉 WELL DONE!</span>
+                                </motion.div>
+                            </motion.div>
+                        )}
                         {error && (
                             <div style={{ background: "#fef2f2", color: "#991b1b", padding: 16, borderRadius: 12, border: "1px solid #fee2e2", fontSize: 14, fontWeight: 500 }}>
                                 ⚠️ {error}
@@ -278,10 +309,24 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
                         ) : (
                             <>
                                 {/* State explanation */}
-                                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key={stepIdx}
-                                    style={{ background: "#27272a", border: "1px solid #3f3f46", borderRadius: 16, padding: 20 }}>
-                                    <div style={{ fontSize: 11, fontWeight: 800, color: "#0071e3", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Action</div>
-                                    <div style={{ fontSize: 16, fontWeight: 600 }}>{currentStep.explanation}</div>
+                                <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} key={stepIdx}
+                                    style={{ background: "linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%)", borderRadius: 16, padding: "24px 30px", boxShadow: "0 10px 30px rgba(0,113,227,0.2)", position: "relative", overflow: "hidden" }}>
+                                    <div style={{ fontSize: 10, fontWeight: 900, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: 2, marginBottom: 12 }}>DERIVING OUTPUT...</div>
+                                    <div style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
+                                        <div style={{ width: 40, height: 40, background: "rgba(255,255,255,0.1)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>💡</div>
+                                        <div style={{ flex: 1 }}>
+                                            <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }}
+                                                style={{ fontSize: 18, fontWeight: 700, color: "white", lineHeight: 1.5 }}>
+                                                {currentStep.explanation}
+                                            </motion.div>
+                                            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginTop: 8, fontWeight: 600 }}>
+                                                {stepIdx === steps.length - 1 ? "Algorithm complete! The output has been fully derived." : "Executing current line to update system memory."}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {/* Animated background pulse */}
+                                    <motion.div animate={{ opacity: [0.1, 0.2, 0.1] }} transition={{ repeat: Infinity, duration: 2 }}
+                                        style={{ position: "absolute", top: -20, right: -20, width: 100, height: 100, background: "white", borderRadius: "50%", filter: "blur(40px)" }} />
                                 </motion.div>
 
                                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
@@ -341,6 +386,26 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
                             </>
                         )}
                     </div>
+
+                    {/* Execution History (Interactive Derivation) */}
+                    <AnimatePresence>
+                        {steps.length > 0 && (
+                            <motion.div initial={{ width: 0, opacity: 0 }} animate={{ width: 280, opacity: 1 }}
+                                style={{ borderLeft: "1px solid #222", background: "#111", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+                                <div style={{ padding: "20px 24px", borderBottom: "1px solid #222", fontSize: 13, fontWeight: 900, color: "#a1a1aa", letterSpacing: 1 }}>HISTORY / LOG</div>
+                                <div style={{ flex: 1, overflowY: "auto", padding: 12, display: "flex", flexDirection: "column", gap: 8 }}>
+                                    {steps.slice(0, stepIdx + 1).map((s, idx) => (
+                                        <motion.div key={idx} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
+                                            onClick={() => setStepIdx(idx)}
+                                            style={{ padding: "12px 16px", background: idx === stepIdx ? "#0071e311" : "#18181b", border: idx === stepIdx ? "1px solid #0071e333" : "1px solid #222", borderRadius: 12, cursor: "pointer", fontSize: 12 }}>
+                                            <div style={{ fontWeight: 800, color: idx === stepIdx ? "#0071e3" : "#71717a", marginBottom: 4 }}>Step {idx + 1}</div>
+                                            <div style={{ color: "#d4d4d8", lineHeight: 1.4, opacity: idx === stepIdx ? 1 : 0.6 }}>{s.explanation}</div>
+                                        </motion.div>
+                                    )).reverse()}
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
             </div>
         </div>

@@ -2680,6 +2680,8 @@ const CodingChallengeScreen = ({ challenge, progress, saveProgress, module: mod,
         saveProgress(key, "solved");
         logSession({ type: "code", topic: mod, score: 100, difficulty: level, id: challenge.id });
         setOutput("Success! Submission accepted.\nDifficulty: " + level + "\nPoints: +100 XP");
+        // Sound of joy
+        new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3').play().catch(() => { });
       } else {
         setOutput("Submission failed. Please fix compilation errors.");
       }
