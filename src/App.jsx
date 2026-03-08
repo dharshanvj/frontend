@@ -1177,40 +1177,34 @@ const UserDashboard = ({ user, onLogout, onClose, onSettings, onProgress }) => {
 
   const gridItems = [
     { label: "My Lists", icon: "📋", color: "#34C759" },
-    { label: "Notebook", icon: "📓", color: "#0071E3" },
-    { label: "Progress", icon: "📈", color: "#FF9500", onClick: () => { onClose(); onProgress(); } },
-    { label: "Points", icon: "🪙", color: "#FFCC00" }
+    { label: "Progress", icon: "📈", color: "#FF9500", onClick: () => { onClose(); onProgress(); } }
   ];
 
   const listItems = [
-    { label: "Try New Features", icon: "🔬" },
-    { label: "Orders", icon: "🛒" },
     { label: "My Playgrounds", icon: "🧪", highlight: true },
-    { label: "Settings", icon: "⚙️", highlight: true, onClick: () => { onClose(); onSettings(); } },
-    { label: "Appearance", icon: "🌗", hasSub: true }
+    { label: "Settings", icon: "⚙️", highlight: true, onClick: () => { onClose(); onSettings(); } }
   ];
 
   return (
     <motion.div initial={{ opacity: 0, scale: 0.9, y: -20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: -20 }} transition={{ type: "spring", damping: 20, stiffness: 300 }}
       style={{
-        position: "absolute", top: 70, right: 0, width: 320, background: "#1D1D1F", borderRadius: 32, padding: 24, zIndex: 5000,
-        boxShadow: "0 30px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1)", color: "white", textAlign: "left"
+        position: "absolute", top: 70, right: 0, width: 320, background: "#FFFFFF", borderRadius: 32, padding: 24, zIndex: 5000,
+        boxShadow: "0 20px 40px rgba(0,0,0,0.1), 0 0 0 1.5px rgba(0,0,0,0.05)", color: "#1D1D1F", textAlign: "left"
       }}>
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
-        <div style={{ width: 56, height: 56, borderRadius: "50%", background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, fontWeight: 900 }}>{initial}</div>
+        <div style={{ width: 56, height: 56, borderRadius: "50%", background: "rgba(0,0,0,0.05)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, fontWeight: 900 }}>{initial}</div>
         <div>
-          <div style={{ fontSize: 20, fontWeight: 900, marginBottom: 4 }}>{displayName}</div>
-          <div style={{ fontSize: 13, color: "#FF9500", fontWeight: 700 }}>Access all features with our Premium subscription!</div>
+          <div style={{ fontSize: 20, fontWeight: 900 }}>{displayName}</div>
         </div>
       </div>
 
       {/* Grid */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
         {gridItems.map(item => (
-          <motion.div key={item.label} onClick={item.onClick} whileHover={{ background: "rgba(255,255,255,0.05)" }} style={{ background: "rgba(255,255,255,0.03)", borderRadius: 20, padding: 16, cursor: "pointer", border: "1px solid rgba(255,255,255,0.05)" }}>
+          <motion.div key={item.label} onClick={item.onClick} whileHover={{ background: "rgba(0,0,0,0.04)" }} style={{ background: "rgba(0,0,0,0.02)", borderRadius: 20, padding: 16, cursor: "pointer", border: "1px solid rgba(0,0,0,0.04)" }}>
             <div style={{ width: 36, height: 36, borderRadius: 12, background: `${item.color}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, marginBottom: 8 }}>{item.icon}</div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.6)" }}>{item.label}</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(0,0,0,0.7)" }}>{item.label}</div>
           </motion.div>
         ))}
       </div>
@@ -1218,10 +1212,10 @@ const UserDashboard = ({ user, onLogout, onClose, onSettings, onProgress }) => {
       {/* List */}
       <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 24 }}>
         {listItems.map(item => (
-          <motion.div key={item.label} onClick={item.onClick} whileHover={{ background: "rgba(255,255,255,0.05)" }} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", borderRadius: 16, cursor: "pointer", transition: "0.2s" }}>
+          <motion.div key={item.label} onClick={item.onClick} whileHover={{ background: "rgba(0,0,0,0.04)" }} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", borderRadius: 16, cursor: "pointer", transition: "0.2s" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <span style={{ fontSize: 18, opacity: 0.7 }}>{item.icon}</span>
-              <span style={{ fontSize: 14, fontWeight: item.highlight ? 800 : 500, color: item.highlight ? "white" : "rgba(255,255,255,0.7)" }}>{item.label}</span>
+              <span style={{ fontSize: 14, fontWeight: item.highlight ? 800 : 500, color: item.highlight ? "#1D1D1F" : "rgba(0,0,0,0.7)" }}>{item.label}</span>
             </div>
             {item.hasSub && <span style={{ fontSize: 12, opacity: 0.3 }}>›</span>}
           </motion.div>
@@ -1229,8 +1223,8 @@ const UserDashboard = ({ user, onLogout, onClose, onSettings, onProgress }) => {
       </div>
 
       {/* Footer Sign Out */}
-      <motion.button onClick={onLogout} whileHover={{ background: "rgba(255,59,48,0.15)" }}
-        style={{ width: "100%", padding: "14px", borderRadius: 16, background: "rgba(255,255,255,0.03)", border: "none", color: "#FF3B30", fontSize: 14, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", gap: 12, justifyContent: "center" }}>
+      <motion.button onClick={onLogout} whileHover={{ background: "rgba(255,59,48,0.1)" }}
+        style={{ width: "100%", padding: "14px", borderRadius: 16, background: "rgba(255,59,48,0.05)", border: "none", color: "#FF3B30", fontSize: 14, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", gap: 12, justifyContent: "center" }}>
         <span>🚪</span> Sign Out
       </motion.button>
 
@@ -1568,9 +1562,21 @@ const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress, user, on
 
 const SettingsScreen = ({ user, onBack, onLogout, onShowProgress }) => {
   const [activeTab, setActiveTab] = useState("Account");
-  const displayName = user?.name || user?.user_metadata?.display_name || user?.email?.split("@")[0] || "User";
+  const displayName = user?.name || user?.user_metadata?.display_name || user?.email?.split("@")[0] || "Student";
+  const [notifications, setNotifications] = useState({
+    "Ranking Updates": true,
+    "Post Comments": true,
+    "Awards Received": true,
+    "Important Announcements": true,
+    "Weekly Newsletter": false,
+    "Promotion Events": false
+  });
 
-  const tabs = ["Account", "Privacy", "Billing", "Points", "Progress", "Orders", "Notifications"];
+  const toggleNotification = (key) => {
+    setNotifications(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const tabs = ["Account", "Progress", "Notifications"];
 
   const renderContent = () => {
     if (activeTab === "Notifications") {
@@ -1591,10 +1597,10 @@ const SettingsScreen = ({ user, onBack, onLogout, onShowProgress }) => {
                     <span style={{ fontSize: 14, fontWeight: 600 }}>{item.label}</span>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <div style={{ width: 44, height: 24, background: "#0071E3", borderRadius: 12, position: "relative", cursor: "pointer" }}>
-                      <div style={{ position: "absolute", right: 2, top: 2, width: 20, height: 20, background: "white", borderRadius: "50%" }} />
+                    <div onClick={() => toggleNotification(item.label)} style={{ width: 44, height: 24, background: notifications[item.label] ? "#0071E3" : "rgba(255,255,255,0.1)", borderRadius: 12, position: "relative", cursor: "pointer", transition: "0.3s" }}>
+                      <div style={{ position: "absolute", left: notifications[item.label] ? 22 : 2, top: 2, width: 20, height: 20, background: "white", borderRadius: "50%", transition: "0.3s" }} />
                     </div>
-                    <span style={{ fontSize: 13, fontWeight: 600 }}>On</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: notifications[item.label] ? "white" : "rgba(255,255,255,0.5)", width: 24 }}>{notifications[item.label] ? "On" : "Off"}</span>
                   </div>
                 </div>
               ))}
@@ -1616,10 +1622,10 @@ const SettingsScreen = ({ user, onBack, onLogout, onShowProgress }) => {
                     <span style={{ fontSize: 14, fontWeight: 600 }}>{item.label}</span>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <div style={{ width: 44, height: 24, background: "#0071E3", borderRadius: 12, position: "relative", cursor: "pointer" }}>
-                      <div style={{ position: "absolute", right: 2, top: 2, width: 20, height: 20, background: "white", borderRadius: "50%" }} />
+                    <div onClick={() => toggleNotification(item.label)} style={{ width: 44, height: 24, background: notifications[item.label] ? "#0071E3" : "rgba(255,255,255,0.1)", borderRadius: 12, position: "relative", cursor: "pointer", transition: "0.3s" }}>
+                      <div style={{ position: "absolute", left: notifications[item.label] ? 22 : 2, top: 2, width: 20, height: 20, background: "white", borderRadius: "50%", transition: "0.3s" }} />
                     </div>
-                    <span style={{ fontSize: 13, fontWeight: 600 }}>On</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: notifications[item.label] ? "white" : "rgba(255,255,255,0.5)", width: 24 }}>{notifications[item.label] ? "On" : "Off"}</span>
                   </div>
                 </div>
               ))}
@@ -1634,20 +1640,20 @@ const SettingsScreen = ({ user, onBack, onLogout, onShowProgress }) => {
         <div style={{ color: "white" }}>
           <div style={{ marginBottom: 40 }}>
             <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>General</h3>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginBottom: 20 }}>Manage your core account details and identifiers.</p>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginBottom: 20 }}>You can log in using your email, phone number, or CodeLoom ID.</p>
             <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(255,255,255,0.05)" }}>
               {[
                 { label: "CodeLoom ID", value: displayName, icon: "👤" },
-                { label: "Email", value: user?.email || "user@example.com", icon: "✉️" },
-                { label: "Phone Number", value: "Not linked", icon: "📞" },
+                { label: "Email", value: user?.email || user?.user?.email || "Not Provided", icon: "✉️" },
+                { label: "Phone Number", value: user?.phone || user?.user_metadata?.phone || "Not linked", icon: "📞" },
                 { label: "Password", value: "••••••••", icon: "🔑" }
               ].map((item, i) => (
-                <div key={item.label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px", cursor: "pointer", borderBottom: i < 3 ? "1px solid rgba(255,255,255,0.05)" : "none" }}>
+                <div key={item.label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px", cursor: "pointer", borderBottom: i < 3 ? "1px solid rgba(255,255,255,0.05)" : "none", transition: "0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.02)"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
                   <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                     <span style={{ fontSize: 18, opacity: 0.7 }}>{item.icon}</span>
                     <div>
                       <span style={{ fontSize: 14, fontWeight: 800 }}>{item.label}</span>
-                      <span style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginLeft: 12 }}>{item.value}</span>
+                      <span style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginLeft: 16 }}>{item.value}</span>
                     </div>
                   </div>
                   <span style={{ fontSize: 18, opacity: 0.3 }}>›</span>
