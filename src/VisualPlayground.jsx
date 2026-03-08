@@ -87,7 +87,6 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
     const monaco = useMonaco();
     const editorRef = useRef(null);
     const decorationsRef = useRef([]);
-    const [showConfetti, setShowConfetti] = useState(false);
 
     // Audio sounds
     const sounds = useRef({
@@ -129,10 +128,7 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
             return () => clearTimeout(timer);
         } else if (stepIdx > 0 && stepIdx === steps.length - 1) {
             setIsPlaying(false);
-            if (!showConfetti) {
-                setShowConfetti(true);
-                sounds.current.success.play().catch(() => { });
-            }
+            sounds.current.success.play().catch(() => { });
         }
     }, [isPlaying, stepIdx, steps, speed]);
 
@@ -174,6 +170,7 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     algorithm: targetAlg,
+                    code: code,
                     input: ALGORITHM_CONFIGS[targetAlg]?.defaultInput || {}
                 })
             });
@@ -288,14 +285,7 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
                         <div style={{ fontSize: 12, fontWeight: 700, color: "#a1a1aa" }}>{stepIdx + 1} / {steps.length || 0}</div>
                     </div>
 
-                    <div style={{ flex: 1, overflowY: "auto", padding: 24, display: "flex", flexDirection: "column", gap: 24, position: "relative" }}>
-                        {showConfetti && (
-                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, pointerEvents: "none", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,113,227,0.1)" }}>
-                                <motion.div animate={{ scale: [1, 1.2, 1], rotate: [0, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 2 }}>
-                                    <span style={{ fontSize: 100 }}>🎉 WELL DONE!</span>
-                                </motion.div>
-                            </motion.div>
-                        )}
+                    <div style={{ flex: 1, overflowY: "auto", padding: "40px", display: "flex", flexDirection: "column", gap: 32, background: "#09090b" }}>
                         {error && (
                             <div style={{ background: "#fef2f2", color: "#991b1b", padding: 16, borderRadius: 12, border: "1px solid #fee2e2", fontSize: 14, fontWeight: 500 }}>
                                 ⚠️ {error}
@@ -308,104 +298,79 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
                             </div>
                         ) : (
                             <>
-                                {/* State explanation */}
+                                {/* State explanation - PROMINENT SINGLE BAR */}
                                 <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} key={stepIdx}
-                                    style={{ background: "linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%)", borderRadius: 16, padding: "24px 30px", boxShadow: "0 10px 30px rgba(0,113,227,0.2)", position: "relative", overflow: "hidden" }}>
-                                    <div style={{ fontSize: 10, fontWeight: 900, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: 2, marginBottom: 12 }}>DERIVING OUTPUT...</div>
-                                    <div style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
-                                        <div style={{ width: 40, height: 40, background: "rgba(255,255,255,0.1)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>💡</div>
-                                        <div style={{ flex: 1 }}>
-                                            <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }}
-                                                style={{ fontSize: 18, fontWeight: 700, color: "white", lineHeight: 1.5 }}>
-                                                {currentStep.explanation}
-                                            </motion.div>
-                                            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginTop: 8, fontWeight: 600 }}>
-                                                {stepIdx === steps.length - 1 ? "Algorithm complete! The output has been fully derived." : "Executing current line to update system memory."}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {/* Animated background pulse */}
-                                    <motion.div animate={{ opacity: [0.1, 0.2, 0.1] }} transition={{ repeat: Infinity, duration: 2 }}
-                                        style={{ position: "absolute", top: -20, right: -20, width: 100, height: 100, background: "white", borderRadius: "50%", filter: "blur(40px)" }} />
+                                    style={{ background: "linear-gradient(135deg, #0071e3 0%, #00458a 100%)", borderRadius: 24, padding: "32px 40px", boxShadow: "0 20px 40px rgba(0,0,0,0.3)", textAlign: "center", marginBottom: 12 }}>
+                                    <div style={{ fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: 3, marginBottom: 12 }}>CURRENT EXECUTION STEP</div>
+                                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                                        style={{ fontSize: 24, fontWeight: 800, color: "white", textShadow: "0 2px 4px rgba(0,0,0,0.2)" }}>
+                                        {currentStep.explanation}
+                                    </motion.div>
                                 </motion.div>
 
-                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
-                                    {/* Memory / Array Visualizer */}
-                                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                                        <h3 style={{ fontSize: 12, fontWeight: 800, color: "#a1a1aa", textTransform: "uppercase" }}>Memory State</h3>
-                                        <div style={{ background: "#18181b", borderRadius: 16, padding: 24, display: "flex", flexWrap: "wrap", gap: 8, border: "1px solid #222" }}>
+                                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))", gap: 32 }}>
+                                    {/* Memory Panel */}
+                                    <div style={{ background: "#18181b", borderRadius: 24, padding: 32, border: "2px solid #222", minHeight: 180 }}>
+                                        <h3 style={{ fontSize: 13, fontWeight: 900, color: "#a1a1aa", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 24, display: "flex", alignItems: "center", gap: 8 }}>
+                                            <span style={{ fontSize: 18 }}>💾</span> Memory Registry
+                                        </h3>
+                                        <div style={{ display: "flex", flexWrap: "wrap", gap: 14 }}>
                                             {currentStep.array.map((val, idx) => {
                                                 const isPointed = Object.values(currentStep.pointers).includes(idx);
                                                 return (
-                                                    <motion.div key={idx} layout
-                                                        style={{ width: 50, height: 50, background: isPointed ? "#0071e3" : "#27272a", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 800, position: "relative" }}>
+                                                    <motion.div key={idx} layout transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                                                        style={{ width: 64, height: 64, background: isPointed ? "linear-gradient(135deg, #0071e3 0%, #0056ad 100%)" : "#27272a", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 800, border: isPointed ? "3px solid #60a5fa" : "2px solid #333", color: "white", position: "relative", boxShadow: isPointed ? "0 10px 20px rgba(0,113,227,0.3)" : "none" }}>
                                                         {val}
                                                         {Object.entries(currentStep.pointers).filter(([p, pos]) => pos === idx).map(([p], pid) => (
-                                                            <motion.div key={p} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }}
-                                                                style={{ position: "absolute", bottom: -24, left: "50%", transform: "translateX(-50%)", fontSize: 10, color: "#0071e3", whiteSpace: "nowrap", fontWeight: 900 }}>
+                                                            <div key={p} style={{ position: "absolute", bottom: -30, left: "50%", transform: "translateX(-50%)", fontSize: 11, color: "#60a5fa", whiteSpace: "nowrap", fontWeight: 900, background: "#09090b", padding: "2px 8px", borderRadius: 4, border: "1px solid #333" }}>
                                                                 ↑ {p}
-                                                            </motion.div>
+                                                            </div>
                                                         ))}
                                                     </motion.div>
                                                 );
                                             })}
+                                            {currentStep.array.length === 0 && <div style={{ color: "#a1a1aa", opacity: 0.3, fontStyle: "italic", padding: 20 }}>No items in memory</div>}
                                         </div>
                                     </div>
 
                                     {/* Variables Panel */}
-                                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                                        <h3 style={{ fontSize: 12, fontWeight: 800, color: "#a1a1aa", textTransform: "uppercase" }}>Variables</h3>
-                                        <div style={{ background: "#18181b", borderRadius: 16, padding: 20, border: "1px solid #222", display: "flex", flexDirection: "column", gap: 8 }}>
+                                    <div style={{ background: "#18181b", borderRadius: 24, padding: 32, border: "2px solid #222", minHeight: 180 }}>
+                                        <h3 style={{ fontSize: 13, fontWeight: 900, color: "#a1a1aa", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 24, display: "flex", alignItems: "center", gap: 8 }}>
+                                            <span style={{ fontSize: 18 }}>📊</span> Execution Variables
+                                        </h3>
+                                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: 16 }}>
                                             {Object.entries(currentStep.variables).map(([k, v]) => (
-                                                <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #222" }}>
-                                                    <span style={{ fontFamily: "var(--font-mono)", color: "#a1a1aa" }}>{k}</span>
-                                                    <span style={{ fontWeight: 800, color: "#0071e3" }}>{JSON.stringify(v)}</span>
+                                                <div key={k} style={{ padding: "16px 20px", background: "#27272a", borderRadius: 16, border: "1px solid #333", boxShadow: "0 4px 6px rgba(0,0,0,0.1)" }}>
+                                                    <div style={{ fontSize: 11, fontWeight: 800, color: "#a1a1aa", marginBottom: 6, opacity: 0.7 }}>{k.toUpperCase()}</div>
+                                                    <div style={{ fontSize: 18, fontWeight: 900, color: "#60a5fa" }}>{JSON.stringify(v)}</div>
                                                 </div>
                                             ))}
-                                            {Object.keys(currentStep.variables).length === 0 && <div style={{ opacity: 0.3 }}>No local variables</div>}
+                                            {Object.keys(currentStep.variables).length === 0 && <div style={{ color: "#a1a1aa", opacity: 0.3, fontStyle: "italic" }}>No active variables</div>}
                                         </div>
                                     </div>
-                                </div>
 
-                                {/* Recursion Stack Panel */}
-                                {currentStep.stack && currentStep.stack.length > 0 && (
-                                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                                        <h3 style={{ fontSize: 12, fontWeight: 800, color: "#a1a1aa", textTransform: "uppercase" }}>Recursion Stack</h3>
-                                        <div style={{ background: "#18181b", borderRadius: 16, padding: 24, border: "1px solid #222", display: "flex", flexDirection: "column-reverse", gap: 4 }}>
-                                            <AnimatePresence>
-                                                {currentStep.stack.map((frame, idx) => (
-                                                    <motion.div key={idx + frame} initial={{ height: 0, opacity: 0 }} animate={{ height: 40, opacity: 1 }} exit={{ height: 0, opacity: 0 }}
-                                                        style={{ background: "#0071e322", border: "1px solid #0071e344", borderRadius: 8, display: "flex", alignItems: "center", padding: "0 16px", fontSize: 13, fontWeight: 700 }}>
-                                                        {frame}
-                                                    </motion.div>
-                                                ))}
-                                            </AnimatePresence>
+                                    {/* Recursion Stack - only if exists */}
+                                    {currentStep.stack && currentStep.stack.length > 0 && (
+                                        <div style={{ background: "#18181b", borderRadius: 24, padding: 32, border: "2px solid #222", gridColumn: "1 / -1" }}>
+                                            <h3 style={{ fontSize: 13, fontWeight: 900, color: "#a1a1aa", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 24, display: "flex", alignItems: "center", gap: 8 }}>
+                                                <span style={{ fontSize: 18 }}>🥞</span> Call Stack
+                                            </h3>
+                                            <div style={{ display: "flex", flexDirection: "column-reverse", gap: 10 }}>
+                                                <AnimatePresence>
+                                                    {currentStep.stack.map((frame, idx) => (
+                                                        <motion.div key={idx + frame} initial={{ height: 0, opacity: 0, x: -10 }} animate={{ height: 50, opacity: 1, x: 0 }}
+                                                            style={{ background: "rgba(96,165,250,0.1)", border: "2.5px solid rgba(96,165,250,0.2)", borderRadius: 16, display: "flex", alignItems: "center", padding: "0 24px", fontSize: 15, fontWeight: 800, color: "#60a5fa" }}>
+                                                            {idx === currentStep.stack.length - 1 ? "➡️ " : "   "} {frame}
+                                                        </motion.div>
+                                                    ))}
+                                                </AnimatePresence>
+                                            </div>
                                         </div>
-                                    </div>
-                                )}
+                                    )}
+                                </div>
                             </>
                         )}
                     </div>
-
-                    {/* Execution History (Interactive Derivation) */}
-                    <AnimatePresence>
-                        {steps.length > 0 && (
-                            <motion.div initial={{ width: 0, opacity: 0 }} animate={{ width: 280, opacity: 1 }}
-                                style={{ borderLeft: "1px solid #222", background: "#111", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-                                <div style={{ padding: "20px 24px", borderBottom: "1px solid #222", fontSize: 13, fontWeight: 900, color: "#a1a1aa", letterSpacing: 1 }}>HISTORY / LOG</div>
-                                <div style={{ flex: 1, overflowY: "auto", padding: 12, display: "flex", flexDirection: "column", gap: 8 }}>
-                                    {steps.slice(0, stepIdx + 1).map((s, idx) => (
-                                        <motion.div key={idx} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
-                                            onClick={() => setStepIdx(idx)}
-                                            style={{ padding: "12px 16px", background: idx === stepIdx ? "#0071e311" : "#18181b", border: idx === stepIdx ? "1px solid #0071e333" : "1px solid #222", borderRadius: 12, cursor: "pointer", fontSize: 12 }}>
-                                            <div style={{ fontWeight: 800, color: idx === stepIdx ? "#0071e3" : "#71717a", marginBottom: 4 }}>Step {idx + 1}</div>
-                                            <div style={{ color: "#d4d4d8", lineHeight: 1.4, opacity: idx === stepIdx ? 1 : 0.6 }}>{s.explanation}</div>
-                                        </motion.div>
-                                    )).reverse()}
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
                 </div>
             </div>
         </div>
