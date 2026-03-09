@@ -3225,7 +3225,7 @@ const ProgressCard = ({ module: mod, progress, total, type }) => {
 ============================================================ */
 const MODULE_TABS = [["concept", "📖 Concept"], ["visual", "🎬 Visualizer"], ["program", "💻 Code"]];
 
-const ModuleScreen = ({ module: mod, data, subScreen, setSubScreen, onBack, logSession, onExploreVisualizer }) => {
+const ModuleScreen = ({ module: mod, data, subScreen, setSubScreen, onBack, logSession, onExploreVisualizer, onNext }) => {
   const color = MOD_COLORS[mod] || "#0071e3";
 
   // Auto-open concept tab when first entering the module
@@ -3325,6 +3325,21 @@ const ModuleScreen = ({ module: mod, data, subScreen, setSubScreen, onBack, logS
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Next Module Button */}
+        <div style={{ marginTop: 60, display: "flex", justifyContent: "center", borderTop: "1px solid rgba(0,0,0,0.05)", paddingTop: 40 }}>
+          <motion.button
+            whileHover={{ scale: 1.02, y: -2 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={onNext}
+            style={{
+              padding: "16px 40px", borderRadius: 16, background: color, color: "white", fontSize: 16, fontWeight: 800, border: "none", cursor: "pointer",
+              boxShadow: `0 10px 30px ${color}44`, display: "flex", alignItems: "center", gap: 12
+            }}
+          >
+            Next Module <span style={{ fontSize: 20 }}>→</span>
+          </motion.button>
+        </div>
       </div>
     </div>
   );
@@ -4943,7 +4958,20 @@ export default function App() {
         )}
         {screen === "module" && (
           <motion.div key="module" initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
-            <ModuleScreen module={module} data={data} subScreen={subScreen} setSubScreen={setSubScreen} onBack={() => { setScreen("dsa"); setSubScreen(null); }} logSession={logSession} onExploreVisualizer={(alg) => { setSelectedPlaygroundAlg(alg); setScreen("playground"); }} />
+            <ModuleScreen
+              module={module} data={data} subScreen={subScreen} setSubScreen={setSubScreen}
+              onBack={() => { setScreen("dsa"); setSubScreen(null); }}
+              logSession={logSession}
+              onExploreVisualizer={(alg) => { setSelectedPlaygroundAlg(alg); setScreen("playground"); }}
+              onNext={() => {
+                const idx = MODULES.indexOf(module);
+                if (idx !== -1 && idx < MODULES.length - 1) {
+                  selectModule(MODULES[idx + 1]);
+                } else {
+                  setScreen("dsa");
+                }
+              }}
+            />
           </motion.div>
         )}
         {screen === "my_lists" && (
