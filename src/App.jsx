@@ -1652,17 +1652,20 @@ const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress, user, on
         <AnimatePresence mode="wait">
           {activeTab === "learn" && (
             <motion.div key="learn" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-              <LearnTab level={level} setLevel={setLevel} onSelectModule={onSelectModule} progress={progress} onExploreVisualizer={onExploreVisualizer} />
+              <LearnTab
+                level={level} setLevel={setLevel} onSelectModule={onSelectModule} progress={progress} onExploreVisualizer={onExploreVisualizer}
+                onNext={() => setActiveTab("interview")}
+              />
             </motion.div>
           )}
           {activeTab === "interview" && (
             <motion.div key="interview" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-              <InterviewTab />
+              <InterviewTab onNext={() => setActiveTab("code")} />
             </motion.div>
           )}
           {activeTab === "code" && (
             <motion.div key="code" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-              <CodeArenaTab logSession={logSession} />
+              <CodeArenaTab logSession={logSession} onNext={() => setActiveTab("learn")} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -2039,7 +2042,7 @@ const SettingsScreen = ({ user, setUser, onBack, onLogout, onShowProgress }) => 
   );
 };
 
-const LearnTab = ({ level, setLevel, onSelectModule, progress, onExploreVisualizer }) => {
+const LearnTab = ({ level, setLevel, onSelectModule, progress, onExploreVisualizer, onNext }) => {
   const modProgress = (m) => {
     const solved = Object.keys(progress).filter(k => k.startsWith(`learn_${m}_`) && progress[k] === "solved").length;
     return (solved / 3) * 100;
@@ -2097,11 +2100,21 @@ const LearnTab = ({ level, setLevel, onSelectModule, progress, onExploreVisualiz
           );
         })}
       </div>
+
+      <div style={{ marginTop: 80, display: "flex", justifyContent: "center", borderTop: "1px solid rgba(0,0,0,0.05)", paddingTop: 40 }}>
+        <motion.button
+          whileHover={{ y: -4, scale: 1.02 }} whileTap={{ scale: 0.98 }}
+          onClick={onNext}
+          style={{ padding: "16px 48px", borderRadius: 100, background: "#1D1D1F", color: "white", fontSize: 16, fontWeight: 900, border: "none", cursor: "pointer", boxShadow: "0 10px 30px rgba(0,0,0,0.1)", display: "flex", alignItems: "center", gap: 12 }}
+        >
+          Practice for Interview <span style={{ fontSize: 22 }}>→</span>
+        </motion.button>
+      </div>
     </div>
   );
 };
 
-const InterviewTab = () => {
+const InterviewTab = ({ onNext }) => {
   const timerRef = useRef(null);
   const startTimeRef = useRef(null);
   const [examState, setExamState] = useState("landing"); // landing -> path -> setup -> exam -> results
@@ -2271,6 +2284,16 @@ const InterviewTab = () => {
             <div style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginBottom: 24 }}>5 Levels</div>
             <div style={{ background: "rgba(255,255,255,0.1)", padding: "10px 24px", borderRadius: 20, display: "inline-block", fontSize: 13, fontWeight: 700 }}>🔒 Locked</div>
           </motion.div>
+        </div>
+
+        <div style={{ marginTop: 80, display: "flex", justifyContent: "center", borderTop: "1px solid rgba(0,0,0,0.05)", paddingTop: 40 }}>
+          <motion.button
+            whileHover={{ y: -4, scale: 1.02 }} whileTap={{ scale: 0.98 }}
+            onClick={onNext}
+            style={{ padding: "16px 48px", borderRadius: 100, background: "#1D1D1F", color: "white", fontSize: 16, fontWeight: 900, border: "none", cursor: "pointer", boxShadow: "0 10px 30px rgba(0,0,0,0.1)", display: "flex", alignItems: "center", gap: 12 }}
+          >
+            Go to Battle Arena <span style={{ fontSize: 22 }}>→</span>
+          </motion.button>
         </div>
       </motion.div>
     );
@@ -2527,6 +2550,10 @@ const InterviewTab = () => {
         <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={startExam}
           style={{ padding: "13px 28px", fontSize: 14, fontWeight: 700, background: "white", color: "#424245", border: "1.5px solid var(--border)", borderRadius: 14, cursor: "pointer", boxShadow: "var(--shadow-sm)" }}>
           🔀 Retry Same Settings
+        </motion.button>
+        <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={onNext}
+          style={{ padding: "13px 28px", fontSize: 14, fontWeight: 700, background: "#1D1D1F", color: "white", borderRadius: 14, border: "none", cursor: "pointer", boxShadow: "0 10px 20px rgba(0,0,0,0.1)" }}>
+          💻 Start Coding Arena →
         </motion.button>
       </div>
 
@@ -2819,7 +2846,7 @@ const ProgressTrackingDashboard = ({ analytics, onClose }) => {
   );
 };
 
-const CodeArenaTab = ({ logSession }) => {
+const CodeArenaTab = ({ logSession, onNext }) => {
   const [progress, saveProgress] = useProgress();
   const [selMod, setSelMod] = useState(null);
   const [selLevel, setSelLevel] = useState("Beginner");
@@ -2860,6 +2887,16 @@ const CodeArenaTab = ({ logSession }) => {
                 </motion.div>
               );
             })}
+          </div>
+
+          <div style={{ marginTop: 80, display: "flex", justifyContent: "center", borderTop: "1px solid rgba(0,0,0,0.05)", paddingTop: 40 }}>
+            <motion.button
+              whileHover={{ y: -4, scale: 1.02 }} whileTap={{ scale: 0.98 }}
+              onClick={onNext}
+              style={{ padding: "16px 48px", borderRadius: 100, background: "#1D1D1F", color: "white", fontSize: 16, fontWeight: 900, border: "none", cursor: "pointer", boxShadow: "0 10px 30px rgba(0,0,0,0.1)", display: "flex", alignItems: "center", gap: 12 }}
+            >
+              Back to Knowledge Map <span style={{ fontSize: 22 }}>↺</span>
+            </motion.button>
           </div>
         </div>
       ) : (
@@ -3298,17 +3335,17 @@ const ModuleScreen = ({ module: mod, data, subScreen, setSubScreen, onBack, logS
         <AnimatePresence mode="wait">
           {subScreen === "concept" && data && (
             <motion.div key="c" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ ease: [0.22, 1, 0.36, 1] }}>
-              <ConceptPanel data={data} color={color} />
+              <ConceptPanel data={data} color={color} onContinue={() => setSubScreen("visual")} />
             </motion.div>
           )}
           {subScreen === "visual" && (
             <motion.div key="v" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ ease: [0.22, 1, 0.36, 1] }}>
-              <VisualPanel module={mod} color={color} onExploreVisualizer={onExploreVisualizer} />
+              <VisualPanel module={mod} color={color} onExploreVisualizer={onExploreVisualizer} onContinue={() => setSubScreen("program")} />
             </motion.div>
           )}
           {subScreen === "program" && data && (
             <motion.div key="p" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ ease: [0.22, 1, 0.36, 1] }}>
-              <ProgramPanel data={data} module={mod} color={color} />
+              <ProgramPanel data={data} module={mod} color={color} onFinish={onNext} />
             </motion.div>
           )}
           {(subScreen === "concept" || subScreen === "program") && !data && (
@@ -3345,7 +3382,7 @@ const ModuleScreen = ({ module: mod, data, subScreen, setSubScreen, onBack, logS
   );
 };
 
-const ConceptPanel = ({ data, color }) => (
+const ConceptPanel = ({ data, color, onContinue }) => (
   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
     {[
       { label: "Definition", content: <p style={{ lineHeight: 1.8, fontSize: 14, color: "#424245" }}>{data.definition}</p> },
@@ -3377,10 +3414,19 @@ const ConceptPanel = ({ data, color }) => (
         {content}
       </div>
     ))}
+
+    <div style={{ gridColumn: "1/-1", marginTop: 40, display: "flex", justifyContent: "flex-end" }}>
+      <motion.button
+        whileHover={{ x: 8 }} onClick={onContinue}
+        style={{ padding: "14px 28px", borderRadius: 12, background: color, color: "white", border: "none", fontSize: 14, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", gap: 10, boxShadow: `0 8px 24px ${color}33` }}
+      >
+        Explore Visualizer <span style={{ fontSize: 18 }}>→</span>
+      </motion.button>
+    </div>
   </div>
 );
 
-const ProgramPanel = ({ data, module: mod, color }) => {
+const ProgramPanel = ({ data, module: mod, color, onFinish }) => {
   const [copied, setCopied] = useState(false);
   const copy = () => { navigator.clipboard.writeText(data.java || ""); setCopied(true); setTimeout(() => setCopied(false), 2000); };
 
@@ -3423,6 +3469,26 @@ const ProgramPanel = ({ data, module: mod, color }) => {
           </pre>
         </motion.div>
       )}
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 16 }}>
+        <div style={{ background: "white", borderRadius: 20, padding: 24, border: "1.5px solid var(--border)" }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#86868b", textTransform: "uppercase", marginBottom: 12 }}>Time Complexity</div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: "#1d1d1f" }}>{typeof data.time_complexity === 'string' ? data.time_complexity : Object.values(data.time_complexity || {})[0] || "O(N)"}</div>
+        </div>
+        <div style={{ background: "white", borderRadius: 20, padding: 24, border: "1.5px solid var(--border)" }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#86868b", textTransform: "uppercase", marginBottom: 12 }}>Space Complexity</div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: "#1d1d1f" }}>{data.space_complexity || "O(1)"}</div>
+        </div>
+      </div>
+
+      <div style={{ marginTop: 40, display: "flex", justifyContent: "flex-end" }}>
+        <motion.button
+          whileHover={{ x: 8 }} onClick={onFinish}
+          style={{ padding: "16px 32px", borderRadius: 12, background: color, color: "white", border: "none", fontSize: 16, fontWeight: 900, cursor: "pointer", display: "flex", alignItems: "center", gap: 10, boxShadow: `0 10px 30px ${color}33` }}
+        >
+          Complete Module <span style={{ fontSize: 20 }}>✓</span>
+        </motion.button>
+      </div>
     </div>
   );
 };
@@ -3430,7 +3496,7 @@ const ProgramPanel = ({ data, module: mod, color }) => {
 /* ============================================================
    VISUALIZERS
 ============================================================ */
-const VisualPanel = ({ module: mod, color, onExploreVisualizer }) => {
+const VisualPanel = ({ module: mod, color, onExploreVisualizer, onContinue }) => {
   const hasViz = ["Stack", "Queue", "Linear Search", "Bubble Sort", "Selection Sort", "Insertion Sort", "Merge Sort", "Quick Sort", "Binary Search", "Linked Lists", "Recursion", "Trees", "Binary Search Trees", "Graphs", "Arrays", "Strings", "Hashing", "Heap / Priority Queue", "Backtracking", "Greedy Algorithms", "Dynamic Programming", "Bit Manipulation", "Tries", "Segment Trees", "Disjoint Set Union"].includes(mod);
   return (
     <div style={{ background: "white", border: "1.5px solid var(--border)", borderRadius: 20, padding: 36, boxShadow: "var(--shadow)", minHeight: 400, display: "flex", flexDirection: "column", justifyContent: hasViz ? "flex-start" : "center", alignItems: hasViz ? "stretch" : "center", textAlign: "center" }}>
@@ -3486,6 +3552,15 @@ const VisualPanel = ({ module: mod, color, onExploreVisualizer }) => {
           <div style={{ marginTop: 24, display: "inline-block", padding: "8px 20px", background: `${color}12`, color, borderRadius: 20, fontSize: 13, fontWeight: 600 }}>Feature Coming Soon</div>
         </motion.div>
       )}
+
+      <div style={{ marginTop: "auto", paddingTop: 32, display: "flex", justifyContent: "flex-end" }}>
+        <motion.button
+          whileHover={{ x: 8 }} onClick={onContinue}
+          style={{ padding: "14px 28px", borderRadius: 12, background: color, color: "white", border: "none", fontSize: 14, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", gap: 10, boxShadow: `0 8px 24px ${color}33` }}
+        >
+          Go to Code Arena <span style={{ fontSize: 18 }}>→</span>
+        </motion.button>
+      </div>
     </div>
   );
 };
