@@ -1332,6 +1332,97 @@ const ChennaiSection = () => (
   </div>
 );
 
+const KeyFeaturesSection = () => (
+  <div style={{ background: "#2B2D6B", color: "white", padding: "80px 40px", textAlign: "center", borderRadius: 32, margin: "80px 0" }}>
+    <h2 style={{ fontSize: 40, fontWeight: 800, marginBottom: 16 }}>Key Features</h2>
+    <p style={{ fontSize: 16, color: "rgba(255,255,255,0.7)", maxWidth: 700, margin: "0 auto 60px", lineHeight: 1.6 }}>FITA Academy empowers individuals with industry-relevant skills through expert-led training, transforming careers with hands-on experience.</p>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 40, maxWidth: 1000, margin: "0 auto" }}>
+      <div>
+        <div style={{ fontSize: 50, marginBottom: 20 }}>👨‍🏫</div>
+        <h3 style={{ fontSize: 22, fontWeight: 700, marginBottom: 12 }}>Expert Trainers</h3>
+        <p style={{ fontSize: 15, color: "rgba(255,255,255,0.7)", lineHeight: 1.6 }}>Learn from industry professionals with hands-on experience.</p>
+      </div>
+      <div>
+        <div style={{ fontSize: 50, marginBottom: 20 }}>🚀</div>
+        <h3 style={{ fontSize: 22, fontWeight: 700, marginBottom: 12 }}>Real-Time Projects</h3>
+        <p style={{ fontSize: 15, color: "rgba(255,255,255,0.7)", lineHeight: 1.6 }}>Gain practical exposure by working on live projects.</p>
+      </div>
+      <div>
+        <div style={{ fontSize: 50, marginBottom: 20 }}>🎓</div>
+        <h3 style={{ fontSize: 22, fontWeight: 700, marginBottom: 12 }}>Certification</h3>
+        <p style={{ fontSize: 15, color: "rgba(255,255,255,0.7)", lineHeight: 1.6 }}>Get certified from FITA Academy and become job-ready.</p>
+      </div>
+    </div>
+  </div>
+);
+
+const UpskillBannerSection = () => (
+  <div style={{ margin: "100px 0" }}>
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "white", borderRadius: 24, padding: "40px 60px", boxShadow: "0 20px 40px rgba(0,0,0,0.08)", border: "1px solid #EAEAEA", flexWrap: "wrap", gap: 40 }}>
+      <div>
+        <h2 style={{ fontSize: 32, fontWeight: 800, color: "#1D1D1F", marginBottom: 8, lineHeight: 1.3 }}>Upskill at <span style={{ color: "#0071E3" }}>FITA Academy</span> and Get<br /><span style={{ color: "#FF6B00" }}>Your Dream Job in 60 days!</span></h2>
+        <div style={{ display: "flex", gap: 16, marginTop: 32, flexWrap: "wrap" }}>
+          <button style={{ padding: "12px 24px", borderRadius: 30, border: "2px solid #0071E3", color: "#0071E3", background: "white", fontSize: 16, fontWeight: 700, cursor: "pointer", display: "flex", gap: 8, alignItems: "center" }}><span>📞</span> +91 93450 45466</button>
+          <button style={{ padding: "12px 24px", borderRadius: 30, background: "#0071E3", color: "white", border: "none", fontSize: 16, fontWeight: 700, cursor: "pointer" }}>Request A Call Back</button>
+        </div>
+      </div>
+      <div style={{ width: 340 }}>
+        <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=2670&auto=format&fit=crop" style={{ width: "100%", borderRadius: 16, objectFit: "cover", height: 200 }} alt="Students" />
+      </div>
+    </div>
+  </div>
+);
+
+const MasterProgramSection = () => (
+  <div style={{ margin: "100px 0" }}>
+    <div style={{ background: "#272A5D", borderRadius: 32, overflow: "hidden", display: "flex", color: "white", flexWrap: "wrap" }}>
+      <img src="https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?q=80&w=2574&auto=format&fit=crop" style={{ width: "40%", minWidth: 300, objectFit: "cover" }} alt="Student" />
+      <div style={{ padding: "80px 60px", flex: 1, minWidth: 300 }}>
+        <h2 style={{ fontSize: 36, fontWeight: 800, marginBottom: 32, lineHeight: 1.2 }}>Master Program at FITA Academy</h2>
+        <ul style={{ listStyle: "none", padding: 0, margin: "0 0 40px", fontSize: 15, color: "rgba(255,255,255,0.8)", display: "flex", flexDirection: "column", gap: 16 }}>
+          <li style={{ display: "flex", alignItems: "center", gap: 12 }}><span>⏱</span> Mentorship from Real-World Industry Experts</li>
+          <li style={{ display: "flex", alignItems: "center", gap: 12 }}><span>📹</span> Career Accelerator Add-ons</li>
+          <li style={{ display: "flex", alignItems: "center", gap: 12 }}><span>👤</span> Lifetime Learning Benefits with 1,00,000+ Alumni Network</li>
+          <li style={{ display: "flex", alignItems: "center", gap: 12 }}><span>🏆</span> Unlimited Placement support Until You Get Hired!</li>
+          <li style={{ display: "flex", alignItems: "center", gap: 12 }}><span>📄</span> Hands-on Learning with Real-World Projects</li>
+        </ul>
+        <button style={{ background: "white", color: "#272A5D", padding: "16px 32px", borderRadius: 8, fontSize: 16, fontWeight: 700, border: "none", cursor: "pointer" }}>Explore Master Program →</button>
+      </div>
+    </div>
+
+    <div style={{ marginTop: 80, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 20 }}>
+      <h2 style={{ fontSize: 32, fontWeight: 800, color: "#1D1D1F" }}><span style={{ color: "#0071E3" }}>Students' Success Stories</span> at FITA Academy</h2>
+      <div style={{ display: "flex", gap: 12 }}>
+        <button style={{ width: 44, height: 44, borderRadius: 8, background: "#E5F1FF", color: "#0071E3", border: "none", fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>◀</button>
+        <button style={{ width: 44, height: 44, borderRadius: 8, background: "#E5F1FF", color: "#0071E3", border: "none", fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>▶</button>
+      </div>
+    </div>
+  </div>
+);
+
+const FooterSection = () => (
+  <div style={{ background: "#1A1A1A", color: "white", padding: "80px 40px", textAlign: "center", margin: "100px -40px -100px", zIndex: 10, position: "relative" }}>
+    <h3 style={{ fontSize: 28, fontWeight: 800, marginBottom: 24 }}>Follow us</h3>
+    <div style={{ display: "flex", justifyContent: "center", gap: 24, fontSize: 24, marginBottom: 60, color: "white" }}>
+      <span style={{ cursor: "pointer", background: "white", color: "#1A1A1A", borderRadius: "50%", width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>f</span>
+      <span style={{ cursor: "pointer", background: "white", color: "#1A1A1A", borderRadius: "50%", width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>📷</span>
+      <span style={{ cursor: "pointer", background: "white", color: "#1A1A1A", borderRadius: "50%", width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>▶️</span>
+      <span style={{ cursor: "pointer", background: "white", color: "#1A1A1A", borderRadius: "50%", width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>𝕏</span>
+      <span style={{ cursor: "pointer", background: "white", color: "#1A1A1A", borderRadius: "50%", width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>in</span>
+    </div>
+    <div style={{ height: 1, background: "rgba(255,255,255,0.1)", marginBottom: 60, maxWidth: 1200, margin: "0 auto 60px" }} />
+    <h4 style={{ fontSize: 20, fontWeight: 600, marginBottom: 24 }}>Trending Courses</h4>
+    <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", lineHeight: 2, maxWidth: 1000, margin: "0 auto 30px" }}>
+      JAVA Training In Chennai  |  Software Testing Training In Chennai  |  Selenium Training In Chennai  |  Python Training in Chennai  |  Data Science Course In Chennai
+      |  Digital Marketing Course In Chennai  |  DevOps Training In Chennai  |  German Classes In Chennai  |  Artificial Intelligence Course in Chennai  |
+      AWS Training in Chennai  |  UI UX Design course in Chennai  |  Tally course in Chennai  |  Full Stack Developer course in Chennai  |  Salesforce Training in Chennai
+      |  ReactJS Training in Chennai  |  CCNA course in Chennai  |  Ethical Hacking course in Chennai  |  RPA Training In Chennai  |  Cyber Security Course in Chennai
+      |  IELTS Coaching in Chennai  |  Graphic Design Courses in Chennai  |  Spoken English Classes in Chennai  |  Data Analytics Course in Chennai
+    </p>
+    <button style={{ background: "none", border: "none", color: "white", fontSize: 14, cursor: "pointer", textDecoration: "underline" }}>Read More</button>
+  </div>
+);
+
 /* ============================================================
    HOME SCREEN REDESIGN
 ============================================================ */
@@ -1469,6 +1560,10 @@ export const HomeScreen = ({ onEnter, user, onLogout, progress, onLoginClick, on
                 <StatsSection />
 
                 <ChennaiSection />
+                <KeyFeaturesSection />
+                <UpskillBannerSection />
+                <MasterProgramSection />
+                <FooterSection />
               </div>
             </div>
           </motion.div>
@@ -2741,15 +2836,28 @@ const CodingChallengeScreen = ({ challenge, progress, saveProgress, module: mod,
         setTerminalOutput(prev => [...prev, ...res.errors.map(e => ({ msg: `❌ Compilation Error: ${e.msg}`, type: "error" }))]);
         setTestStatus("failed");
       } else {
-        setTerminalOutput(prev => [...prev,
-        { msg: "✅ Compilation successful.", type: "success" },
-        { msg: "Executing test cases...", type: "system" },
-        { msg: "Case 1: [PASSED]", type: "success" },
-        { msg: "Test Cases Passed! 100% Coverage.", type: "success" }
-        ]);
-        setTestStatus("passed");
-        // Play success sound
-        new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3').play().catch(() => { });
+        const isUnchanged = code.trim() === challenge.starter.trim();
+        const hasLogic = code.includes("return") || code.includes("= ") || code.includes("System.out") || code.match(/\{[\s\n]*\S+[\s\n]*\}/);
+
+        if (isUnchanged || !hasLogic) {
+          setTerminalOutput(prev => [...prev,
+          { msg: "✅ Compilation successful.", type: "success" },
+          { msg: "Executing test cases...", type: "system" },
+          { msg: "❌ Case 1: [FAILED] - Your output did not match expected output.", type: "error" },
+          { msg: "Test fail! You must implement the logic before submitting.", type: "error" }
+          ]);
+          setTestStatus("failed");
+        } else {
+          setTerminalOutput(prev => [...prev,
+          { msg: "✅ Compilation successful.", type: "success" },
+          { msg: "Executing test cases...", type: "system" },
+          { msg: "Case 1: [PASSED]", type: "success" },
+          { msg: "Test Cases Passed! 100% Coverage.", type: "success" }
+          ]);
+          setTestStatus("passed");
+          // Play success sound
+          new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3').play().catch(() => { });
+        }
       }
       setRunning(false);
     }, 1200);
@@ -2759,14 +2867,27 @@ const CodingChallengeScreen = ({ challenge, progress, saveProgress, module: mod,
     setRunning(true);
     setTimeout(() => {
       const res = analyzeCode(code);
-      if (res.errors.length === 0) {
+      const isUnchanged = code.trim() === challenge.starter.trim();
+      const hasLogic = code.includes("return") || code.includes("= ") || code.includes("System.out") || code.match(/\{[\s\n]*\S+[\s\n]*\}/);
+
+      if (res.errors.length === 0 && !isUnchanged && hasLogic) {
         saveProgress(key, "solved");
         logSession({ type: "code", topic: mod, score: 100, difficulty: level, id: challenge.id });
         setOutput("Success! Submission accepted.\nDifficulty: " + level + "\nPoints: +100 XP");
         // Sound of joy
         new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3').play().catch(() => { });
+
+        setTerminalOutput(prev => [...prev,
+        { msg: "✅ Compilation successful. Executing... Case 1: [PASSED]", type: "success" },
+        { msg: "Submission accepted! Points awarded.", type: "success" }
+        ]);
+        setTestStatus("passed");
       } else {
-        setOutput("Submission failed. Please fix compilation errors.");
+        setOutput("Submission failed. You must implement the logic correctly before submitting or fix compilation errors.");
+        setTerminalOutput(prev => [...prev,
+        { msg: "❌ Submission failed. Please write your logic or fix compilation errors.", type: "error" }
+        ]);
+        setTestStatus("failed");
       }
       setRunning(false);
       setTerminalOpen(true);
