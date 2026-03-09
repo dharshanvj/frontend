@@ -1199,13 +1199,13 @@ const EduTabCard = ({ title, badge, children, img }) => (
   </motion.div>
 );
 
-const UserDashboard = ({ user, onLogout, onClose, onSettings, onProgress, onMyPlaygrounds }) => {
+const UserDashboard = ({ user, onLogout, onClose, onSettings, onProgress, onMyPlaygrounds, onMyLists }) => {
   if (!user) return null;
   const displayName = user?.name || user?.user_metadata?.display_name || user?.email?.split("@")[0] || "Dharshan";
   const initial = displayName?.[0]?.toUpperCase() || "D";
 
   const gridItems = [
-    { label: "My Lists", icon: "📋", color: "#34C759" },
+    { label: "My Lists", icon: "📋", color: "#34C759", onClick: () => { onClose(); onMyLists && onMyLists(); } },
     { label: "Progress", icon: "📈", color: "#FF9500", onClick: () => { onClose(); onProgress && onProgress(); } }
   ];
 
@@ -1434,7 +1434,7 @@ const FooterSection = () => (
 /* ============================================================
    HOME SCREEN REDESIGN
 ============================================================ */
-export const HomeScreen = ({ onEnter, user, onLogout, progress, onLoginClick, onSettings, onProgress }) => {
+export const HomeScreen = ({ onEnter, user, onLogout, progress, onLoginClick, onSettings, onProgress, onMyLists }) => {
   const [showProfile, setShowProfile] = useState(false);
   const [tab, setTab] = useState("home");
   const displayName = user?.name || user?.user_metadata?.display_name || "User";
@@ -1476,7 +1476,7 @@ export const HomeScreen = ({ onEnter, user, onLogout, progress, onLoginClick, on
                     {initial}
                   </motion.div>
                   <AnimatePresence>
-                    {showProfile && <UserDashboard user={user} onLogout={onLogout} onClose={() => setShowProfile(false)} onSettings={onSettings} onProgress={onProgress} />}
+                    {showProfile && <UserDashboard user={user} onLogout={onLogout} onClose={() => setShowProfile(false)} onSettings={onSettings} onProgress={onProgress} onMyLists={onMyLists} />}
                   </AnimatePresence>
                 </>
               ) : (
@@ -1592,7 +1592,7 @@ export const HomeScreen = ({ onEnter, user, onLogout, progress, onLoginClick, on
 /* ============================================================
    DSA SCREEN
 ============================================================ */
-const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress, user, onSettings, analytics, logSession, onShowProgress, onExploreVisualizer }) => {
+const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress, user, onSettings, analytics, logSession, onShowProgress, onExploreVisualizer, onMyLists }) => {
   // const { analytics, logSession } = useAnalytics(); // Removed, handled in App
   const [showProfile, setShowProfile] = useState(false);
   const [activeTab, setActiveTab] = useState("learn");
@@ -1636,7 +1636,7 @@ const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress, user, on
               {initial}
             </motion.div>
             <AnimatePresence>
-              {showProfile && <UserDashboard user={user} onLogout={() => { onBack(); window.location.reload(); }} onClose={() => setShowProfile(false)} onSettings={onSettings} onProgress={() => setShowReport(true)} onMyPlaygrounds={() => setActiveTab("interview")} />}
+              {showProfile && <UserDashboard user={user} onLogout={() => { onBack(); window.location.reload(); }} onClose={() => setShowProfile(false)} onSettings={onSettings} onProgress={() => setShowReport(true)} onMyPlaygrounds={() => setActiveTab("interview")} onMyLists={onMyLists} />}
             </AnimatePresence>
           </div>
         </div>
@@ -1668,6 +1668,123 @@ const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress, user, on
         </AnimatePresence>
       </div>
     </div>
+  );
+};
+
+/* ============================================================
+   MY LISTS SCREEN
+============================================================ */
+const MyListsScreen = ({ onBack, onPractice }) => {
+  const [activeTab, setActiveTab] = useState("browse"); // browse or favourites
+  const [search, setSearch] = useState("");
+  const [favourites, setFavourites] = useState(() => {
+    const saved = localStorage.getItem("fita_favourite_questions");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const allQuestions = [];
+  Object.keys(CODING_CHALLENGES).forEach(mod => {
+    ["Beginner", "Intermediate", "Advanced"].forEach(lvl => {
+      const qList = CODING_CHALLENGES[mod][lvl] || [];
+      qList.forEach(q => allQuestions.push({ ...q, module: mod, level: lvl }));
+    });
+  });
+
+  const toggleFavourite = (q) => {
+    setFavourites(prev => {
+      const isFav = prev.some(f => f.id === q.id);
+      let newFavs;
+      if (isFav) {
+        newFavs = prev.filter(f => f.id !== q.id);
+      } else {
+        newFavs = [...prev, q];
+      }
+      localStorage.setItem("fita_favourite_questions", JSON.stringify(newFavs));
+      return newFavs;
+    });
+  };
+
+  const filteredQuestions = (activeTab === "browse" ? allQuestions : favourites).filter(q =>
+    q.title.toLowerCase().includes(search.toLowerCase()) ||
+    q.company.toLowerCase().includes(search.toLowerCase()) ||
+    q.module.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ minHeight: "100vh", background: "white", color: "#1D1D1F" }}>
+      {/* Header */}
+      <div style={{ borderBottom: "1px solid rgba(0,0,0,0.05)", padding: "20px 48px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "white", sticky: "top", top: 0, zIndex: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+          <motion.button onClick={onBack} whileHover={{ x: -4 }} style={{ background: "none", border: "none", color: "#0071E3", fontSize: 15, fontWeight: 900, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}>
+            ‹ BACK
+          </motion.button>
+          <div style={{ fontSize: 24, fontWeight: 900, letterSpacing: -1 }}>My Lists</div>
+        </div>
+        <div style={{ display: "flex", gap: 8, background: "#F5F5F7", padding: 6, borderRadius: 28 }}>
+          <button onClick={() => setActiveTab("browse")} style={{
+            padding: "8px 20px", borderRadius: 22, border: "none", fontSize: 13, fontWeight: 800,
+            background: activeTab === "browse" ? "white" : "transparent",
+            color: activeTab === "browse" ? "#1D1D1F" : "#86868b",
+            boxShadow: activeTab === "browse" ? "0 4px 12px rgba(0,0,0,0.05)" : "none", cursor: "pointer"
+          }}>Add Questions</button>
+          <button onClick={() => setActiveTab("favourites")} style={{
+            padding: "8px 20px", borderRadius: 22, border: "none", fontSize: 13, fontWeight: 800,
+            background: activeTab === "favourites" ? "white" : "transparent",
+            color: activeTab === "favourites" ? "#1D1D1F" : "#86868b",
+            boxShadow: activeTab === "favourites" ? "0 4px 12px rgba(0,0,0,0.05)" : "none", cursor: "pointer"
+          }}>My Favourites</button>
+        </div>
+      </div>
+
+      <div style={{ maxWidth: 1000, margin: "0 auto", padding: "60px 40px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 40 }}>
+          <div style={{ position: "relative", flex: 1, maxWidth: 400 }}>
+            <span style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", opacity: 0.4 }}>🔍</span>
+            <input type="text" placeholder="Search questions..." value={search} onChange={e => setSearch(e.target.value)}
+              style={{ width: "100%", padding: "12px 16px 12px 44px", borderRadius: 32, border: "1.5px solid #F0F0F0", background: "#F5F5F7", fontSize: 15, outline: "none", transition: "0.2s" }} />
+          </div>
+          <button onClick={onPractice} style={{ background: "#0071E3", color: "white", padding: "12px 32px", borderRadius: 32, border: "none", fontSize: 15, fontWeight: 800, cursor: "pointer", boxShadow: "0 10px 20px rgba(0,113,227,0.2)" }}>🚀 Practice Now</button>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {filteredQuestions.length > 0 ? filteredQuestions.map((q, idx) => {
+            const isFav = favourites.some(f => f.id === q.id);
+            const difficultyColor = q.level === "Advanced" ? "#FF3B30" : q.level === "Intermediate" ? "#FF9500" : "#34C759";
+            return (
+              <motion.div key={q.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.02 }}
+                style={{ background: "#FFFFFF", padding: "20px 32px", borderRadius: 24, border: "1.5px solid #F0F0F0", display: "flex", alignItems: "center", justifyContent: "space-between", transition: "0.2s" }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = "#0071E3"} onMouseLeave={e => e.currentTarget.style.borderColor = "#F0F0F0"}>
+                <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+                  <div style={{ fontSize: 16, fontWeight: 900, color: "#86868b", width: 30 }}>{idx + 1}.</div>
+                  <div>
+                    <div style={{ fontSize: 17, fontWeight: 800, color: "#1D1D1F", marginBottom: 2 }}>{q.title}</div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: "#86868b" }}>{q.company}</span>
+                      <span style={{ height: 3, width: 3, borderRadius: "50%", background: "#D2D2D7" }} />
+                      <span style={{ fontSize: 12, fontWeight: 700, color: "#86868b" }}>{q.module}</span>
+                    </div>
+                  </div>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+                  <span style={{ fontSize: 13, fontWeight: 900, color: difficultyColor, textTransform: "uppercase" }}>{q.level.substring(0, 3)}</span>
+                  <motion.button onClick={() => toggleFavourite(q)} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+                    style={{ background: isFav ? "#0071E315" : "transparent", border: isFav ? "none" : "1.5px solid #F0F0F0", borderRadius: 12, padding: "8px 16px", cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 16 }}>{isFav ? "★" : "☆"}</span>
+                    <span style={{ fontSize: 13, fontWeight: 800, color: isFav ? "#0071E3" : "#1D1D1F" }}>{isFav ? "Saved" : "Add to List"}</span>
+                  </motion.button>
+                </div>
+              </motion.div>
+            );
+          }) : (
+            <div style={{ textAlign: "center", padding: "80px 0" }}>
+              <div style={{ fontSize: 60, marginBottom: 24 }}>🏮</div>
+              <h3 style={{ fontSize: 24, fontWeight: 800, marginBottom: 8 }}>No questions found</h3>
+              <p style={{ color: "#86868b" }}>Try searching for something else or add some questions first.</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </motion.div>
   );
 };
 
@@ -3299,7 +3416,7 @@ const ProgramPanel = ({ data, module: mod, color }) => {
    VISUALIZERS
 ============================================================ */
 const VisualPanel = ({ module: mod, color, onExploreVisualizer }) => {
-  const hasViz = ["Stack", "Queue", "Linear Search", "Bubble Sort", "Selection Sort", "Insertion Sort", "Merge Sort", "Quick Sort", "Binary Search", "Linked Lists", "Recursion", "Trees", "Binary Search Trees", "Graphs", "Arrays", "Strings", "Hashing", "Heap / Priority Queue", "Backtracking"].includes(mod);
+  const hasViz = ["Stack", "Queue", "Linear Search", "Bubble Sort", "Selection Sort", "Insertion Sort", "Merge Sort", "Quick Sort", "Binary Search", "Linked Lists", "Recursion", "Trees", "Binary Search Trees", "Graphs", "Arrays", "Strings", "Hashing", "Heap / Priority Queue", "Backtracking", "Greedy Algorithms", "Dynamic Programming", "Bit Manipulation", "Tries", "Segment Trees", "Disjoint Set Union"].includes(mod);
   return (
     <div style={{ background: "white", border: "1.5px solid var(--border)", borderRadius: 20, padding: 36, boxShadow: "var(--shadow)", minHeight: 400, display: "flex", flexDirection: "column", justifyContent: hasViz ? "flex-start" : "center", alignItems: hasViz ? "stretch" : "center", textAlign: "center" }}>
       {hasViz && (
@@ -3314,6 +3431,7 @@ const VisualPanel = ({ module: mod, color, onExploreVisualizer }) => {
               if (mod === "Recursion") algKey = "factorial";
               if (mod === "Linked Lists") algKey = "linked_lists";
               if (mod === "Heap / Priority Queue") algKey = "heap";
+              if (mod === "Disjoint Set Union") algKey = "disjoint_set_union";
               onExploreVisualizer(algKey);
             }}
             style={{ background: "#0071E3", color: "white", border: "none", padding: "10px 20px", borderRadius: 12, fontSize: 13, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 12px rgba(0,113,227,0.3)" }}>
@@ -3339,6 +3457,12 @@ const VisualPanel = ({ module: mod, color, onExploreVisualizer }) => {
       {mod === "Hashing" && <HashingMiniVisual color={color} />}
       {mod === "Heap / Priority Queue" && <HeapMiniVisual color={color} />}
       {mod === "Backtracking" && <BacktrackingMiniVisual color={color} />}
+      {mod === "Greedy Algorithms" && <GreedyMiniVisual color={color} />}
+      {mod === "Dynamic Programming" && <DPMiniVisual color={color} />}
+      {mod === "Bit Manipulation" && <BitMiniVisual color={color} />}
+      {mod === "Tries" && <TrieMiniVisual color={color} />}
+      {mod === "Segment Trees" && <SegmentTreeMiniVisual color={color} />}
+      {mod === "Disjoint Set Union" && <DSUMiniVisual color={color} />}
       {!hasViz && (
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
           <div style={{ fontSize: 64, marginBottom: 20 }}>🎬</div>
@@ -4066,6 +4190,175 @@ function BacktrackingMiniVisual({ color }) {
   );
 }
 
+function GreedyMiniVisual({ color }) {
+  const [res, setRes] = useState([]);
+  const [amount, setAmount] = useState(55);
+  const visualize = async () => {
+    const coins = [25, 10, 5, 1];
+    let curr = 55;
+    let newRes = [];
+    for (const c of coins) {
+      while (curr >= c) {
+        newRes.push(c);
+        curr -= c;
+        setRes([...newRes]);
+        setAmount(curr);
+        await new Promise(r => setTimeout(r, 600));
+      }
+    }
+  };
+  return (
+    <div>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#86868b", textTransform: "uppercase", marginBottom: 20 }}>Greedy Coin Change (Amount: {amount})</div>
+      <div style={{ display: "flex", gap: 10, justifyContent: "center", marginBottom: 30, flexWrap: "wrap", maxWidth: 300, margin: "0 auto 30px" }}>
+        {res.map((v, i) => (
+          <motion.div key={i} initial={{ scale: 0 }} animate={{ scale: 1 }}
+            style={{ width: 40, height: 40, borderRadius: "50%", background: color, color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 14 }}>
+            {v}
+          </motion.div>
+        ))}
+      </div>
+      <VizBtn onClick={visualize} color={color}>▶ Solve 55¢</VizBtn>
+    </div>
+  );
+}
+
+function DPMiniVisual({ color }) {
+  const [memo, setMemo] = useState(Array(7).fill(0));
+  const [active, setActive] = useState(null);
+  const visualize = async () => {
+    let m = Array(7).fill(0);
+    m[0] = 0; m[1] = 1;
+    setMemo([...m]);
+    for (let i = 2; i < 7; i++) {
+      setActive(i);
+      await new Promise(r => setTimeout(r, 800));
+      m[i] = m[i - 1] + m[i - 2];
+      setMemo([...m]);
+    }
+    setActive(null);
+  };
+  return (
+    <div>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#86868b", textTransform: "uppercase", marginBottom: 20 }}>DP: Fibonacci Memoization</div>
+      <div style={{ display: "flex", gap: 8, justifyContent: "center", marginBottom: 30 }}>
+        {memo.map((v, i) => (
+          <div key={i} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <motion.div animate={{ backgroundColor: active === i ? color : "white", color: active === i ? "white" : "#1d1d1f", borderColor: v > 0 || i < 2 ? color : "var(--border)" }}
+              style={{ width: 42, height: 42, borderRadius: 8, border: "2px solid", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800 }}>
+              {v}
+            </motion.div>
+            <span style={{ fontSize: 9, color: "#86868b", textAlign: "center" }}>f({i})</span>
+          </div>
+        ))}
+      </div>
+      <VizBtn onClick={visualize} color={color}>▶ Fill DP Table</VizBtn>
+    </div>
+  );
+}
+
+function BitMiniVisual({ color }) {
+  const [bits, setBits] = useState("00001111");
+  const shift = () => {
+    let b = bits.substring(1) + "0";
+    setBits(b);
+  };
+  return (
+    <div>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#86868b", textTransform: "uppercase", marginBottom: 20 }}>Bitwise Left Shift (&lt;&lt; 1)</div>
+      <div style={{ display: "flex", gap: 6, justifyContent: "center", marginBottom: 30 }}>
+        {bits.split("").map((b, i) => (
+          <motion.div key={i} animate={{ backgroundColor: b === "1" ? color : "#f5f5f7", color: b === "1" ? "white" : "#d2d2d7" }}
+            style={{ width: 32, height: 44, borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 18 }}>
+            {b}
+          </motion.div>
+        ))}
+      </div>
+      <VizBtn onClick={shift} color={color}>▶ Shift Left</VizBtn>
+    </div>
+  );
+}
+
+function TrieMiniVisual({ color }) {
+  const words = ["ACE", "ACT"];
+  const [active, setActive] = useState(null);
+  const visualize = async () => {
+    setActive("A"); await new Promise(r => setTimeout(r, 600));
+    setActive("AC"); await new Promise(r => setTimeout(r, 600));
+    setActive("ACE"); await new Promise(r => setTimeout(r, 600));
+    setActive("ACT"); await new Promise(r => setTimeout(r, 600));
+    setActive(null);
+  };
+  return (
+    <div>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#86868b", textTransform: "uppercase", marginBottom: 20 }}>Trie Prefix Tree Structure</div>
+      <div style={{ height: 120, display: "flex", flexDirection: "column", alignItems: "center", gap: 10, marginBottom: 20 }}>
+        <div style={{ width: 30, height: 30, borderRadius: "50%", background: "#1d1d1f", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10 }}>ROOT</div>
+        <div style={{ width: 2, height: 20, background: "#eee" }} />
+        <motion.div animate={{ backgroundColor: active?.startsWith("A") ? color : "white", color: active?.startsWith("A") ? "white" : "#1d1d1f" }}
+          style={{ width: 34, height: 34, borderRadius: "50%", border: "1.5px solid #eee", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800 }}>A</motion.div>
+        <div style={{ display: "flex", gap: 40 }}>
+          <motion.div animate={{ backgroundColor: active?.startsWith("AC") ? color : "white", color: active?.startsWith("AC") ? "white" : "#1d1d1f" }}
+            style={{ width: 34, height: 34, borderRadius: "50%", border: "1.5px solid #eee", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800 }}>C</motion.div>
+        </div>
+      </div>
+      <VizBtn onClick={visualize} color={color}>▶ Insert "ACE", "ACT"</VizBtn>
+    </div>
+  );
+}
+
+function SegmentTreeMiniVisual({ color }) {
+  const [tree, setTree] = useState([0, 0, 0, 1, 2, 3, 4]);
+  const [active, setActive] = useState(null);
+  const build = async () => {
+    let t = [0, 0, 0, 1, 2, 3, 4];
+    setActive(1);
+    await new Promise(r => setTimeout(r, 800));
+    t[1] = 10; setTree([...t]);
+    setActive(null);
+  };
+  return (
+    <div>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#86868b", textTransform: "uppercase", marginBottom: 20 }}>Segment Tree: Range Sum</div>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, marginBottom: 30 }}>
+        <motion.div animate={{ backgroundColor: active === 1 ? color : "white", color: active === 1 ? "white" : "#1d1d1f", borderColor: tree[1] > 0 ? color : "#eee" }}
+          style={{ width: 40, height: 40, borderRadius: 8, border: "2px solid", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800 }}>{tree[1] || "?"}</motion.div>
+        <div style={{ display: "flex", gap: 40 }}>
+          {tree.slice(3).map((v, i) => (
+            <div key={i} style={{ width: 32, height: 32, borderRadius: 6, border: "1.5px solid #eee", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700 }}>{v}</div>
+          ))}
+        </div>
+      </div>
+      <VizBtn onClick={build} color={color}>▶ Build Tree</VizBtn>
+    </div>
+  );
+}
+
+function DSUMiniVisual({ color }) {
+  const [parent, setParent] = useState([0, 1, 2, 3]);
+  const union = () => {
+    let p = [...parent];
+    p[0] = 1; p[1] = 2;
+    setParent(p);
+  };
+  return (
+    <div>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#86868b", textTransform: "uppercase", marginBottom: 20 }}>DSU: Connectivity (Union)</div>
+      <div style={{ display: "flex", gap: 15, justifyContent: "center", marginBottom: 30 }}>
+        {parent.map((p, i) => (
+          <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
+            <motion.div animate={{ borderColor: p !== i ? color : "#eee" }}
+              style={{ width: 36, height: 36, borderRadius: "50%", border: "2px solid", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800 }}>{i}</motion.div>
+            <span style={{ fontSize: 10 }}>→ {p}</span>
+          </div>
+        ))}
+      </div>
+      <VizBtn onClick={union} color={color}>▶ Union(0,1) & Union(1,2)</VizBtn>
+    </div>
+  );
+}
+
+
 function GraphVisual({ color }) {
   const [activeNode, setActiveNode] = useState(null);
   const nodes = [
@@ -4623,7 +4916,7 @@ export default function App() {
       <AnimatePresence mode="wait">
         {screen === "home" && (
           <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.4 }}>
-            <HomeScreen onEnter={() => setScreen("dsa")} user={user} onLogout={handleLogout} progress={progress} onLoginClick={() => setShowLogin(true)} onSettings={() => setScreen("settings")} onProgress={() => setShowProgress(true)} />
+            <HomeScreen onEnter={() => setScreen("dsa")} user={user} onLogout={handleLogout} progress={progress} onLoginClick={() => setShowLogin(true)} onSettings={() => setScreen("settings")} onProgress={() => setShowProgress(true)} onMyLists={() => setScreen("my_lists")} />
           </motion.div>
         )}
         {screen === "dsa" && (
@@ -4634,6 +4927,7 @@ export default function App() {
               onSettings={() => setScreen("settings")} analytics={analytics}
               logSession={logSession} onShowProgress={() => setShowProgress(true)}
               onExploreVisualizer={(alg) => { setSelectedPlaygroundAlg(alg); setScreen("playground"); }}
+              onMyLists={() => setScreen("my_lists")}
             />
           </motion.div>
         )}
@@ -4650,6 +4944,11 @@ export default function App() {
         {screen === "module" && (
           <motion.div key="module" initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
             <ModuleScreen module={module} data={data} subScreen={subScreen} setSubScreen={setSubScreen} onBack={() => { setScreen("dsa"); setSubScreen(null); }} logSession={logSession} onExploreVisualizer={(alg) => { setSelectedPlaygroundAlg(alg); setScreen("playground"); }} />
+          </motion.div>
+        )}
+        {screen === "my_lists" && (
+          <motion.div key="my_lists" initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -40 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
+            <MyListsScreen onBack={() => setScreen("home")} onPractice={() => setScreen("dsa")} />
           </motion.div>
         )}
       </AnimatePresence>

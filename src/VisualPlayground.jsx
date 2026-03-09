@@ -90,6 +90,54 @@ const ALGORITHM_CONFIGS = {
         testCases: [],
         defaultCode: `void runLinkedList() {\n    LinkedList<Integer> list = new LinkedList<>();\n    // Try: list.add(10); // inserts at end\n    // Try: list.add(0, 99); // inserts at index 0\n    \n}`,
         defaultInput: { arr: [1, 2, 3], action: "insert", val: 99, pos: 0 }
+    },
+    greedy_algorithms: {
+        name: "Greedy Algorithm (Coin Change)",
+        complexity: "O(n log n)",
+        description: "Always picking the largest available coin.",
+        testCases: [],
+        defaultCode: `void solveCoinChange() {\n    int amount = 55;\n    int[] coins = {25, 10, 5, 1};\n    // Selecting coins until amount is reached\n    \n}`,
+        defaultInput: { amount: 55, coins: [25, 10, 5, 1] }
+    },
+    dynamic_programming: {
+        name: "Dynamic Programming (Fibonacci)",
+        complexity: "O(n)",
+        description: "Bottom-up or Top-down with memoization.",
+        testCases: [],
+        defaultCode: `void solveFibonacci() {\n    int n = 6;\n    // Memoizing results for subproblems\n    \n}`,
+        defaultInput: 6
+    },
+    bit_manipulation: {
+        name: "Bit Manipulation",
+        complexity: "O(1)",
+        description: "Bitwise AND, OR, XOR, SHIFT operations.",
+        testCases: [],
+        defaultCode: `void runBits() {\n    int a = 15;\n    int b = 1;\n    // Try: int res = a & b; // AND\n    // Try: int res = a ^ b; // XOR\n    \n}`,
+        defaultInput: { val: 15, op: "AND", mask: 1 }
+    },
+    tries: {
+        name: "Trie (Prefix Tree)",
+        complexity: "O(length)",
+        description: "Prefix tree insertion and search.",
+        testCases: [],
+        defaultCode: `void buildTrie() {\n    String[] words = {"code", "cool", "cart"};\n    // Building the path character by character\n    \n}`,
+        defaultInput: ["code", "cool", "cart"]
+    },
+    segment_trees: {
+        name: "Segment Tree",
+        complexity: "O(log n)",
+        description: "Building range sum query tree.",
+        testCases: [],
+        defaultCode: `void buildSegmentTree() {\n    int[] arr = {1, 2, 3, 4};\n    // Tree build from bottom-up leaves\n    \n}`,
+        defaultInput: [1, 2, 3, 4]
+    },
+    disjoint_set_union: {
+        name: "Disjoint Set Union (DSU)",
+        complexity: "O(α(n))",
+        description: "Connectivity and union-find operations.",
+        testCases: [],
+        defaultCode: `void runDSU() {\n    DSU dsu = new DSU(5);\n    dsu.union(0, 1);\n    dsu.union(1, 2);\n    dsu.find(0);\n    \n}`,
+        defaultInput: { n: 5, ops: [["union", 0, 1], ["union", 1, 2], ["find", 0, null]] }
     }
 };
 
