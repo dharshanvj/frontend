@@ -3299,7 +3299,7 @@ const ProgramPanel = ({ data, module: mod, color }) => {
    VISUALIZERS
 ============================================================ */
 const VisualPanel = ({ module: mod, color, onExploreVisualizer }) => {
-  const hasViz = ["Stack", "Queue", "Linear Search", "Bubble Sort", "Selection Sort", "Insertion Sort", "Merge Sort", "Quick Sort", "Binary Search", "Linked Lists", "Recursion", "Trees", "Binary Search Trees", "Graphs"].includes(mod);
+  const hasViz = ["Stack", "Queue", "Linear Search", "Bubble Sort", "Selection Sort", "Insertion Sort", "Merge Sort", "Quick Sort", "Binary Search", "Linked Lists", "Recursion", "Trees", "Binary Search Trees", "Graphs", "Arrays", "Strings", "Hashing", "Heap / Priority Queue", "Backtracking"].includes(mod);
   return (
     <div style={{ background: "white", border: "1.5px solid var(--border)", borderRadius: 20, padding: 36, boxShadow: "var(--shadow)", minHeight: 400, display: "flex", flexDirection: "column", justifyContent: hasViz ? "flex-start" : "center", alignItems: hasViz ? "stretch" : "center", textAlign: "center" }}>
       {hasViz && (
@@ -3310,7 +3310,10 @@ const VisualPanel = ({ module: mod, color, onExploreVisualizer }) => {
           </div>
           <button
             onClick={() => {
-              const algKey = mod === "Recursion" ? "factorial" : mod.toLowerCase().replace(/\s+\/\s+/g, "_").replace(/\s+/g, "_");
+              let algKey = mod.toLowerCase().replace(/\s+/g, "_");
+              if (mod === "Recursion") algKey = "factorial";
+              if (mod === "Linked Lists") algKey = "linked_lists";
+              if (mod === "Heap / Priority Queue") algKey = "heap";
               onExploreVisualizer(algKey);
             }}
             style={{ background: "#0071E3", color: "white", border: "none", padding: "10px 20px", borderRadius: 12, fontSize: 13, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 12px rgba(0,113,227,0.3)" }}>
@@ -3331,6 +3334,11 @@ const VisualPanel = ({ module: mod, color, onExploreVisualizer }) => {
       {mod === "Recursion" && <RecursionVisual color={color} />}
       {(mod === "Trees" || mod === "Binary Search Trees") && <TreeVisual color={color} isBST={mod === "Binary Search Trees"} />}
       {mod === "Graphs" && <GraphVisual color={color} />}
+      {mod === "Arrays" && <ArraysMiniVisual color={color} />}
+      {mod === "Strings" && <StringsMiniVisual color={color} />}
+      {mod === "Hashing" && <HashingMiniVisual color={color} />}
+      {mod === "Heap / Priority Queue" && <HeapMiniVisual color={color} />}
+      {mod === "Backtracking" && <BacktrackingMiniVisual color={color} />}
       {!hasViz && (
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
           <div style={{ fontSize: 64, marginBottom: 20 }}>🎬</div>
@@ -3883,6 +3891,177 @@ function TreeVisual({ color, isBST }) {
         <VizBtn onClick={() => traverse(tree)} color={color}>▶ Visualize DFS Traversal</VizBtn>
         <VizBtn onClick={() => setActive(null)} color={color}>↺ Reset</VizBtn>
       </div>
+    </div>
+  );
+}
+
+function ArraysMiniVisual({ color }) {
+  const [arr, setArr] = useState([10, 20, 30, 40, 50]);
+  const [active, setActive] = useState(null);
+  const search = async () => {
+    for (let i = 0; i < arr.length; i++) {
+      setActive(i);
+      await new Promise(r => setTimeout(r, 600));
+    }
+    setActive(null);
+  };
+  return (
+    <div>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#86868b", textTransform: "uppercase", marginBottom: 20 }}>Visualizing Array Traversal</div>
+      <div style={{ display: "flex", gap: 10, justifyContent: "center", marginBottom: 30 }}>
+        {arr.map((v, i) => (
+          <motion.div key={i} animate={{ backgroundColor: active === i ? color : "white", color: active === i ? "white" : "#1d1d1f", scale: active === i ? 1.1 : 1 }}
+            style={{ width: 48, height: 48, borderRadius: 12, border: "1.5px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 16 }}>
+            {v}
+          </motion.div>
+        ))}
+      </div>
+      <VizBtn onClick={search} color={color}>▶ Visualize Traversal</VizBtn>
+    </div>
+  );
+}
+
+function StringsMiniVisual({ color }) {
+  const [str, setStr] = useState("HELLO");
+  const [active, setActive] = useState(null);
+  const reverse = async () => {
+    let chars = str.split("");
+    let l = 0, r = chars.length - 1;
+    while (l < r) {
+      setActive({ l, r });
+      await new Promise(res => setTimeout(res, 800));
+      [chars[l], chars[r]] = [chars[r], chars[l]];
+      setStr(chars.join(""));
+      l++; r--;
+    }
+    setActive(null);
+  };
+  return (
+    <div>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#86868b", textTransform: "uppercase", marginBottom: 20 }}>String Reversal (Two Pointers)</div>
+      <div style={{ display: "flex", gap: 8, justifyContent: "center", marginBottom: 30 }}>
+        {str.split("").map((c, i) => (
+          <motion.div key={i} animate={{ backgroundColor: (active?.l === i || active?.r === i) ? color : "white", color: (active?.l === i || active?.r === i) ? "white" : "#1d1d1f" }}
+            style={{ width: 44, height: 44, borderRadius: 8, border: "1.5px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 18 }}>
+            {c}
+          </motion.div>
+        ))}
+      </div>
+      <VizBtn onClick={reverse} color={color}>▶ Reverse String</VizBtn>
+    </div>
+  );
+}
+
+function HashingMiniVisual({ color }) {
+  const [table, setTable] = useState(Array(7).fill(null));
+  const [active, setActive] = useState(null);
+  const insert = async () => {
+    const keys = [10, 17, 24];
+    let newTable = Array(7).fill(null);
+    for (const k of keys) {
+      let h = k % 7;
+      setActive(h);
+      await new Promise(r => setTimeout(r, 600));
+      while (newTable[h] !== null) {
+        h = (h + 1) % 7;
+        setActive(h);
+        await new Promise(r => setTimeout(r, 600));
+      }
+      newTable[h] = k;
+      setTable([...newTable]);
+    }
+    setActive(null);
+  };
+  return (
+    <div>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#86868b", textTransform: "uppercase", marginBottom: 20 }}>Hash Table (mod 7 + Linear Probing)</div>
+      <div style={{ display: "flex", gap: 6, justifyContent: "center", marginBottom: 30 }}>
+        {table.map((v, i) => (
+          <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+            <motion.div animate={{ backgroundColor: active === i ? color : "white", color: active === i ? "white" : "#1d1d1f", borderColor: v ? color : "var(--border)" }}
+              style={{ width: 42, height: 42, borderRadius: 8, border: "1.5px solid", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 14 }}>
+              {v}
+            </motion.div>
+            <span style={{ fontSize: 9, color: "#86868b", fontWeight: 700 }}>{i}</span>
+          </div>
+        ))}
+      </div>
+      <VizBtn onClick={insert} color={color}>▶ Insert 10, 17, 24</VizBtn>
+    </div>
+  );
+}
+
+function HeapMiniVisual({ color }) {
+  const [heap, setHeap] = useState([50, 30, 40]);
+  const [active, setActive] = useState(null);
+  const insert = async () => {
+    const val = 60;
+    let newHeap = [...heap, val];
+    setHeap([...newHeap]);
+    let curr = newHeap.length - 1;
+    setActive(curr);
+    await new Promise(r => setTimeout(r, 800));
+    while (curr > 0) {
+      let p = Math.floor((curr - 1) / 2);
+      setActive(p);
+      await new Promise(r => setTimeout(r, 600));
+      if (newHeap[curr] > newHeap[p]) {
+        [newHeap[curr], newHeap[p]] = [newHeap[p], newHeap[curr]];
+        setHeap([...newHeap]);
+        curr = p;
+        setActive(curr);
+        await new Promise(r => setTimeout(r, 600));
+      } else break;
+    }
+    setActive(null);
+  };
+  return (
+    <div>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#86868b", textTransform: "uppercase", marginBottom: 20 }}>Max-Heap Insertion (Bubbling Up)</div>
+      <div style={{ display: "flex", gap: 10, justifyContent: "center", marginBottom: 30 }}>
+        {heap.map((v, i) => (
+          <motion.div key={i} animate={{ backgroundColor: active === i ? color : "white", color: active === i ? "white" : "#1d1d1f" }}
+            style={{ width: 48, height: 48, borderRadius: "50%", border: `2px solid ${v ? color : "var(--border)"}`, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 16 }}>
+            {v}
+          </motion.div>
+        ))}
+      </div>
+      <VizBtn onClick={insert} color={color}>▶ Insert 60</VizBtn>
+    </div>
+  );
+}
+
+function BacktrackingMiniVisual({ color }) {
+  const [board, setBoard] = useState([-1, -1, -1, -1]);
+  const [current, setCurrent] = useState(null);
+  const visualize = async () => {
+    let b = [-1, -1, -1, -1];
+    for (let r = 0; r < 4; r++) {
+      for (let c = 0; c < 4; c++) {
+        b[r] = c;
+        setBoard([...b]);
+        setCurrent({ r, c });
+        await new Promise(res => setTimeout(res, 400));
+        // Simple logic for visualization
+        if ((r === 0 && c === 1) || (r === 1 && c === 3) || (r === 2 && c === 0) || (r === 3 && c === 2)) {
+          break;
+        }
+      }
+    }
+    setCurrent(null);
+  };
+  return (
+    <div>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#86868b", textTransform: "uppercase", marginBottom: 20 }}>N-Queens Backtracking Discovery</div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 32px)", gap: 4, justifyContent: "center", marginBottom: 30 }}>
+        {[0, 1, 2, 3].map(r => [0, 1, 2, 3].map(c => (
+          <motion.div key={`${r}-${c}`} animate={{ backgroundColor: board[r] === c ? color : "#f5f5f7", scale: (current?.r === r && current?.c === c) ? 1.2 : 1 }}
+            style={{ width: 32, height: 32, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>
+            {board[r] === c ? "♛" : ""}
+          </motion.div>
+        )))}
+      </div>
+      <VizBtn onClick={visualize} color={color}>▶ Start Backtracking</VizBtn>
     </div>
   );
 }

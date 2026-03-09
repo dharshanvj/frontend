@@ -39,9 +39,57 @@ const ALGORITHM_CONFIGS = {
         name: "Queue Operations",
         complexity: "O(1)",
         description: "Implement FIFO operations.",
-        defaultCode: `void runQueue() {\n    Queue<Integer> q = new LinkedList<>();\n    // Try: q.add(10); q.add(20); q.poll();\n    \n}`,
         testCases: [{ input: [], expected: [] }],
+        defaultCode: `void runQueue() {\n    Queue<Integer> q = new LinkedList<>();\n    // Try: q.add(10); q.add(20); q.poll();\n    \n}`,
         defaultInput: [{ action: "enqueue", value: 10 }, { action: "enqueue", value: 20 }, { action: "dequeue" }]
+    },
+    arrays: {
+        name: "Array Operations",
+        complexity: "O(n)",
+        description: "Access, Search and Update array elements.",
+        testCases: [],
+        defaultCode: `void runArrays() {\n    int[] arr = {10, 20, 30, 40, 50};\n    // Try: arr[2] = 99;\n    // Try: search(30);\n    \n}`,
+        defaultInput: { arr: [10, 20, 30, 40, 50], ops: [{ action: "access", index: 2 }] }
+    },
+    strings: {
+        name: "String Manipulation",
+        complexity: "O(n)",
+        description: "Reversal and Palindrome checks.",
+        testCases: [],
+        defaultCode: `void runStrings() {\n    String s = "radar";\n    // Try: boolean isPal = isPalindrome(s);\n    // Try: String rev = reverse(s);\n    \n}`,
+        defaultInput: { s: "radar", action: "reverse" }
+    },
+    hashing: {
+        name: "Hash Table (Linear Probing)",
+        complexity: "O(1) Avg",
+        description: "Visualize collisions and probing.",
+        testCases: [],
+        defaultCode: `void runHashing() {\n    int[] keys = {10, 17, 24, 31};\n    // Keys will be hashed mod 7\n    \n}`,
+        defaultInput: { keys: [10, 17, 24, 31], size: 7 }
+    },
+    heap: {
+        name: "Heap / Priority Queue",
+        complexity: "O(log n)",
+        description: "Max-Heap insertion and extraction.",
+        testCases: [],
+        defaultCode: `void runHeap() {\n    PriorityQueue<Integer> pq = new PriorityQueue<>();\n    // Try: pq.add(50);\n    // Try: pq.poll();\n    \n}`,
+        defaultInput: { arr: [10, 20, 30], action: "insert", val: 50 }
+    },
+    backtracking: {
+        name: "Backtracking (N-Queens)",
+        complexity: "O(N!)",
+        description: "Finding non-conflicting placements.",
+        testCases: [],
+        defaultCode: `void solveNQueens() {\n    int n = 4;\n    // Visualizing board state steps\n    \n}`,
+        defaultInput: 4
+    },
+    linked_lists: {
+        name: "Linked List",
+        complexity: "O(n)",
+        description: "Node insertion and deletion.",
+        testCases: [],
+        defaultCode: `void runLinkedList() {\n    LinkedList<Integer> list = new LinkedList<>();\n    // Try: list.add(10); // inserts at end\n    // Try: list.add(0, 99); // inserts at index 0\n    \n}`,
+        defaultInput: { arr: [1, 2, 3], action: "insert", val: 99, pos: 0 }
     }
 };
 
