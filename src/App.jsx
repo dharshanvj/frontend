@@ -1065,6 +1065,14 @@ const FitaAcademyProfile = () => {
           ))}
         </div>
       </div>
+
+      <div style={{ width: "100%", maxWidth: 1200, margin: "0 auto", marginTop: 80 }}>
+        <KeyFeaturesSection />
+        <UpskillBannerSection />
+        <MasterProgramSection />
+      </div>
+
+      <FooterSection />
     </motion.div>
   );
 };
@@ -1560,10 +1568,6 @@ export const HomeScreen = ({ onEnter, user, onLogout, progress, onLoginClick, on
                 <StatsSection />
 
                 <ChennaiSection />
-                <KeyFeaturesSection />
-                <UpskillBannerSection />
-                <MasterProgramSection />
-                <FooterSection />
               </div>
             </div>
           </motion.div>
