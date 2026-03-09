@@ -406,6 +406,13 @@ const LoginScreen = ({ onLogin, onBack }) => {
    INTERVIEW DATA — unchanged
 ============================================================ */
 const INTERVIEW_DATA = {
+  "Basic Programming": [
+    { q: "What is the purpose of a variable in programming?", a: "A variable is a named memory location used to store data that can be used and manipulated throughout the execution of a program.", company: "General", difficulty: "Easy" },
+    { q: "What does the modulo (%) operator do?", a: "The modulo operator returns the remainder of a division operation. For example, 10 % 3 returns 1. It is frequently used to check if a number is even or odd.", company: "General", difficulty: "Easy" },
+    { q: "What is the difference between an if statement and a while loop?", a: "An if statement evaluates a condition once and executes the block if true. A while loop evaluates a condition and repeatedly executes the block as long as the condition remains true.", company: "General", difficulty: "Easy" },
+    { q: "How do you check if a number is even or odd?", a: "You use the modulo operator: if (n % 2 == 0) then the number is even; otherwise, it is odd.", company: "General", difficulty: "Easy" },
+    { q: "What is a factorial and how is it calculated?", a: "The factorial of a non-negative integer n is the product of all positive integers less than or equal to n. It is calculated utilizing a loop (multiplying numbers from 1 to n) or using recursion.", company: "General", difficulty: "Medium" }
+  ],
   "Stack": [
     { q: "What is a Stack and how does LIFO work?", a: "A Stack is a linear data structure where insertion (push) and deletion (pop) happen at the same end called the 'top'. LIFO means the Last element Inserted is the First one Out — like a pile of plates.", company: "Google", difficulty: "Easy" },
     { q: "Which of the following is the correct property of a Stack?", a: "LIFO", options: ["FIFO", "LIFO", "LILO", "None of these"], company: "Amazon", difficulty: "Easy" },
@@ -926,10 +933,10 @@ function analyzeCode(code) {
 /* ============================================================
    CONSTANTS
 ============================================================ */
-const MOD_COLORS = { "Stack": "#0071e3", "Queue": "#34c759", "Linear Search": "#ff9500", "Bubble Sort": "#af52de", "Arrays": "#007aff", "Strings": "#5856d6", "Linked Lists": "#ff2d55", "Recursion": "#ff6723", "Backtracking": "#a2845e", "Trees": "#28a745", "Binary Search Trees": "#00c7be", "Heap / Priority Queue": "#ff375f", "Hashing": "#5ac8fa", "Graphs": "#bf5af2", "Greedy Algorithms": "#e6a800", "Dynamic Programming": "#ff453a", "Bit Manipulation": "#30d158", "Tries": "#0a84ff", "Segment Trees": "#5e5ce6", "Disjoint Set (Union Find)": "#ff9f0a", "Advanced Graph Algorithms": "#eb4d3d", "Binary Search": "#32ade6", "Selection Sort": "#ff6b35", "Insertion Sort": "#4cd964", "Merge Sort": "#9b59b6", "Quick Sort": "#e74c3c" };
-const MOD_ICONS = { "Stack": "📚", "Queue": "🔄", "Linear Search": "🔍", "Bubble Sort": "🫧", "Arrays": "📦", "Strings": "🔤", "Linked Lists": "🔗", "Recursion": "🔁", "Backtracking": "↩️", "Trees": "🌳", "Binary Search Trees": "🌲", "Heap / Priority Queue": "⛰️", "Hashing": "🔐", "Graphs": "🕸️", "Greedy Algorithms": "💰", "Dynamic Programming": "🧩", "Bit Manipulation": "⚡", "Tries": "🔠", "Segment Trees": "📊", "Disjoint Set (Union Find)": "🔀", "Advanced Graph Algorithms": "🗺️", "Binary Search": "🎯", "Selection Sort": "🎰", "Insertion Sort": "🃏", "Merge Sort": "🔀", "Quick Sort": "⚡" };
-const MOD_DESCS = { "Stack": "Last In, First Out", "Queue": "First In, First Out", "Linear Search": "Sequential scan", "Bubble Sort": "Comparison-based sort", "Arrays": "Contiguous memory storage", "Strings": "Character sequence operations", "Linked Lists": "Node-pointer chains", "Recursion": "Self-referencing functions", "Backtracking": "Explore & prune solutions", "Trees": "Hierarchical data structures", "Binary Search Trees": "Ordered binary trees", "Heap / Priority Queue": "Priority-based extraction", "Hashing": "Key-value fast lookup", "Graphs": "Nodes and edges", "Greedy Algorithms": "Locally optimal choices", "Dynamic Programming": "Overlapping subproblems", "Bit Manipulation": "Binary-level operations", "Tries": "Prefix tree structures", "Segment Trees": "Range query structures", "Disjoint Set (Union Find)": "Connected components", "Advanced Graph Algorithms": "Shortest paths & flows", "Binary Search": "Divide & conquer search", "Selection Sort": "Select minimum each pass", "Insertion Sort": "Build sorted array left to right", "Merge Sort": "Divide, sort, merge", "Quick Sort": "Partition around pivot" };
-const MODULES = ["Stack", "Queue", "Linear Search", "Bubble Sort", "Arrays", "Strings", "Linked Lists", "Recursion", "Backtracking", "Trees", "Binary Search Trees", "Heap / Priority Queue", "Hashing", "Graphs", "Greedy Algorithms", "Dynamic Programming", "Bit Manipulation", "Tries", "Segment Trees", "Disjoint Set (Union Find)", "Advanced Graph Algorithms", "Binary Search", "Selection Sort", "Insertion Sort", "Merge Sort", "Quick Sort"];
+const MOD_COLORS = { "Basic Programming": "#ffd60a", "Stack": "#0071e3", "Queue": "#34c759", "Linear Search": "#ff9500", "Bubble Sort": "#af52de", "Arrays": "#007aff", "Strings": "#5856d6", "Linked Lists": "#ff2d55", "Recursion": "#ff6723", "Backtracking": "#a2845e", "Trees": "#28a745", "Binary Search Trees": "#00c7be", "Heap / Priority Queue": "#ff375f", "Hashing": "#5ac8fa", "Graphs": "#bf5af2", "Greedy Algorithms": "#e6a800", "Dynamic Programming": "#ff453a", "Bit Manipulation": "#30d158", "Tries": "#0a84ff", "Segment Trees": "#5e5ce6", "Disjoint Set (Union Find)": "#ff9f0a", "Advanced Graph Algorithms": "#eb4d3d", "Binary Search": "#32ade6", "Selection Sort": "#ff6b35", "Insertion Sort": "#4cd964", "Merge Sort": "#9b59b6", "Quick Sort": "#e74c3c" };
+const MOD_ICONS = { "Basic Programming": "💡", "Stack": "📚", "Queue": "🔄", "Linear Search": "🔍", "Bubble Sort": "🫧", "Arrays": "📦", "Strings": "🔤", "Linked Lists": "🔗", "Recursion": "🔁", "Backtracking": "↩️", "Trees": "🌳", "Binary Search Trees": "🌲", "Heap / Priority Queue": "⛰️", "Hashing": "🔐", "Graphs": "🕸️", "Greedy Algorithms": "💰", "Dynamic Programming": "🧩", "Bit Manipulation": "⚡", "Tries": "🔠", "Segment Trees": "📊", "Disjoint Set (Union Find)": "🔀", "Advanced Graph Algorithms": "🗺️", "Binary Search": "🎯", "Selection Sort": "🎰", "Insertion Sort": "🃏", "Merge Sort": "🔀", "Quick Sort": "⚡" };
+const MOD_DESCS = { "Basic Programming": "Fundamentals of coding", "Stack": "Last In, First Out", "Queue": "First In, First Out", "Linear Search": "Sequential scan", "Bubble Sort": "Comparison-based sort", "Arrays": "Contiguous memory storage", "Strings": "Character sequence operations", "Linked Lists": "Node-pointer chains", "Recursion": "Self-referencing functions", "Backtracking": "Explore & prune solutions", "Trees": "Hierarchical data structures", "Binary Search Trees": "Ordered binary trees", "Heap / Priority Queue": "Priority-based extraction", "Hashing": "Key-value fast lookup", "Graphs": "Nodes and edges", "Greedy Algorithms": "Locally optimal choices", "Dynamic Programming": "Overlapping subproblems", "Bit Manipulation": "Binary-level operations", "Tries": "Prefix tree structures", "Segment Trees": "Range query structures", "Disjoint Set (Union Find)": "Connected components", "Advanced Graph Algorithms": "Shortest paths & flows", "Binary Search": "Divide & conquer search", "Selection Sort": "Select minimum each pass", "Insertion Sort": "Build sorted array left to right", "Merge Sort": "Divide, sort, merge", "Quick Sort": "Partition around pivot" };
+const MODULES = ["Basic Programming", "Stack", "Queue", "Linear Search", "Bubble Sort", "Arrays", "Strings", "Linked Lists", "Recursion", "Backtracking", "Trees", "Binary Search Trees", "Heap / Priority Queue", "Hashing", "Graphs", "Greedy Algorithms", "Dynamic Programming", "Bit Manipulation", "Tries", "Segment Trees", "Disjoint Set (Union Find)", "Advanced Graph Algorithms", "Binary Search", "Selection Sort", "Insertion Sort", "Merge Sort", "Quick Sort"];
 const LEVELS = ["Beginner", "Intermediate", "Advanced"];
 
 /* ============================================================
@@ -1065,7 +1072,7 @@ const FitaAcademyProfile = () => {
 const PillBtn = ({ onClick, active, children, color, style: s }) => (
   <motion.button whileHover={{ y: -4, scale: 1.02 }} whileTap={{ scale: 0.96 }} onClick={onClick}
     style={{
-      padding: "12px 28px", fontSize: 14, fontWeight: 800, borderRadius: 100, border: "none", cursor: "pointer", transition: "all 0.3s cubic-bezier(0.22, 1, 0.36, 1)",
+      padding: "8px 20px", fontSize: 13, fontWeight: 800, borderRadius: 100, border: "none", cursor: "pointer", transition: "all 0.3s cubic-bezier(0.22, 1, 0.36, 1)",
       background: active ? (color || "#0071e3") : "white",
       color: active ? "white" : "#1d1d1f",
       boxShadow: active
@@ -1184,19 +1191,19 @@ const EduTabCard = ({ title, badge, children, img }) => (
   </motion.div>
 );
 
-const UserDashboard = ({ user, onLogout, onClose, onSettings, onProgress }) => {
+const UserDashboard = ({ user, onLogout, onClose, onSettings, onProgress, onMyPlaygrounds }) => {
   if (!user) return null;
   const displayName = user?.name || user?.user_metadata?.display_name || user?.email?.split("@")[0] || "Dharshan";
   const initial = displayName?.[0]?.toUpperCase() || "D";
 
   const gridItems = [
     { label: "My Lists", icon: "📋", color: "#34C759" },
-    { label: "Progress", icon: "📈", color: "#FF9500", onClick: () => { onClose(); onProgress(); } }
+    { label: "Progress", icon: "📈", color: "#FF9500", onClick: () => { onClose(); onProgress && onProgress(); } }
   ];
 
   const listItems = [
-    { label: "My Playgrounds", icon: "🧪", highlight: true },
-    { label: "Settings", icon: "⚙️", highlight: true, onClick: () => { onClose(); onSettings(); } }
+    { label: "My Playgrounds", icon: "🧪", highlight: true, onClick: () => { onClose(); onMyPlaygrounds && onMyPlaygrounds(); } },
+    { label: "Settings", icon: "⚙️", highlight: true, onClick: () => { onClose(); onSettings && onSettings(); } }
   ];
 
   return (
@@ -1361,10 +1368,7 @@ export const HomeScreen = ({ onEnter, user, onLogout, progress, onLoginClick, on
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 12, position: "relative" }}>
-            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-              style={{ background: "#E5F1FF", color: "#0071E3", padding: "10px 24px", borderRadius: 24, fontSize: 14, fontWeight: 800, border: "none" }}>
-              📄 Syllabus
-            </motion.button>
+
             <div style={{ display: "flex", alignItems: "center", gap: 12, borderLeft: "1px solid #EEE", paddingLeft: 16 }}>
               {user ? (
                 <>
@@ -1499,25 +1503,19 @@ const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress, user, on
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg)" }}>
-      {/* Analytics Trigger */}
-      <motion.button onClick={() => setShowReport(true)}
-        initial={{ scale: 0 }} animate={{ scale: 1 }} whileHover={{ scale: 1.1, rotate: 5, boxShadow: "0 20px 40px rgba(0,255,140,0.3)" }} whileTap={{ scale: 0.9 }}
-        style={{ position: "fixed", bottom: 48, right: 48, width: 80, height: 80, borderRadius: "50%", background: "var(--teal)", color: "white", fontSize: 32, boxShadow: "0 12px 32px rgba(0,0,0,0.15)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", border: "5px solid white" }}>
-        📊
-      </motion.button>
       {showReport && <PerformanceReport analytics={analytics} onClose={() => setShowReport(false)} />}
-      <div style={{ position: "fixed", top: 32, left: "50%", transform: "translateX(-50%)", zIndex: 1000, width: "90%", maxWidth: 1100 }}>
+      <div style={{ position: "fixed", top: 20, left: "50%", transform: "translateX(-50%)", zIndex: 1000, width: "95%", maxWidth: 1200 }}>
         <div style={{
-          background: "rgba(255, 255, 255, 0.9)", backdropFilter: "blur(24px)", borderRadius: 40,
-          padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between",
-          boxShadow: "0 20px 60px rgba(0,0,0,0.1)", border: "1px solid rgba(255,255,255,0.6)"
+          background: "rgba(255, 255, 255, 0.9)", backdropFilter: "blur(24px)", borderRadius: 24,
+          padding: "10px 20px", display: "flex", alignItems: "center", justifyContent: "space-between",
+          boxShadow: "0 10px 40px rgba(0,0,0,0.06)", border: "1px solid rgba(0,0,0,0.05)"
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-            <motion.button onClick={onBack} whileHover={{ x: -6 }} style={{ background: "none", border: "none", display: "flex", alignItems: "center", gap: 8, color: "var(--teal)", fontSize: 16, fontWeight: 900, cursor: "pointer", paddingLeft: 20 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <motion.button onClick={onBack} whileHover={{ x: -4 }} style={{ background: "none", border: "none", display: "flex", alignItems: "center", gap: 6, color: "var(--teal)", fontSize: 14, fontWeight: 900, cursor: "pointer", paddingLeft: 12 }}>
               ‹ HOME
             </motion.button>
-            <div style={{ height: 28, width: 1.5, background: "#F0F0F0" }} />
-            <span style={{ fontSize: 18, fontWeight: 900, letterSpacing: -1, color: "#1D1D1F" }}>THE KNOWLEDGE ENGINE</span>
+            <div style={{ height: 24, width: 1.5, background: "#EAEAEA" }} />
+            <span style={{ fontSize: 16, fontWeight: 900, letterSpacing: -0.5, color: "#1D1D1F" }}>THE KNOWLEDGE ENGINE</span>
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#F5F5F7", padding: 6, borderRadius: 32 }}>
@@ -1539,7 +1537,7 @@ const DSAScreen = ({ level, setLevel, onSelectModule, onBack, progress, user, on
               {initial}
             </motion.div>
             <AnimatePresence>
-              {showProfile && <UserDashboard user={user} onLogout={() => { onBack(); window.location.reload(); }} onClose={() => setShowProfile(false)} onSettings={onSettings} onProgress={onShowProgress} />}
+              {showProfile && <UserDashboard user={user} onLogout={() => { onBack(); window.location.reload(); }} onClose={() => setShowProfile(false)} onSettings={onSettings} onProgress={() => setShowReport(true)} onMyPlaygrounds={() => setActiveTab("interview")} />}
             </AnimatePresence>
           </div>
         </div>
@@ -1583,15 +1581,22 @@ const SettingsScreen = ({ user, setUser, onBack, onLogout, onShowProgress }) => 
   const displayName = user?.name || user?.user_metadata?.display_name || user?.email?.split("@")[0] || "Student";
   const [notifications, setNotifications] = useState({
     "Ranking Updates": true,
-    "Post Comments": true,
     "Awards Received": true,
-    "Important Announcements": true,
-    "Weekly Newsletter": false,
-    "Promotion Events": false
+    "Important Announcements": true
   });
 
   const toggleNotification = (key) => {
-    setNotifications(prev => ({ ...prev, [key]: !prev[key] }));
+    setNotifications(prev => {
+      const isNowOn = !prev[key];
+      if (isNowOn) {
+        if (key === "Ranking Updates") {
+          alert(`Ranking Updates will gracefully be sent via email to: ${user?.email || "your registered email"}!`);
+        } else if (key === "Awards Received") {
+          alert(`Your award certificates will now be automatically generated and sent directly to your email!`);
+        }
+      }
+      return { ...prev, [key]: isNowOn };
+    });
   };
 
   const tabs = ["Account", "Progress", "Notifications"];
@@ -1599,26 +1604,25 @@ const SettingsScreen = ({ user, setUser, onBack, onLogout, onShowProgress }) => 
   const renderContent = () => {
     if (activeTab === "Notifications") {
       return (
-        <div style={{ color: "white" }}>
+        <div style={{ color: "var(--text)" }}>
           <div style={{ marginBottom: 40 }}>
             <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Site Notification</h3>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginBottom: 20 }}>Receive Website / Browser Notifications</p>
-            <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(255,255,255,0.05)" }}>
+            <p style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 20 }}>Receive Website / Browser Notifications</p>
+            <div style={{ background: "white", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(0,0,0,0.08)", boxShadow: "0 4px 16px rgba(0,0,0,0.03)" }}>
               {[
                 { label: "Ranking Updates", icon: "📊" },
-                { label: "Post Comments", icon: "💬" },
                 { label: "Awards Received", icon: "🥇" }
               ].map((item, i) => (
-                <div key={item.label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px", borderBottom: i < 2 ? "1px solid rgba(255,255,255,0.05)" : "none" }}>
+                <div key={item.label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px", borderBottom: i < 1 ? "1px solid rgba(0,0,0,0.05)" : "none" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                     <span style={{ fontSize: 18, opacity: 0.7 }}>{item.icon}</span>
                     <span style={{ fontSize: 14, fontWeight: 600 }}>{item.label}</span>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <div onClick={() => toggleNotification(item.label)} style={{ width: 44, height: 24, background: notifications[item.label] ? "#0071E3" : "rgba(255,255,255,0.1)", borderRadius: 12, position: "relative", cursor: "pointer", transition: "0.3s" }}>
-                      <div style={{ position: "absolute", left: notifications[item.label] ? 22 : 2, top: 2, width: 20, height: 20, background: "white", borderRadius: "50%", transition: "0.3s" }} />
+                    <div onClick={() => toggleNotification(item.label)} style={{ width: 44, height: 24, background: notifications[item.label] ? "#0071E3" : "rgba(0,0,0,0.1)", borderRadius: 12, position: "relative", cursor: "pointer", transition: "0.3s" }}>
+                      <div style={{ position: "absolute", left: notifications[item.label] ? 22 : 2, top: 2, width: 20, height: 20, background: "white", borderRadius: "50%", transition: "0.3s", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }} />
                     </div>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: notifications[item.label] ? "white" : "rgba(255,255,255,0.5)", width: 24 }}>{notifications[item.label] ? "On" : "Off"}</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: notifications[item.label] ? "var(--text)" : "var(--text-muted)", width: 24 }}>{notifications[item.label] ? "On" : "Off"}</span>
                   </div>
                 </div>
               ))}
@@ -1627,23 +1631,21 @@ const SettingsScreen = ({ user, setUser, onBack, onLogout, onShowProgress }) => 
 
           <div>
             <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Email</h3>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginBottom: 20 }}>Receive notifications via your primary email.</p>
-            <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(255,255,255,0.05)" }}>
+            <p style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 20 }}>When the app is down or under maintenance, we will email you automatically.</p>
+            <div style={{ background: "white", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(0,0,0,0.08)", boxShadow: "0 4px 16px rgba(0,0,0,0.03)" }}>
               {[
-                { label: "Important Announcements", icon: "📢" },
-                { label: "Weekly Newsletter", icon: "📰" },
-                { label: "Promotion Events", icon: "🎁" }
+                { label: "Important Announcements", icon: "📢" }
               ].map((item, i) => (
-                <div key={item.label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px", borderBottom: i < 2 ? "1px solid rgba(255,255,255,0.05)" : "none" }}>
+                <div key={item.label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                     <span style={{ fontSize: 18, opacity: 0.7 }}>{item.icon}</span>
                     <span style={{ fontSize: 14, fontWeight: 600 }}>{item.label}</span>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <div onClick={() => toggleNotification(item.label)} style={{ width: 44, height: 24, background: notifications[item.label] ? "#0071E3" : "rgba(255,255,255,0.1)", borderRadius: 12, position: "relative", cursor: "pointer", transition: "0.3s" }}>
-                      <div style={{ position: "absolute", left: notifications[item.label] ? 22 : 2, top: 2, width: 20, height: 20, background: "white", borderRadius: "50%", transition: "0.3s" }} />
+                    <div onClick={() => toggleNotification(item.label)} style={{ width: 44, height: 24, background: notifications[item.label] ? "#0071E3" : "rgba(0,0,0,0.1)", borderRadius: 12, position: "relative", cursor: "pointer", transition: "0.3s" }}>
+                      <div style={{ position: "absolute", left: notifications[item.label] ? 22 : 2, top: 2, width: 20, height: 20, background: "white", borderRadius: "50%", transition: "0.3s", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }} />
                     </div>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: notifications[item.label] ? "white" : "rgba(255,255,255,0.5)", width: 24 }}>{notifications[item.label] ? "On" : "Off"}</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: notifications[item.label] ? "var(--text)" : "var(--text-muted)", width: 24 }}>{notifications[item.label] ? "On" : "Off"}</span>
                   </div>
                 </div>
               ))}
@@ -1657,7 +1659,6 @@ const SettingsScreen = ({ user, setUser, onBack, onLogout, onShowProgress }) => 
       const providers = user?.user?.app_metadata?.providers || [];
       const hasGoogle = providers.includes("google");
       const hasGithub = providers.includes("github");
-      const hasApple = providers.includes("apple");
 
       const handleSave = async (e, key) => {
         e.stopPropagation();
@@ -1669,13 +1670,14 @@ const SettingsScreen = ({ user, setUser, onBack, onLogout, onShowProgress }) => 
           else if (key === "password") updates = { password: editValue };
           else updates = { [key]: editValue };
 
-          const data = await supabase.updateUser(user.access_token, updates);
+          const updatedUser = await supabase.updateUser(user.access_token, updates);
 
           const newSession = {
             ...user,
-            user: data.user,
-            email: data.user.email,
-            name: data.user.user_metadata?.display_name || user.name
+            user: updatedUser,
+            email: updatedUser.email,
+            name: updatedUser.user_metadata?.display_name || user.name,
+            phone: updatedUser.phone || user.phone
           };
           sessionStorage.setItem(SESSION_KEY, JSON.stringify(newSession));
           if (setUser) setUser(newSession);
@@ -1687,24 +1689,23 @@ const SettingsScreen = ({ user, setUser, onBack, onLogout, onShowProgress }) => 
       };
 
       return (
-        <div style={{ color: "white" }}>
+        <div style={{ color: "var(--text)" }}>
           <div style={{ marginBottom: 40 }}>
             <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>General</h3>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginBottom: 20 }}>You can log in using your email, phone number, or CodeLoom ID. Click any row to edit.</p>
-            <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(255,255,255,0.05)" }}>
+            <p style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 20 }}>You can log in using your email or CodeLoom ID. Click any row to edit.</p>
+            <div style={{ background: "white", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(0,0,0,0.08)", boxShadow: "0 4px 16px rgba(0,0,0,0.03)" }}>
               {[
                 { key: "display_name", label: "CodeLoom ID", value: displayName, icon: "👤" },
                 { key: "email", label: "Email", value: user?.email || user?.user?.email || "Not Provided", icon: "✉️" },
-                { key: "phone", label: "Phone Number", value: user?.phone || user?.user?.phone || user?.user_metadata?.phone || "Not linked", icon: "📞" },
                 { key: "password", label: "Password", value: "••••••••", icon: "🔑" }
               ].map((item, i) => (
-                <div key={item.key} onClick={() => { if (editingField !== item.key) { setEditingField(item.key); setEditValue(item.key === 'password' ? '' : item.value === "Not Provided" || item.value === "Not linked" ? "" : item.value); } }} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px", cursor: "pointer", borderBottom: i < 3 ? "1px solid rgba(255,255,255,0.05)" : "none", transition: "0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.02)"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
+                <div key={item.key} onClick={() => { if (editingField !== item.key) { setEditingField(item.key); setEditValue(item.key === 'password' ? '' : item.value === "Not Provided" || item.value === "Not linked" ? "" : item.value); } }} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px", cursor: "pointer", borderBottom: i < 2 ? "1px solid rgba(0,0,0,0.05)" : "none", transition: "0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "rgba(0,0,0,0.02)"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
                   {editingField === item.key ? (
                     <div style={{ display: "flex", width: "100%", gap: 12, alignItems: "center" }}>
                       <span style={{ fontSize: 18, opacity: 0.7 }}>{item.icon}</span>
-                      <input autoFocus type={item.key === "password" ? "password" : "text"} placeholder={`Enter new ${item.label.toLowerCase()}...`} value={editValue} onChange={e => setEditValue(e.target.value)} style={{ flex: 1, background: "rgba(0,0,0,0.5)", border: "1px solid #333", color: "white", padding: "10px 14px", borderRadius: 8, fontSize: 14 }} />
+                      <input autoFocus type={item.key === "password" ? "password" : "text"} placeholder={`Enter new ${item.label.toLowerCase()}...`} value={editValue} onChange={e => setEditValue(e.target.value)} style={{ flex: 1, background: "white", border: "1px solid rgba(0,0,0,0.1)", color: "var(--text)", padding: "10px 14px", borderRadius: 8, fontSize: 14 }} />
                       <button disabled={isSaving} onClick={(e) => handleSave(e, item.key)} style={{ background: "#0071E3", color: "white", border: "none", borderRadius: 8, padding: "10px 16px", fontWeight: 700, cursor: "pointer", opacity: isSaving ? 0.6 : 1 }}>{isSaving ? "Saving..." : "Save"}</button>
-                      <button disabled={isSaving} onClick={(e) => { e.stopPropagation(); setEditingField(null); }} style={{ background: "transparent", color: "rgba(255,255,255,0.5)", border: "none", cursor: "pointer", padding: "10px" }}>Cancel</button>
+                      <button disabled={isSaving} onClick={(e) => { e.stopPropagation(); setEditingField(null); }} style={{ background: "transparent", color: "var(--text-muted)", border: "none", cursor: "pointer", padding: "10px" }}>Cancel</button>
                     </div>
                   ) : (
                     <>
@@ -1712,7 +1713,7 @@ const SettingsScreen = ({ user, setUser, onBack, onLogout, onShowProgress }) => 
                         <span style={{ fontSize: 18, opacity: 0.7 }}>{item.icon}</span>
                         <div>
                           <span style={{ fontSize: 14, fontWeight: 800 }}>{item.label}</span>
-                          <span style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginLeft: 16 }}>{item.value}</span>
+                          <span style={{ fontSize: 13, color: "var(--text-muted)", marginLeft: 16 }}>{item.value}</span>
                         </div>
                       </div>
                       <span style={{ fontSize: 18, opacity: 0.3, fontWeight: 300 }}>✎</span>
@@ -1725,14 +1726,13 @@ const SettingsScreen = ({ user, setUser, onBack, onLogout, onShowProgress }) => 
 
           <div>
             <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Social Accounts</h3>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginBottom: 20 }}>Connect social accounts to sign in to CodeLoom.</p>
+            <p style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 20 }}>Connect social accounts to sign in to CodeLoom.</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {[
                 { name: "Google", connected: hasGoogle, action: supabase.signInWithGoogle, icon: "G" },
-                { name: "Github", connected: hasGithub, action: supabase.signInWithGithub, icon: "🐙" },
-                { name: "Apple", connected: hasApple, action: null, icon: "🍎" }
+                { name: "Github", connected: hasGithub, action: supabase.signInWithGithub, icon: "🐙" }
               ].map(social => (
-                <div key={social.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 24px", background: "rgba(255,255,255,0.02)", borderRadius: 16, border: "1px solid rgba(255,255,255,0.05)" }}>
+                <div key={social.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 24px", background: "white", borderRadius: 16, border: "1px solid rgba(0,0,0,0.08)", boxShadow: "0 4px 16px rgba(0,0,0,0.03)" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                     <span style={{ fontSize: 18 }}>{social.icon}</span>
                     <span style={{ fontSize: 14, fontWeight: 600 }}>{social.name}</span>
@@ -1742,7 +1742,7 @@ const SettingsScreen = ({ user, setUser, onBack, onLogout, onShowProgress }) => 
                       ✅ Connected
                     </div>
                   ) : (
-                    <button onClick={social.action} disabled={!social.action} style={{ padding: "8px 24px", borderRadius: 8, background: "white", color: "#1D1D1F", border: "none", fontSize: 13, fontWeight: 800, cursor: social.action ? "pointer" : "not-allowed", opacity: social.action ? 1 : 0.4 }}>Connect</button>
+                    <button onClick={social.action} disabled={!social.action} style={{ padding: "8px 24px", borderRadius: 8, background: "rgba(0,0,0,0.05)", color: "#1D1D1F", border: "1px solid rgba(0,0,0,0.1)", fontSize: 13, fontWeight: 800, cursor: social.action ? "pointer" : "not-allowed", opacity: social.action ? 1 : 0.4 }}>Connect</button>
                   )}
                 </div>
               ))}
@@ -1754,28 +1754,28 @@ const SettingsScreen = ({ user, setUser, onBack, onLogout, onShowProgress }) => 
 
     if (activeTab === "Progress") {
       return (
-        <div style={{ color: "white", textAlign: "center", padding: "80px 0" }}>
+        <div style={{ color: "var(--text)", textAlign: "center", padding: "80px 0" }}>
           <div style={{ fontSize: 60, marginBottom: 24 }}>📈</div>
           <h3 style={{ fontSize: 24, fontWeight: 800, marginBottom: 16 }}>Your DSA Progress</h3>
-          <p style={{ color: "rgba(255,255,255,0.4)", marginBottom: 40, maxWidth: 400, margin: "0 auto 40px" }}>Monitor your growth, solved problems, and interview readiness from our advanced tracking dashboard.</p>
+          <p style={{ color: "var(--text-muted)", marginBottom: 40, maxWidth: 400, margin: "0 auto 40px" }}>Monitor your growth, solved problems, and interview readiness from our advanced tracking dashboard.</p>
           <button onClick={onShowProgress} style={{ padding: "14px 40px", borderRadius: 12, background: "#0071E3", color: "white", border: "none", fontSize: 16, fontWeight: 900, cursor: "pointer", boxShadow: "0 10px 30px rgba(0,113,227,0.3)" }}>Open Dashboard</button>
         </div>
       );
     }
 
     return (
-      <div style={{ color: "white", textAlign: "center", padding: "80px 0" }}>
+      <div style={{ color: "var(--text)", textAlign: "center", padding: "80px 0" }}>
         <div style={{ fontSize: 40, marginBottom: 20 }}>🏗️</div>
         <h3 style={{ fontSize: 20, fontWeight: 800 }}>{activeTab} Settings</h3>
-        <p style={{ color: "rgba(255,255,255,0.4)", marginTop: 8 }}>This section is currently under development.</p>
+        <p style={{ color: "var(--text-muted)", marginTop: 8 }}>This section is currently under development.</p>
       </div>
     );
   };
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ minHeight: "100vh", background: "#0D0D0E", color: "white" }}>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ minHeight: "100vh", background: "var(--bg)", color: "var(--text)" }}>
       {/* Settings Header */}
-      <div style={{ borderBottom: "1px solid rgba(255,255,255,0.05)", padding: "20px 48px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <div style={{ borderBottom: "1px solid rgba(0,0,0,0.05)", padding: "20px 48px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "white", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
           <motion.button onClick={onBack} whileHover={{ x: -4 }} style={{ background: "none", border: "none", color: "#0071E3", fontSize: 15, fontWeight: 900, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}>
             ‹ BACK
@@ -1783,8 +1783,8 @@ const SettingsScreen = ({ user, setUser, onBack, onLogout, onShowProgress }) => 
           <div style={{ fontSize: 20, fontWeight: 900 }}>Settings</div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: "rgba(255,255,255,0.6)" }}>{displayName}</div>
-          <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900 }}>{displayName[0]}</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text)" }}>{displayName}</div>
+          <div style={{ width: 36, height: 36, borderRadius: "50%", background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, border: "1px solid rgba(0,0,0,0.1)" }}>{displayName[0]}</div>
         </div>
       </div>
 
@@ -1793,18 +1793,19 @@ const SettingsScreen = ({ user, setUser, onBack, onLogout, onShowProgress }) => 
         <div style={{ width: 240, display: "flex", flexDirection: "column", gap: 4 }}>
           {tabs.map(t => (
             <motion.div key={t} onClick={() => setActiveTab(t)}
-              whileHover={{ background: activeTab === t ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.03)" }}
+              whileHover={{ background: activeTab === t ? "rgba(0,0,0,0.05)" : "rgba(0,0,0,0.03)" }}
               style={{
                 padding: "12px 20px", borderRadius: 12, cursor: "pointer", transition: "0.2s",
-                background: activeTab === t ? "rgba(255,255,255,0.05)" : "transparent",
-                color: activeTab === t ? "white" : "rgba(255,255,255,0.5)",
-                fontWeight: activeTab === t ? 800 : 500
+                background: activeTab === t ? "white" : "transparent",
+                color: activeTab === t ? "var(--text)" : "var(--text-muted)",
+                fontWeight: activeTab === t ? 800 : 500,
+                boxShadow: activeTab === t ? "0 4px 12px rgba(0,0,0,0.03)" : "none"
               }}>
               {t}
             </motion.div>
           ))}
-          <div style={{ marginTop: 20, paddingTop: 20, borderTop: "1px solid rgba(255,255,255,0.05)" }}>
-            <div style={{ padding: "12px 20px", color: "rgba(255,255,255,0.4)", fontSize: 13, cursor: "pointer" }}>Profile Settings ↗</div>
+          <div style={{ marginTop: 20, paddingTop: 20, borderTop: "1px solid rgba(0,0,0,0.05)" }}>
+            <div style={{ padding: "12px 20px", color: "var(--text-muted)", fontSize: 13, cursor: "pointer" }}>Profile Settings ↗</div>
           </div>
         </div>
 
@@ -1816,7 +1817,7 @@ const SettingsScreen = ({ user, setUser, onBack, onLogout, onShowProgress }) => 
       </div>
 
       <div style={{ position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)", width: "100%", textAlign: "center" }}>
-        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.2)" }}>Copyright © 2026 CodeLoom • Help Center • Jobs • Privacy Policy</div>
+        <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Copyright © 2026 CodeLoom • Help Center • Jobs • Privacy Policy</div>
       </div>
     </motion.div>
   );
@@ -1831,8 +1832,8 @@ const LearnTab = ({ level, setLevel, onSelectModule, progress, onExploreVisualiz
   return (
     <div style={{ animation: "fadeIn 0.6s ease-out" }}>
       <div style={{ marginBottom: 60, textAlign: "center" }}>
-        <h2 style={{ fontSize: 56, fontWeight: 900, letterSpacing: -2, color: "#1D1D1F", marginBottom: 20 }}>The Knowledge Map</h2>
-        <p style={{ color: "var(--text-muted)", fontSize: 22, maxWidth: 640, margin: "0 auto", fontWeight: 500 }}>
+        <h2 style={{ fontSize: 44, fontWeight: 900, letterSpacing: -1.5, color: "#1D1D1F", marginBottom: 12 }}>The Knowledge Map</h2>
+        <p style={{ color: "var(--text-muted)", fontSize: 18, maxWidth: 640, margin: "0 auto", fontWeight: 500 }}>
           Master foundational structures through immersive reading and detailed theory.
         </p>
       </div>
@@ -1845,41 +1846,29 @@ const LearnTab = ({ level, setLevel, onSelectModule, progress, onExploreVisualiz
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))", gap: 32 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 24 }}>
         {MODULES.map((m, i) => {
           const color = MOD_COLORS[m];
           const p = modProgress(m);
           return (
             <motion.div
               key={m} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.05 }}
-              whileHover={{ y: -12, boxShadow: "var(--shadow-lg)" }}
+              whileHover={{ y: -8, boxShadow: "var(--shadow-lg)" }}
               onClick={() => onSelectModule(m)}
               style={{
-                background: "white", borderRadius: 40, padding: 0, overflow: "hidden", cursor: "pointer", border: "1.5px solid #F0F0F0", transition: "all 0.4s cubic-bezier(0.22, 1, 0.36, 1)"
+                background: "white", borderRadius: 24, padding: 0, overflow: "hidden", cursor: "pointer", border: "1.5px solid #F0F0F0", transition: "all 0.3s cubic-bezier(0.22, 1, 0.36, 1)"
               }}
             >
-              <div style={{ height: 180, background: `${color}12`, position: "relative", overflow: "hidden" }}>
-                <motion.div initial={{ x: -20, opacity: 0 }} whileInView={{ x: 0, opacity: 1 }} style={{ position: "absolute", top: 40, left: 40, width: 64, height: 64, borderRadius: 20, background: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, boxShadow: "0 10px 20px rgba(0,0,0,0.05)", border: "1.5px solid #F0F0F0" }}>{MOD_ICONS[m]}</motion.div>
-                <div style={{ position: "absolute", bottom: 32, left: 40 }}>
-                  <div style={{ fontSize: 11, fontWeight: 900, color: color, textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 4 }}>Curriculum</div>
-                  <div style={{ fontSize: 24, fontWeight: 900, color: "#1D1D1F", letterSpacing: -0.5 }}>{m}</div>
+              <div style={{ height: 140, background: `${color}12`, position: "relative", overflow: "hidden" }}>
+                <motion.div initial={{ x: -20, opacity: 0 }} whileInView={{ x: 0, opacity: 1 }} style={{ position: "absolute", top: 24, left: 24, width: 48, height: 48, borderRadius: 16, background: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, boxShadow: "0 8px 16px rgba(0,0,0,0.05)", border: "1.5px solid #F0F0F0" }}>{MOD_ICONS[m]}</motion.div>
+                <div style={{ position: "absolute", bottom: 20, left: 24 }}>
+                  <div style={{ fontSize: 10, fontWeight: 900, color: color, textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 4 }}>Curriculum</div>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: "#1D1D1F", letterSpacing: -0.5 }}>{m}</div>
                 </div>
               </div>
 
-              <div style={{ padding: 40 }}>
-                <p style={{ fontSize: 14, color: "var(--text-muted)", fontWeight: 600, lineHeight: 1.6, marginBottom: 32 }}>Build deep architectural intuition for {m} with practical examples.</p>
-                <div style={{ display: "flex", gap: 12, marginBottom: 24 }}>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const algKey = m === "Recursion" ? "factorial" : m.toLowerCase().replace(/\s+\/\s+/g, "_").replace(/\s+/g, "_");
-                      onExploreVisualizer(algKey);
-                    }}
-                    style={{ background: `${color}15`, color: color, border: `1px solid ${color}33`, padding: "8px 16px", borderRadius: 12, fontSize: 12, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
-                  >
-                    🎨 Visualize
-                  </button>
-                </div>
+              <div style={{ padding: 24 }}>
+                <p style={{ fontSize: 13, color: "var(--text-muted)", fontWeight: 600, lineHeight: 1.6, marginBottom: 24 }}>Build deep architectural intuition for {m} with practical examples.</p>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
                   <span style={{ fontSize: 11, fontWeight: 900, color: "#1D1D1F" }}>{p < 100 ? "IN PROGRESS" : " COMPLETED"}</span>
                   <span style={{ fontSize: 11, fontWeight: 900, color: color }}>{Math.round(p)}%</span>
@@ -2634,24 +2623,24 @@ const CodeArenaTab = ({ logSession }) => {
       {!selMod ? (
         <div style={{ animation: "fadeIn 0.5s ease-out" }}>
           <div style={{ marginBottom: 60, textAlign: "center" }}>
-            <h2 style={{ fontSize: 56, fontWeight: 900, letterSpacing: -2, color: "#1D1D1F", marginBottom: 20 }}>Battle Arena</h2>
-            <p style={{ color: "var(--text-muted)", fontSize: 22, maxWidth: 640, margin: "0 auto", fontWeight: 500 }}>Choose a domain to start your implementation journey.</p>
+            <h2 style={{ fontSize: 44, fontWeight: 900, letterSpacing: -1.5, color: "#1D1D1F", marginBottom: 12 }}>Battle Arena</h2>
+            <p style={{ color: "var(--text-muted)", fontSize: 18, maxWidth: 640, margin: "0 auto", fontWeight: 500 }}>Choose a domain to start your implementation journey.</p>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 24 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 20 }}>
             {MODULES.map((m, i) => {
               const c = MOD_COLORS[m];
               const desc = MOD_DESCS[m];
               return (
                 <motion.div
                   key={m} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.03 }}
-                  whileHover={{ y: -10, boxShadow: "var(--shadow-lg)" }}
+                  whileHover={{ y: -6, boxShadow: "var(--shadow-lg)" }}
                   onClick={() => setSelMod(m)}
-                  style={{ background: "white", borderRadius: 40, padding: "40px", border: "1.5px solid #F0F0F0", cursor: "pointer", transition: "all 0.4s cubic-bezier(0.22, 1, 0.36, 1)" }}
+                  style={{ background: "white", borderRadius: 24, padding: "28px 24px", border: "1.5px solid #F0F0F0", cursor: "pointer", transition: "all 0.3s cubic-bezier(0.22, 1, 0.36, 1)" }}
                 >
-                  <div style={{ width: 64, height: 64, borderRadius: 20, background: `${c}12`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, marginBottom: 28, border: "1.5px solid #F0F0F0" }}>{MOD_ICONS[m]}</div>
-                  <h3 style={{ fontSize: 22, fontWeight: 900, color: "#1D1D1F", marginBottom: 12, letterSpacing: -0.5 }}>{m}</h3>
-                  <p style={{ fontSize: 13, color: "var(--text-muted)", fontWeight: 600, lineHeight: 1.6 }}>{desc}</p>
+                  <div style={{ width: 48, height: 48, borderRadius: 16, background: `${c}12`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, marginBottom: 20, border: "1.5px solid #F0F0F0" }}>{MOD_ICONS[m]}</div>
+                  <h3 style={{ fontSize: 18, fontWeight: 900, color: "#1D1D1F", marginBottom: 8, letterSpacing: -0.5 }}>{m}</h3>
+                  <p style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 600, lineHeight: 1.5 }}>{desc}</p>
                 </motion.div>
               );
             })}
@@ -2994,7 +2983,7 @@ const ProgressCard = ({ module: mod, progress, total, type }) => {
 ============================================================ */
 const MODULE_TABS = [["concept", "📖 Concept"], ["visual", "🎬 Visualizer"], ["program", "💻 Code"]];
 
-const ModuleScreen = ({ module: mod, data, subScreen, setSubScreen, onBack, logSession }) => {
+const ModuleScreen = ({ module: mod, data, subScreen, setSubScreen, onBack, logSession, onExploreVisualizer }) => {
   const color = MOD_COLORS[mod] || "#0071e3";
 
   // Auto-open concept tab when first entering the module
@@ -3072,7 +3061,7 @@ const ModuleScreen = ({ module: mod, data, subScreen, setSubScreen, onBack, logS
           )}
           {subScreen === "visual" && (
             <motion.div key="v" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ ease: [0.22, 1, 0.36, 1] }}>
-              <VisualPanel module={mod} color={color} />
+              <VisualPanel module={mod} color={color} onExploreVisualizer={onExploreVisualizer} />
             </motion.div>
           )}
           {subScreen === "program" && data && (
@@ -3137,16 +3126,46 @@ const ConceptPanel = ({ data, color }) => (
 const ProgramPanel = ({ data, module: mod, color }) => {
   const [copied, setCopied] = useState(false);
   const copy = () => { navigator.clipboard.writeText(data.java || ""); setCopied(true); setTimeout(() => setCopied(false), 2000); };
+
+  let codeStr = data.java || "";
+  let outputStr = "";
+
+  const outputMatch = codeStr.match(/\/\*[\s\S]*?(?:Output|Output:)([\s\S]*?)\*\//i);
+  if (outputMatch) {
+    outputStr = outputMatch[1].trim();
+    codeStr = codeStr.replace(outputMatch[0], "").trim();
+  } else {
+    // Sometimes it's a single line comment // Output: 
+    const singleLineOutputMatch = codeStr.match(/\/\/\s*Output:\s*([\s\S]*)$/i);
+    if (singleLineOutputMatch) {
+      outputStr = singleLineOutputMatch[1].trim();
+      codeStr = codeStr.replace(singleLineOutputMatch[0], "").trim();
+    }
+  }
+
   return (
-    <div style={{ background: "#1d2126", borderRadius: 20, overflow: "hidden", boxShadow: "var(--shadow-lg)" }}>
-      <div style={{ padding: "14px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", gap: 7 }}>{["#ff5f56", "#ffbd2e", "#27c93f"].map(c => <div key={c} style={{ width: 12, height: 12, borderRadius: "50%", background: c }} />)}</div>
-        <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "rgba(255,255,255,0.35)" }}>{mod}.java</span>
-        <button onClick={copy} style={{ fontSize: 12, fontFamily: "var(--font-mono)", color: copied ? "#27c93f" : "rgba(255,255,255,0.35)", background: "none", cursor: "pointer", transition: "color 0.2s", fontWeight: copied ? 600 : 400 }}>
-          {copied ? "✓ Copied" : "Copy"}
-        </button>
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ background: "#1d2126", borderRadius: 20, overflow: "hidden", boxShadow: "var(--shadow-lg)" }}>
+        <div style={{ padding: "14px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", gap: 7 }}>{["#ff5f56", "#ffbd2e", "#27c93f"].map(c => <div key={c} style={{ width: 12, height: 12, borderRadius: "50%", background: c }} />)}</div>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "rgba(255,255,255,0.35)" }}>{mod}.java</span>
+          <button onClick={copy} style={{ fontSize: 12, fontFamily: "var(--font-mono)", color: copied ? "#27c93f" : "rgba(255,255,255,0.35)", background: "none", border: "none", cursor: "pointer", transition: "color 0.2s", fontWeight: copied ? 600 : 400 }}>
+            {copied ? "✓ Copied" : "Copy"}
+          </button>
+        </div>
+        <pre style={{ margin: 0, padding: 28, fontSize: 13, lineHeight: 1.9, color: "#abb2bf", overflowX: "auto", maxHeight: 520 }}><code>{codeStr}</code></pre>
       </div>
-      <pre style={{ padding: 28, fontSize: 13, lineHeight: 1.9, color: "#abb2bf", overflowX: "auto", maxHeight: 520 }}><code>{data.java}</code></pre>
+
+      {outputStr && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} style={{ background: "#0d0e12", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)", boxShadow: "0 8px 24px rgba(0,0,0,0.2)" }}>
+          <div style={{ padding: "12px 20px", background: "rgba(255,255,255,0.03)", borderBottom: "1px solid rgba(255,255,255,0.04)", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: 1, display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 14 }}>Terminal</span>
+          </div>
+          <pre style={{ margin: 0, padding: "20px 24px", fontSize: 13, lineHeight: 1.6, color: "#a8c7fa", fontFamily: "var(--font-mono)", overflowX: "auto" }}>
+            {outputStr}
+          </pre>
+        </motion.div>
+      )}
     </div>
   );
 };
@@ -3154,10 +3173,26 @@ const ProgramPanel = ({ data, module: mod, color }) => {
 /* ============================================================
    VISUALIZERS
 ============================================================ */
-const VisualPanel = ({ module: mod, color }) => {
+const VisualPanel = ({ module: mod, color, onExploreVisualizer }) => {
   const hasViz = ["Stack", "Queue", "Linear Search", "Bubble Sort", "Selection Sort", "Insertion Sort", "Merge Sort", "Quick Sort", "Binary Search", "Linked Lists", "Recursion", "Trees", "Binary Search Trees", "Graphs"].includes(mod);
   return (
     <div style={{ background: "white", border: "1.5px solid var(--border)", borderRadius: 20, padding: 36, boxShadow: "var(--shadow)", minHeight: 400, display: "flex", flexDirection: "column", justifyContent: hasViz ? "flex-start" : "center", alignItems: hasViz ? "stretch" : "center", textAlign: "center" }}>
+      {hasViz && (
+        <div style={{ marginBottom: 24, paddingBottom: 24, borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ textAlign: "left" }}>
+            <h3 style={{ fontSize: 20, fontWeight: 800 }}>Explore Visual Playground</h3>
+            <p style={{ fontSize: 13, color: "var(--text-muted)" }}>Open the full playground to write, step through, and analyze the memory state of {mod}.</p>
+          </div>
+          <button
+            onClick={() => {
+              const algKey = mod === "Recursion" ? "factorial" : mod.toLowerCase().replace(/\s+\/\s+/g, "_").replace(/\s+/g, "_");
+              onExploreVisualizer(algKey);
+            }}
+            style={{ background: "#0071E3", color: "white", border: "none", padding: "10px 20px", borderRadius: 12, fontSize: 13, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 12px rgba(0,113,227,0.3)" }}>
+            🚀 Open Playground
+          </button>
+        </div>
+      )}
       {mod === "Stack" && <StackVisual color={color} />}
       {mod === "Queue" && <QueueVisual color={color} />}
       {mod === "Linear Search" && <LinearSearchVisual color={color} />}
@@ -4310,7 +4345,7 @@ export default function App() {
         )}
         {screen === "module" && (
           <motion.div key="module" initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
-            <ModuleScreen module={module} data={data} subScreen={subScreen} setSubScreen={setSubScreen} onBack={() => { setScreen("dsa"); setSubScreen(null); }} logSession={logSession} />
+            <ModuleScreen module={module} data={data} subScreen={subScreen} setSubScreen={setSubScreen} onBack={() => { setScreen("dsa"); setSubScreen(null); }} logSession={logSession} onExploreVisualizer={(alg) => { setSelectedPlaygroundAlg(alg); setScreen("playground"); }} />
           </motion.div>
         )}
       </AnimatePresence>

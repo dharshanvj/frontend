@@ -239,7 +239,7 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
                         {currentStep ? (
                             <>
                                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key={stepIdx} style={{ background: "rgba(0,113,227,0.1)", border: "1px solid rgba(0,113,227,0.3)", padding: "24px 32px", borderRadius: 16, color: "white", fontSize: 20, fontWeight: 800 }}>{currentStep.explanation}</motion.div>
-                                {currentStep.array && (
+                                {Array.isArray(currentStep.array) && (
                                     <div style={{ background: "#18181b", borderRadius: 16, padding: 24, border: "1px solid #222" }}>
                                         <h3 style={{ fontSize: 11, fontWeight: 900, color: "#52525b", marginBottom: 20, letterSpacing: 1 }}>MEMORY STATE</h3>
                                         <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
@@ -257,7 +257,7 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
                                         </div>
                                     </div>
                                 )}
-                                {currentStep.variables && (
+                                {currentStep.variables && typeof currentStep.variables === "object" && (
                                     <div style={{ background: "#18181b", borderRadius: 16, padding: 24, border: "1px solid #222" }}>
                                         <h3 style={{ fontSize: 11, fontWeight: 900, color: "#52525b", marginBottom: 20, letterSpacing: 1 }}>VARIABLES</h3>
                                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
