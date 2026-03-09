@@ -163,7 +163,10 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
             if (!res.ok) throw new Error("Simulator connection failed.");
 
             const data = await res.json();
-            if (data.steps && data.steps.length > 0) {
+            if (Array.isArray(data) && data.length > 0) {
+                setSteps(data);
+                setIsPlaying(true);
+            } else if (data.steps && data.steps.length > 0) {
                 setSteps(data.steps);
                 setIsPlaying(true);
             } else {
@@ -175,20 +178,22 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
         setIsLoading(false);
     };
 
-    const handleEditorDidMount = (editor) => {
+    const handleEditorDidMount = (editor, monacoInstance) => {
         editorRef.current = editor;
-        monaco.editor.defineTheme('dsa-dark', {
-            base: 'vs-dark',
-            inherit: true,
-            rules: [],
-            colors: {
-                'editor.background': '#09090b',
-                'editorLineNumber.foreground': '#3f3f46',
-                'editor.selectionBackground': '#0071e333',
-                'editorCursor.foreground': '#0071e3',
-            }
-        });
-        monaco.editor.setTheme('dsa-dark');
+        if (monacoInstance) {
+            monacoInstance.editor.defineTheme('dsa-dark', {
+                base: 'vs-dark',
+                inherit: true,
+                rules: [],
+                colors: {
+                    'editor.background': '#09090b',
+                    'editorLineNumber.foreground': '#3f3f46',
+                    'editor.selectionBackground': '#0071e333',
+                    'editorCursor.foreground': '#0071e3',
+                }
+            });
+            monacoInstance.editor.setTheme('dsa-dark');
+        }
     };
 
     return (
