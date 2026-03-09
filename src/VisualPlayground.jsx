@@ -54,17 +54,24 @@ const analyzeCode = (code) => {
     return errors;
 };
 
+const getValidAlg = (rawAlg) => {
+    if (!rawAlg) return "bubble_sort";
+    const normalized = String(rawAlg).toLowerCase().replace(/ /g, "_");
+    return ALGORITHM_CONFIGS[normalized] ? normalized : "bubble_sort";
+};
+
 const API_BASE = window.location.hostname === "localhost" ? "http://localhost:8000" : "https://backend-vix7.onrender.com";
 
 export const VisualPlayground = ({ onBack, initialAlg }) => {
-    const [alg, setAlg] = useState(initialAlg || "bubble_sort");
+    const defaultAlg = getValidAlg(initialAlg);
+    const [alg, setAlg] = useState(defaultAlg);
     const [steps, setSteps] = useState([]);
     const [stepIdx, setStepIdx] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
     const [speed, setSpeed] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [code, setCode] = useState(ALGORITHM_CONFIGS[initialAlg || "bubble_sort"]?.defaultCode || "// Write your code here...");
+    const [code, setCode] = useState(ALGORITHM_CONFIGS[defaultAlg]?.defaultCode || "// Write your code here...");
 
     const monaco = useMonaco();
     const editorRef = useRef(null);
@@ -85,10 +92,11 @@ export const VisualPlayground = ({ onBack, initialAlg }) => {
 
     useEffect(() => {
         if (initialAlg) {
-            setAlg(initialAlg);
-            const defaultCode = ALGORITHM_CONFIGS[initialAlg]?.defaultCode || `// Write logic for ${initialAlg} here...`;
+            const validAlg = getValidAlg(initialAlg);
+            setAlg(validAlg);
+            const defaultCode = ALGORITHM_CONFIGS[validAlg]?.defaultCode || `// Write logic for ${validAlg} here...`;
             setCode(defaultCode);
-            handleRun(initialAlg, defaultCode);
+            handleRun(validAlg, defaultCode);
         }
     }, [initialAlg]);
 
